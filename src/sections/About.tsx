@@ -141,7 +141,7 @@ const About = () => {
             <div className="relative group">
               <div className="absolute -inset-4 bg-gradient-to-r from-[var(--lime)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <img
-                src="/images/about-portrait.jpg"
+                src="https://api.dicebear.com/8.x/bottts/svg?seed=AIAvatar&backgroundColor=1a1a1a"
                 alt="林灶辉"
                 className="relative w-full max-w-md mx-auto lg:mx-0 rounded-2xl shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
               />
@@ -153,7 +153,7 @@ const About = () => {
           {/* Content */}
           <div ref={contentRef} className="lg:pl-12">
             <span className="about-label section-label mb-4 block">关于我</span>
-            
+
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
               <span className="about-title block">打造以用户为中心的</span>
               <span className="about-title block text-gradient">AI产品，创造持久影响力</span>
@@ -161,10 +161,10 @@ const About = () => {
 
             <div className="space-y-4 text-white/70 text-base sm:text-lg leading-relaxed mb-8">
               <p className="about-text">
-                我是一位充满热情的AI产品经理，拥有10年SaaS行业深耕经验。我主导了多个商业化SaaS产品、企业级通用AI Agent平台从0到1的完整生命周期，实现产品创新与商业价值转化。
+                10年 toB/SaaS 产品经验，先后负责过供应链中台、智慧物业客服、供应链金融、AI Agent 平台等产品的落地。对 AI 技术落地有实感，熟悉大模型、Agent、MCP 等技术原理。
               </p>
               <p className="about-text">
-                我的方法结合了战略思维、技术深度和对用户体验的深刻理解。具备从行业全局角度理解市场需求，以客户成功为导向，将技术能力转化为商业价值，从需求到交付再到商业闭环的完整能力。
+                跑通过完整商业闭环，带队达成数千万业绩。有从 0 组建跨职能团队的经历，带过 20+ 人产研团队，能够从架构设计层面对业务进行解构，实现技术创新与商业价值的深度融合。
               </p>
             </div>
 

@@ -11,29 +11,29 @@ const Experience = () => {
 
   const experiences = [
     {
-      company: 'KK集团',
+      company: 'KK集团 / 灯塔引擎',
       position: '产品负责人',
-      period: '2023.11 - 至今',
+      period: '2022.11 - 至今',
       location: '深圳',
-      description: '负责公司内部系统的商业化发展，制定技术中台产品发展路线图。探索技术中⼼前沿商业化能力，推动技术创新与商业价值的深度融合。',
+      description: '负责企业级 AI Agent 平台产品战略与规划，确立「开源全栈 + 企业 OA 整合」的产品定位；推动产品演进为生产力平台。',
       achievements: [
-        '主导内部系统商业化发展',
-        '制定产品战略规划',
-        '负责核心产品线的架构设计与优化',
-        '参与产品团队的人才培养与团队建设',
+        '上线当月签约 2 家付费企业客户',
+        '获得 5000+ 海内外注册用户',
+        '推动 Agentlang 开源，吸引 4000+ 开发者',
+        '落地内部智能审批全自动化',
       ],
     },
     {
       company: '深圳豆沙包科技',
-      position: '供应链金融高级SaaS产品经理',
+      position: '供应链金融 SaaS 产品负责人',
       period: '2022.06 - 2022.11',
       location: '深圳',
-      description: '负责公司供应链金融方向产品规划、方案设计。规划落地金融云SaaS系统v1.0、供应链金融平台v1.0。',
+      description: '基于集团战略，负责供应链金融方向产品规划、方案设计，统筹落地金融云 SaaS 及供应链金融平台。',
       achievements: [
-        '梳理并成功落地金融云SaaS1.0版本',
-        '在试点客户上线（PF银行、YS保理等）',
-        '实现供应链金融1.0版本的落地并实现核心企业放款成功',
-        '带领团队完成产品建设',
+        '完成金融云 SaaS 1.0 并在多行试点上线',
+        '实现供应链金融 1.0 的落地与核心企业首笔打通',
+        '搭建供应链能力开放平台、风控中心',
+        '带领跨部门协作的 6 人小队实现目标',
       ],
     },
     {
@@ -41,12 +41,12 @@ const Experience = () => {
       position: '智慧客服事业部产品负责人',
       period: '2019.11 - 2022.06',
       location: '深圳',
-      description: '深度布局产品矩阵，负责toB/C产品的价值定位、架构、设计、开发、包装、定价、运营全程规划。',
+      description: '负责智慧客服 CRM 等产品矩阵的布局与落地；搭建并推动地产行业首个供应链中台的发展与商业化。',
       achievements: [
-        '全年业绩达到数千万',
-        '荣获公司最佳团队奖',
-        '个人优秀员工称号',
-        '搭建15人产品团队',
+        '所负责业务模块全年业绩达到数千万',
+        '荣获公司最佳团队奖及个人优秀员工称号',
+        '完成四大中心的供应链中台并成为越秀等标杆案例',
+        '搭建并管理 23 人的产研及交付团队',
       ],
     },
     {
@@ -54,12 +54,12 @@ const Experience = () => {
       position: '氚云产品经理',
       period: '2018.05 - 2019.11',
       location: '深圳',
-      description: '负责公司核心商业【氚云】产品规划，市场分析，产品规划MVP，产品需求落地规划。',
+      description: '负责低代码商业产品「氚云」的规划，完成从市场分析、MVP 定义到持续迭代的全生命周期工作。',
       achievements: [
-        '深入研究分析行业诉求和使用场景',
-        '推动"氚云模板中心"落地',
-        '提升产品市场占有率',
-        '输出全套方法论话术并培训人员',
+        '深入研究并推出通用「氚云模板中心」',
+        '有效提升产品 DAU 从 10% 到 45%',
+        '渠道与直销综合转化率显著提升（达30%以上）',
+        '陪访客户商机率达到 50%',
       ],
     },
     {
@@ -67,12 +67,12 @@ const Experience = () => {
       position: '产品经理',
       period: '2015.06 - 2018.03',
       location: '深圳',
-      description: '负责日常移动端、后台、模块功能流程图、原型设计规划，交互设计评审，项目开发管理。',
+      description: '负责移动端、后台的功能流程图与原型设计，管理全公司的对外运营活动的产品输出及项目上线跟进。',
       achievements: [
-        '集成公司业务资源创建互联网缴费平台',
-        '负责产品功能规划和设计',
-        '协调各部门需求和资源',
-        '百分百完成上级交代任务研发落地',
+        '集成公司资源建立互联网端无缝交易缴费平台',
+        '按时且高质量完成各项重要缴费功能落地',
+        '完成个人和代理商之间的无缝衔接协同和功能闭环',
+        '与开发团队紧密协作提高整体交付质量',
       ],
     },
   ];
@@ -183,18 +183,16 @@ const Experience = () => {
             {experiences.map((exp, index) => (
               <div
                 key={index}
-                className={`exp-item relative grid grid-cols-1 md:grid-cols-2 gap-8 ${
-                  index % 2 === 0 ? '' : 'md:flex-row-reverse'
-                }`}
+                className={`exp-item relative grid grid-cols-1 md:grid-cols-2 gap-8 ${index % 2 === 0 ? '' : 'md:flex-row-reverse'
+                  }`}
               >
                 {/* Date Marker */}
                 <div className="date-marker absolute left-4 md:left-1/2 w-4 h-4 rounded-full bg-[var(--lime)] border-4 border-black transform -translate-x-1/2 z-10 shadow-lg shadow-[var(--lime)]/30" />
 
                 {/* Content */}
                 <div
-                  className={`pl-12 md:pl-0 ${
-                    index % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:col-start-2 md:pl-12'
-                  }`}
+                  className={`pl-12 md:pl-0 ${index % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:col-start-2 md:pl-12'
+                    }`}
                 >
                   <div className="group p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[var(--lime)]/30 transition-all duration-300 hover:-translate-y-1">
                     {/* Header */}
@@ -224,9 +222,8 @@ const Experience = () => {
                       {exp.achievements.map((achievement, aIndex) => (
                         <li
                           key={aIndex}
-                          className={`flex items-center gap-2 text-sm text-white/50 ${
-                            index % 2 === 0 ? 'md:flex-row-reverse' : ''
-                          }`}
+                          className={`flex items-center gap-2 text-sm text-white/50 ${index % 2 === 0 ? 'md:flex-row-reverse' : ''
+                            }`}
                         >
                           <ChevronRight className="w-4 h-4 text-[var(--lime)]" />
                           {achievement}

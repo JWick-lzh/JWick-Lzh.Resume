@@ -8,7 +8,6 @@ import Services from './sections/Services';
 import Experience from './sections/Experience';
 import Skills from './sections/Skills';
 import Works from './sections/Works';
-import Testimonials from './sections/Testimonials';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
 import './App.css';
@@ -38,7 +37,6 @@ function App() {
         <Experience />
         <Skills />
         <Works />
-        <Testimonials />
         <Contact />
       </main>
       <Footer />

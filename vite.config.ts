@@ -5,7 +5,7 @@ import { inspectAttr } from 'kimi-plugin-inspect-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './',
+  base: '/', // GitHub Pages 用户页面使用根路径
   plugins: [inspectAttr(), react()],
   resolve: {
     alias: {

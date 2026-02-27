@@ -17,21 +17,25 @@ const Works = () => {
       category: '企业级通用型AI Agent平台',
       year: '2024',
       image: '/images/super-magic.jpg',
-      description: '主导推出公司旗舰产品超级麦吉，一款面向"企业级协同 - 通用型AI Agent平台"，围绕超级麦吉平台构建AI产品矩阵，打造覆盖流程编排、即时通讯、开发框架的完整生态体系。',
+      description: '从「企业级 AI 自动化协同」切入，作为产品负责人全程带领 20+ 人团队完成从立项到商业化的全过程。打造涵盖「超级麦吉(Agent)+神奇流程(Flow)+麦吉聊天(IM)+天书协同(OS)」的生态产品。',
       highlights: [
-        { icon: Users, label: '用户规模', value: '5000+' },
+        { icon: Users, label: '注册用户', value: '5000+' },
         { icon: Zap, label: '效率提升', value: '10x' },
         { icon: Code2, label: '开发者', value: '4000+' },
-        { icon: Star, label: '付费客户', value: '2+' },
+        { icon: Star, label: '付费企业', value: '2+' },
       ],
       achievements: [
-        '上线当月内签约2+付费企业客户和5000+海内外用户',
-        '主导多Agent协作体系与两条产品线深度融合，客户效率提升100%',
-        '主导内部智能审批项目落地，实现审批流程的自动化，提升审批效率近10倍',
-        'Agentlang成为GitHub增长较快的AI Agent框架之一',
-        '推动核心框架开源，行业首个"企业级AI协同平台"，打造活跃开发者社区，吸引4000+开发者及20+贡献者',
+        '上线当月内签约 2 家付费企业客户，获 5000+ 注册用户',
+        '多 Agent 协作体系融合，投资报告等任务效率获数倍级提升',
+        '落地内部智能审批项目，审批流程从 1 天压缩至 1 小时内',
+        'Agentlang 成为 GitHub 增速较快的国产 AI Agent 框架之一',
+        '首月吸引 4000+ 开发者，完成闭环工具库开源与多端集成',
       ],
-      tags: ['AI Agent', '流程编排', '即时通讯', '开源框架'],
+      tags: ['AI Agent', '流程编排', '工作流', 'MCP生态'],
+      links: [
+        { label: '体验国内版', url: 'https://www.letsmagic.cn/' },
+        { label: '体验国际版', url: 'https://www.letsmagic.ai/' },
+      ],
       featured: true,
     },
     {
@@ -39,22 +43,25 @@ const Works = () => {
       title: '连锁经营SaaS',
       subtitle: '数字化解决方案',
       category: '连锁零售企业数字化转型平台',
-      year: '2022-至今',
+      year: '2022-2024',
       image: '/images/work-chatbot.jpg',
-      description: '为连锁零售企业提供全链路数字化解决方案，构建涵盖智能运营、数据决策、供应链协同的一体化SaaS平台，推动传统零售企业向数字化转型。',
+      description: '为连锁零售企业提供数字化解决方案，涵盖智能运营、数据决策、供应链协同，推动传统零售企业的数字化转型，并整合企业智能大脑、低代码平台、BI分析等核心模块。',
       highlights: [
         { icon: Users, label: '覆盖城市', value: '300+' },
         { icon: Zap, label: '效率提升', value: '40%' },
-        { icon: Star, label: '年营收', value: '200万+' },
+        { icon: Star, label: '平台营收', value: '200万+' },
         { icon: Code2, label: '服务品牌', value: '10+' },
       ],
       achievements: [
-        '3年服务10+连锁品牌客户，实现平台年营收200万+',
-        '推动3家头部客户数字化转型，单店运营效率提升40%',
-        '成功形成1+4体系的标准解决方案的输出',
-        '覆盖全国300+城市连锁门店',
+        '服务 10+ 连锁品牌客户，平台年营收 200 万+',
+        '推动从 v1.0 到 v3.0 的迭代，单店运营效率提升 40%',
+        '形成 1+4 体系标准解决方案，覆盖全国 300+ 城市',
+        '完成第三方支付、物流、营销工具的核心对接集成体系',
       ],
-      tags: ['SaaS', '数字化转型', '智能运营', '供应链'],
+      tags: ['SaaS', '数字化转型', '智能运营', '数据分析'],
+      links: [
+        { label: '了解详情', url: 'https://www.dtyq.com/' },
+      ],
       featured: false,
     },
     {
@@ -64,20 +71,20 @@ const Works = () => {
       category: 'SaaS产品',
       year: '2022',
       image: '/images/work-analytics.jpg',
-      description: '豆沙包与合作机构合作，建立了Dow+供应链金融服务平台，为"非典型"核心企业提供供应链融资解决方案。',
+      description: '针对跨境及直播电商行业不符合传统核心企业的问题开展创新。与行业合作机构建立 Dow+ 供应链金融平台，为「非典型」核心企业量身定制一套完整的供应链融资解决方案。',
       highlights: [
-        { icon: Users, label: '试点客户', value: '2+' },
-        { icon: Zap, label: '放款成功', value: '100%' },
-        { icon: Star, label: '核心企业', value: '接入' },
-        { icon: Code2, label: '团队规模', value: '6人' },
+        { icon: Users, label: '团队规模', value: '6人' },
+        { icon: Zap, label: '放款成功', value: '首笔' },
+        { icon: Star, label: '核心企业', value: '成功接入' },
+        { icon: Code2, label: 'MVP落地', value: '100%' },
       ],
       achievements: [
-        '实现供应链金融产品v1.0版本正式上线',
-        '接入核心企业，实现放款成功',
-        '成为公司核心发展产品之一',
-        '通过【订单数据化】、【财务自动化】、【开户线上化】优化业务断点',
+        '供应链金融 v1.0 成功上线并成为公司重点业务方向',
+        '接入核心企业跑通全链路并完成首笔放款（涉及资产融资闭环）',
+        '以 MVP 方式交付，持续优化产品可用性与扩展体系',
+        '通过「订单数据化」「财务自动化」「开户线上化」优化核心断点',
       ],
-      tags: ['供应链金融', '金融科技', '风控建模'],
+      tags: ['金融科技', '供应链金融', '风控能力'],
       featured: false,
     },
     {
@@ -87,20 +94,20 @@ const Works = () => {
       category: 'SaaS产品',
       year: '2020-2022',
       image: '/images/work-ecommerce.jpg',
-      description: '通过三大核心功能，重新打造物业体系客户连接以及经营方式，通过大版本的更新升级来进一步提升产品的影响力以及盈利能力。',
+      description: '通过「智能服务自动化」「客户信息数据化」「私域连接器」三大核心功能深度升级，提升物业客服体系的连接与场景经营。期间同时打造了地产级别的行业首个供应链中台。',
       highlights: [
-        { icon: Users, label: '团队规模', value: '15人' },
-        { icon: Zap, label: '业绩目标', value: '4xxxw' },
-        { icon: Star, label: '标杆客户', value: 'YX、LG' },
-        { icon: Code2, label: '交付团队', value: '8人' },
+        { icon: Users, label: '总团队数', value: '23人' },
+        { icon: Zap, label: '首年业绩', value: '4000万+' },
+        { icon: Star, label: '标杆客户', value: '越秀、龙光' },
+        { icon: Code2, label: '基础底座', value: '4个' },
       ],
       achievements: [
-        '实现第一年业绩目标4xxxw达成，形成标杆YX、LG',
-        '输出全新《智慧客服新规划6.0》',
-        '荣获《年度优秀员工》称号',
-        '通过【智能服务自动化】、【客户信息数据化】、【私域连接器】提升业务能力',
+        '首年完成 4000 万+ 业绩目标，打造出行业顶级标杆案例',
+        '输出《智慧客服新规划 6.0》，探索物业服务商业化落地闭环',
+        '负责行业级供应链中台搭建，孵化出星图、数见、数芯等底层支撑',
+        '全矩阵覆盖：物业自动化、企微通、CDP 数据中台、营销引擎',
       ],
-      tags: ['智慧物业', 'CRM', '客户运营', '私域流量'],
+      tags: ['智慧物业', 'CRM系统', '供应链中台', '数据中台'],
       featured: false,
     },
   ];
@@ -246,6 +253,24 @@ const Works = () => {
                 ))}
               </div>
 
+              {/* Links */}
+              {activeProject.links && activeProject.links.length > 0 && (
+                <div className="flex flex-wrap gap-4 mb-8">
+                  {activeProject.links.map((link, lIndex) => (
+                    <a
+                      key={lIndex}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--lime)]/10 text-[var(--lime)] border border-[var(--lime)]/20 rounded-full text-sm font-medium hover:bg-[var(--lime)] hover:text-black transition-colors"
+                    >
+                      {link.label}
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  ))}
+                </div>
+              )}
+
               {/* Navigation */}
               <div className="flex items-center justify-between">
                 <div className="flex gap-2">
@@ -253,11 +278,10 @@ const Works = () => {
                     <button
                       key={pIndex}
                       onClick={() => setActiveIndex(pIndex)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        pIndex === activeIndex
-                          ? 'w-8 bg-[var(--lime)]'
-                          : 'bg-white/30 hover:bg-white/50'
-                      }`}
+                      className={`w-2 h-2 rounded-full transition-all ${pIndex === activeIndex
+                        ? 'w-8 bg-[var(--lime)]'
+                        : 'bg-white/30 hover:bg-white/50'
+                        }`}
                     />
                   ))}
                 </div>
