@@ -161,10 +161,10 @@ const About = () => {
 
             <div className="space-y-4 text-white/70 text-base sm:text-lg leading-relaxed mb-8">
               <p className="about-text">
-                10年 toB/SaaS 产品经验，先后负责过供应链中台、智慧物业客服、供应链金融、AI Agent 平台等产品的落地。对 AI 技术落地有实感，熟悉大模型、Agent、MCP 等技术原理。
+                10年 toB/SaaS 产品经验，先后负责过供应链中台、智能客服、供应链平台、AI Agent 平台等产品的落地。对 AI 技术落地有实感，熟悉大模型、Agent、MCP 等技术原理。
               </p>
               <p className="about-text">
-                跑通过完整商业闭环，带队达成数千万业绩。有从 0 组建跨职能团队的经历，带过 20+ 人产研团队，能够从架构设计层面对业务进行解构，实现技术创新与商业价值的深度融合。
+                跑通过完整商业闭环，从售前方案到产品交付落地再到客户续签，带队达成数千万业绩。有从 0 组建跨职能团队的经历，带过 20+ 人产研团队，能够从架构设计层面对业务进行解构，实现技术创新与商业价值的深度融合。
               </p>
             </div>
 

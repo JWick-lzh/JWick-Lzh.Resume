@@ -20,7 +20,7 @@ const Contact = () => {
   const [submitted, setSubmitted] = useState(false);
 
   const contactInfo = [
-    { icon: Mail, label: '邮箱', value: 'linzaohui@example.com' },
+    { icon: Mail, label: '邮箱', value: '851329609@qq.com' },
     { icon: Phone, label: '电话', value: '+86 152 1947 7743' },
     { icon: MapPin, label: '地址', value: '中国，深圳' },
   ];
@@ -35,14 +35,14 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
+
     setIsSubmitting(false);
     setSubmitted(true);
     setFormData({ name: '', email: '', subject: '', message: '' });
-    
+
     // Reset submitted state after 3 seconds
     setTimeout(() => setSubmitted(false), 3000);
   };
@@ -170,7 +170,7 @@ const Contact = () => {
           {/* Left - Contact Info */}
           <div>
             <h3 className="text-xl font-bold text-white mb-6">联系方式</h3>
-            
+
             {/* Contact Info Items */}
             <div className="space-y-4 mb-8">
               {contactInfo.map((item, index) => (
@@ -208,7 +208,7 @@ const Contact = () => {
           {/* Right - Contact Form */}
           <div className="contact-form">
             <h3 className="text-xl font-bold text-white mb-6">发送消息</h3>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="form-field">
