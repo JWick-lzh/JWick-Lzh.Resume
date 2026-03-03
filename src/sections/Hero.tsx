@@ -182,9 +182,9 @@ const Hero = () => {
           ref={subtitleRef}
           className="text-lg sm:text-xl md:text-2xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          10年SaaS行业深耕，专注企业级AI Agent平台从0到1商业化
+          10年SaaS产品经验，专注AI+企业协同方向
           <br />
-          将战略思维与技术专长相结合，打造面向未来的解决方案
+          带队从0到1完成企业级AI Agent平台商业化，推动框架开源吸引4000+开发者
         </p>
 
         {/* CTA Buttons */}

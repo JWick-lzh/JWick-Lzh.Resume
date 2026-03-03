@@ -12,7 +12,7 @@ const About = () => {
 
   const infoItems = [
     { icon: User, label: '姓名', value: '林灶辉' },
-    { icon: Calendar, label: '年龄', value: '31岁' },
+    { icon: Calendar, label: '年龄', value: '32岁' },
     { icon: Briefcase, label: '职业', value: 'AI产品经理' },
     { icon: MapPin, label: '城市', value: '中国，深圳' },
   ];
@@ -161,10 +161,13 @@ const About = () => {
 
             <div className="space-y-4 text-white/70 text-base sm:text-lg leading-relaxed mb-8">
               <p className="about-text">
-                10年 toB/SaaS 产品经验，先后负责过供应链中台、智能客服、供应链平台、AI Agent 平台等产品的落地。对 AI 技术落地有实感，熟悉大模型、Agent、MCP 等技术原理。
+                10 年 toB/SaaS 产品经验，做过供应链中台、智能客服、供应链金融、AI Agent 平台等产品。最近两年主要做 AI + 企业协同方向，带 20 人团队交付了一个企业级 AI Agent 平台，上线第一个月就签下了付费客户。
               </p>
               <p className="about-text">
-                跑通过完整商业闭环，从售前方案到产品交付落地再到客户续签，带队达成数千万业绩。有从 0 组建跨职能团队的经历，带过 20+ 人产研团队，能够从架构设计层面对业务进行解构，实现技术创新与商业价值的深度融合。
+                完整跑通过商业闭环：从售前方案到产品交付再到客户续签，带队完成过全年数千万业绩目标。有从 0 拉团队的经验，带过 20+ 人团队，4 个月内从概念验证做到商业化版本上线。
+              </p>
+              <p className="about-text">
+                对 AI 技术有实际落地经验，熟悉大模型、Agent、MCP 等技术，负责过自然语言任务流交互、MCP 插件机制、多 Agent 协作体系的产品设计，推动框架开源吸引了 4000+ 开发者。
               </p>
             </div>
 
