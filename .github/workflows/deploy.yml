@@ -20,24 +20,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # 构建任务
+  # 构建任务（纯静态站点，无需编译）
   build:
     runs-on: ubuntu-latest
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
-        
-      - name: 设置 Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          
-      - name: 安装依赖
-        run: npm ci
-        
-      - name: 构建项目
-        run: npm run build
         
       - name: 配置 Pages
         uses: actions/configure-pages@v4
@@ -45,7 +33,7 @@ jobs:
       - name: 上传构建产物
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: '.'
 
   # 部署任务
   deploy:
