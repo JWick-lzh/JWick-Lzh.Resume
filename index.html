@@ -1,12 +1,181 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>林灶辉 - AI产品经理档案</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>林灶辉 · 产品负责人 / AI 产品经理</title>
+  <meta name="description" id="meta-description" content="林灶辉个人简历 · 10 年+ toB/SaaS 产品老兵，AI Agent 产品负责人。" />
+  <meta name="theme-color" content="#ffffff" id="meta-theme-color" />
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="./assets/css/styles.css" />
+  <!-- 初始主题：在样式绘制前就定下 data-theme，避免闪烁。优先级 URL ?theme > localStorage > 系统偏好。 -->
+  <script>
+    (function () {
+      try {
+        var p = new URLSearchParams(location.search);
+        var t = p.get('theme');
+        if (t !== 'light' && t !== 'dark') { t = localStorage.getItem('theme'); }
+        if (t !== 'light' && t !== 'dark') {
+          t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" id="skip-link" href="#summary">跳到主要内容</a>
+
+  <noscript>
+    <div class="noscript-note container">
+      <p><strong>林灶辉 · 产品负责人 / AI 产品经理</strong></p>
+      <p>本页内容由 JavaScript 渲染。若未自动显示，请启用 JavaScript，或 <a href="./resume.pdf">下载 PDF 简历</a>。</p>
+      <p lang="en">This page renders its content with JavaScript. If nothing shows, please enable JavaScript or <a href="./resume.pdf">download the PDF résumé</a>.</p>
+    </div>
+  </noscript>
+
+  <header class="nav" id="nav">
+    <div class="nav-inner container">
+      <a class="brand" href="#top" aria-label="回到顶部">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="26" height="26">
+            <path d="M21 16 L21 44 L42 44" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="44" cy="20" r="4.5" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="brand-name" id="brand-name"></span>
+      </a>
+
+      <nav class="nav-links-wrap" id="nav-menu" aria-label="主导航">
+        <ul class="nav-links" id="nav-links"></ul>
+      </nav>
+
+      <div class="nav-controls">
+        <div class="lang-toggle" id="lang-toggle" role="group" aria-label="切换语言 / Switch language">
+          <button type="button" class="lang-btn" data-lang="zh">中</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="切换主题" aria-pressed="false">
+          <svg class="ic ic-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+          <svg class="ic ic-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <line x1="12" y1="2.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="21.5"/>
+              <line x1="2.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="21.5" y2="12"/>
+              <line x1="5.2" y1="5.2" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.8" y2="18.8"/>
+              <line x1="18.8" y1="5.2" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.2" y2="18.8"/>
+            </g>
+          </svg>
+        </button>
+
+        <button type="button" class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="菜单">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+    <div class="progress" id="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero" id="hero">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <p class="hero-eyebrow" id="hero-title"></p>
+        <h1 class="hero-name" id="hero-name"></h1>
+        <p class="hero-sub" id="hero-sub"></p>
+        <ul class="hero-stats" id="hero-stats"></ul>
+        <a class="scroll-hint" id="scroll-hint" href="#summary">
+          <span class="scroll-hint-text" id="scroll-hint-text"></span>
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M12 4 L12 18 M6 12 L12 18 L18 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- Highlights -->
+    <section class="section" id="summary" aria-labelledby="t-summary">
+      <div class="container">
+        <header class="section-head">
+          <span class="section-index" aria-hidden="true">01</span>
+          <h2 id="t-summary"></h2>
+        </header>
+        <ul class="highlights" id="highlights-list"></ul>
+      </div>
+    </section>
+
+    <!-- Experience -->
+    <section class="section section-alt" id="experience" aria-labelledby="t-experience">
+      <div class="container">
+        <header class="section-head">
+          <span class="section-index" aria-hidden="true">02</span>
+          <h2 id="t-experience"></h2>
+        </header>
+        <ol class="timeline" id="timeline"></ol>
+      </div>
+    </section>
+
+    <!-- Projects -->
+    <section class="section" id="projects" aria-labelledby="t-projects">
+      <div class="container">
+        <header class="section-head">
+          <span class="section-index" aria-hidden="true">03</span>
+          <h2 id="t-projects"></h2>
+        </header>
+        <div class="filters" id="project-filters" role="group" aria-label="项目分类筛选"></div>
+        <div class="projects-grid" id="projects-grid"></div>
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <section class="section section-alt" id="skills" aria-labelledby="t-skills">
+      <div class="container">
+        <header class="section-head">
+          <span class="section-index" aria-hidden="true">04</span>
+          <h2 id="t-skills"></h2>
+        </header>
+        <div class="skills-groups" id="skills-groups"></div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="section" id="contact" aria-labelledby="t-contact">
+      <div class="container">
+        <header class="section-head">
+          <span class="section-index" aria-hidden="true">05</span>
+          <h2 id="t-contact"></h2>
+        </header>
+        <div class="contact-wrap">
+          <dl class="contact-list" id="contact-list"></dl>
+          <div class="contact-cta">
+            <p class="contact-status" id="contact-status"></p>
+            <a class="btn btn-primary" id="download-pdf" href="./resume.pdf" download>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path d="M12 3 L12 15 M7 10 L12 15 L17 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5 19 L19 19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              <span id="download-pdf-label"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="container foot-inner">
+      <span class="foot-name" id="foot-name"></span>
+      <span class="foot-meta" id="foot-meta"></span>
+    </div>
+  </footer>
+
+  <script src="./assets/js/data.js"></script>
+  <script src="./assets/js/main.js"></script>
+</body>
 </html>
