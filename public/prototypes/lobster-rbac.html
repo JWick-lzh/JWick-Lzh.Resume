@@ -362,6 +362,15 @@
     }
     .form-group { margin-bottom: 16px; }
     .form-label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--color-text-secondary); }
+
+    /* 新建角色弹窗内的权限选择 */
+    .perm-picker { max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; margin-top: 4px; }
+    .perm-picker .perm-module-title { margin-bottom: 8px; }
+    .perm-pick-row { display: flex; align-items: center; gap: 10px; padding: 6px 4px; cursor: pointer; }
+    .perm-pick-row:hover { background: var(--color-surface); border-radius: var(--border-radius-sm); }
+
+    /* 演示数据标注 */
+    .demo-badge { position: fixed; left: 16px; bottom: 16px; background: var(--color-surface); color: var(--color-text-secondary); border: 1px solid var(--color-border); padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.4); letter-spacing: 0.3px; }
   </style>
 </head>
 <body>
@@ -384,8 +393,8 @@
       </div>
       <div class="nav-menu">
         <div class="nav-item active">👤 角色与用户管理</div>
-        <div class="nav-item">🏢 租户管理</div>
-        <div class="nav-item">🎟 邀请码管理</div>
+        <div class="nav-item" onclick="navPlaceholder('租户管理')">🏢 租户管理</div>
+        <div class="nav-item" onclick="navPlaceholder('邀请码管理')">🎟 邀请码管理</div>
       </div>
       <!-- REQ: 企微同步模块 - 从企微拉取最新组织架构与员工状态 | 规则: 每日 03:00 自动同步，支持手动点击立即同步，同步异常需告警 | 优先级: P0 -->
       <div class="sync-panel" id="req-sync">
@@ -444,6 +453,33 @@
 
     </div>
   </div>
+
+  <!-- REQ: 新建自定义角色弹窗 - 超管创建灵活角色并组合权限 | 规则: 角色名必填，至少勾选一项权限 | 优先级: P1 -->
+  <div id="role-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>新建自定义角色</h3>
+        <button onclick="closeRoleModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">角色名称</label>
+          <input type="text" id="new-role-name" placeholder="例如：区域审核员" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">分配权限（可多选）</label>
+          <div class="perm-picker" id="role-perm-picker"><!-- JS 渲染 --></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeRoleModal()">取消</button>
+        <button class="primary" onclick="createRole()">创建角色</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 演示数据标注 -->
+  <div class="demo-badge">🔧 演示数据 / Demo Data</div>
 
   <!-- 弹窗：Toast 提示 -->
   <div id="toast" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--color-success);color:#fff;padding:8px 16px;border-radius:4px;display:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
@@ -652,22 +688,29 @@
       }
 
       const role = ROLES.find(r => r.id === state.selectedRoleId);
-      document.getElementById('perm-panel-title').innerText = `[${role.name}] 包含的权限`;
+      const editable = !role.isPreset;
+      document.getElementById('perm-panel-title').innerText =
+        editable ? `[${role.name}] 包含的权限 · 可编辑` : `[${role.name}] 包含的权限 · 预置只读`;
 
       let html = '';
-      
+
       PERMISSIONS.forEach(mod => {
         let modHtml = '';
         let hasAnyPerm = false;
-        
+
         mod.items.forEach(perm => {
           const hasPerm = role.perms.includes(perm.id);
           if(hasPerm) hasAnyPerm = true;
-          
-          // 只读展示打勾状态
+
+          // 预置角色只读展示；自定义角色可即时勾选修改
+          const dimStyle = (!hasPerm && !editable) ? 'opacity:0.4' : '';
+          const borderStyle = hasPerm ? 'border-color:var(--color-primary)' : '';
+          const cbAttr = editable
+            ? `onclick="togglePerm('${perm.id}', this.checked)"`
+            : 'disabled';
           modHtml += `
-            <div class="perm-card" style="${hasPerm ? 'border-color:var(--color-primary)' : 'opacity:0.4'}">
-              <input type="checkbox" class="checkbox" disabled ${hasPerm ? 'checked' : ''}>
+            <div class="perm-card" style="${borderStyle}${dimStyle ? ';'+dimStyle : ''}">
+              <input type="checkbox" class="checkbox" ${cbAttr} ${hasPerm ? 'checked' : ''}>
               <div class="perm-info">
                 <div class="perm-name" style="${hasPerm?'color:var(--color-text)':'color:var(--color-text-secondary)'}">${perm.name}</div>
                 <div class="perm-desc">${perm.desc}</div>
@@ -714,6 +757,73 @@
         document.querySelector('#req-sync .time').innerText = `上次同步: ${new Date().toLocaleString()}`;
         showToast('企微组织架构同步成功');
       }, 1500);
+    }
+
+    // 侧边导航占位模块
+    function navPlaceholder(name) {
+      showToast(`演示原型：「${name}」模块暂未开放`, 'warning');
+    }
+
+    // ============================
+    // 新建自定义角色
+    // ============================
+    let newRolePerms = new Set();
+
+    function openRoleModal() {
+      newRolePerms = new Set();
+      document.getElementById('new-role-name').value = '';
+      const picker = document.getElementById('role-perm-picker');
+      let html = '';
+      PERMISSIONS.forEach(mod => {
+        html += `<div><div class="perm-module-title">${mod.module}</div>`;
+        mod.items.forEach(p => {
+          html += `
+            <label class="perm-pick-row">
+              <input type="checkbox" class="checkbox" value="${p.id}" onchange="toggleNewRolePerm('${p.id}', this.checked)">
+              <span>${p.name}</span>
+            </label>`;
+        });
+        html += `</div>`;
+      });
+      picker.innerHTML = html;
+      document.getElementById('role-modal').style.display = 'flex';
+    }
+
+    function closeRoleModal() {
+      document.getElementById('role-modal').style.display = 'none';
+    }
+
+    function toggleNewRolePerm(id, checked) {
+      if (checked) newRolePerms.add(id); else newRolePerms.delete(id);
+    }
+
+    function createRole() {
+      const name = document.getElementById('new-role-name').value.trim();
+      if (!name) { showToast('请填写角色名称', 'warning'); return; }
+      if (newRolePerms.size === 0) { showToast('请至少勾选一项权限', 'warning'); return; }
+      ROLES.push({
+        id: 'r_custom_' + Date.now(),
+        name: name,
+        isPreset: false,
+        desc: '自定义角色 · 演示数据',
+        perms: Array.from(newRolePerms)
+      });
+      closeRoleModal();
+      if (state.selectedUserId) renderRoleList();
+      showToast(`已创建自定义角色 [${name}]`);
+    }
+
+    // REQ: 分配角色操作 - 自定义角色权限即时可编辑
+    function togglePerm(permId, checked) {
+      const role = ROLES.find(r => r.id === state.selectedRoleId);
+      if (!role || role.isPreset) return;
+      if (checked) {
+        if (!role.perms.includes(permId)) role.perms.push(permId);
+      } else {
+        role.perms = role.perms.filter(p => p !== permId);
+      }
+      renderPermView();
+      showToast('权限已更新 · 演示');
     }
 
     // REQ Panel 相关

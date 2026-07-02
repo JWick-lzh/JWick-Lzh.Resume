@@ -10,6 +10,8 @@ import Skills from './sections/Skills';
 import Works from './sections/Works';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
+import WorkDrawer from './sections/WorkDrawer';
+import { PortfolioProvider } from './context/PortfolioContext';
 import './App.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -28,19 +30,22 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
-      <Navigation />
-      <main>
-        <Hero />
-        <About />
-        <Services />
-        <Experience />
-        <Skills />
-        <Works />
-        <Contact />
-      </main>
-      <Footer />
-    </div>
+    <PortfolioProvider>
+      <div className="min-h-screen bg-black text-white overflow-x-hidden">
+        <Navigation />
+        <main>
+          <Hero />
+          <About />
+          <Services />
+          <Experience />
+          <Skills />
+          <Works />
+          <Contact />
+        </main>
+        <Footer />
+        <WorkDrawer />
+      </div>
+    </PortfolioProvider>
   );
 }
 

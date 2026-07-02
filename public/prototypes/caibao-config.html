@@ -62,6 +62,9 @@
     /* Toast */
     .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--suc); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 9999; }
     .toast.show { opacity: 1; visibility: visible; top: 40px; }
+
+    /* 演示数据标注 */
+    .demo-badge { position: fixed; left: 16px; bottom: 16px; background: rgba(13,17,23,0.82); color: #fff; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; z-index: 3000; box-shadow: 0 2px 8px rgba(0,0,0,0.2); letter-spacing: 0.3px; }
   </style>
 </head>
 <body>
@@ -153,6 +156,7 @@
   </div>
 
   <div class="toast" id="toast">✅ 采宝的规则已更新</div>
+  <div class="demo-badge">🔧 演示数据 / Demo Data</div>
 
   <script>
     const REQ_SPECS = [

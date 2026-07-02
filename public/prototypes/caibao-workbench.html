@@ -72,6 +72,16 @@
     /* Confetti */
     .confetti { position: fixed; width: 10px; height: 10px; background-color: #f00; z-index: 9999; animation: fall 3s linear forwards; }
     @keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+    /* Toast */
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--suc); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 9999; max-width: 80vw; }
+    .toast.show { opacity: 1; visibility: visible; top: 40px; }
+
+    /* 演示数据标注 */
+    .demo-badge { position: fixed; left: 16px; bottom: 16px; background: rgba(13,17,23,0.82); color: #fff; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; z-index: 3000; box-shadow: 0 2px 8px rgba(0,0,0,0.2); letter-spacing: 0.3px; }
+
+    .link-action { color: var(--pri); text-decoration: none; cursor: pointer; }
+    .link-action:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -86,8 +96,11 @@
     </div>
   </div>
 
+  <div class="toast" id="toast">✅ 操作成功</div>
+  <div class="demo-badge">🔧 演示数据 / Demo Data</div>
+
   <div class="page-container">
-    
+
     <!-- REQ: 采宝简报 - 第一人称总结当日进展 | 规则: 动态显示节省金额与处理数量 | 优先级: P1 -->
     <div class="brief-card" id="brief-card">
       <div>
@@ -250,7 +263,7 @@
             </td>
             <td>${wasteHtml}</td>
             <td>${t.price !== '--' ? `¥${t.price}` : '--'}</td>
-            <td><a href="#" style="color:var(--pri); text-decoration:none;">查看详情</a></td>
+            <td><a href="#" class="link-action" onclick="viewDetail('${t.id}'); return false;">查看详情</a></td>
           </tr>
         `;
       }).join('');
@@ -284,8 +297,22 @@
     }
 
     function confirmWaste() {
-      alert("✅ 已让采宝去创建补采任务！");
       closeModal();
+      showToast('✅ 已让采宝去创建补采任务 · 演示数据');
+    }
+
+    function viewDetail(id) {
+      const task = MOCK_DATA.tasks.find(t => t.id === id);
+      showToast(`📋 演示原型：此处将展开「${task.sku}」的采购详情`);
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg || '操作成功';
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
     }
 
     function triggerConfetti() {

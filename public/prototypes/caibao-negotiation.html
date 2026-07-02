@@ -83,9 +83,19 @@
     .btn-primary { background: var(--pri); color: white; flex: 1; }
     .btn-outline { border: 1px solid var(--pri); color: var(--pri); background: transparent; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Toast */
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--suc); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 9999; max-width: 80vw; }
+    .toast.show { opacity: 1; visibility: visible; top: 40px; }
+
+    /* 演示数据标注 */
+    .demo-badge { position: fixed; left: 16px; bottom: 16px; background: rgba(13,17,23,0.82); color: #fff; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; z-index: 3000; box-shadow: 0 2px 8px rgba(0,0,0,0.2); letter-spacing: 0.3px; }
   </style>
 </head>
 <body>
+
+  <div class="toast" id="toast">✅ 操作成功</div>
+  <div class="demo-badge">🔧 演示数据 / Demo Data</div>
 
   <div id="req-panel" class="req-panel">
     <div class="req-panel-header" onclick="toggleReqPanel()">
@@ -217,7 +227,7 @@
     function renderSessions() {
       const list = document.getElementById('session-list');
       list.innerHTML = MOCK_DATA.sessions.map(s => `
-        <div class="session-item ${s.active ? 'active' : ''}">
+        <div class="session-item ${s.active ? 'active' : ''}" onclick="switchSession('${s.id}')">
           <div class="session-title">
             <span>${s.sku} - ${s.supplier}</span>
             <span class="status-tag ${s.status === 'done' ? 'status-done' : 'status-active'}">${s.status === 'done' ? '已完成' : '议价中'}</span>
@@ -277,8 +287,28 @@
       }, 1400);
     }
 
+    function switchSession(id) {
+      const target = MOCK_DATA.sessions.find(s => s.id === id);
+      MOCK_DATA.sessions.forEach(s => s.active = (s.id === id));
+      renderSessions();
+      if (id === 'S1') {
+        showToast(`已切换到「${target.sku} - ${target.supplier}」会话`);
+      } else {
+        showToast(`📋 演示原型：此处将加载「${target.sku} - ${target.supplier}」的议价会话`);
+      }
+    }
+
     function acceptPrice() {
-      alert("已接受当前报价，转入T3确认阶段。");
+      showToast('✅ 已接受当前报价，转入 T3 确认阶段 · 演示数据');
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg || '操作成功';
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
     }
 
     init();

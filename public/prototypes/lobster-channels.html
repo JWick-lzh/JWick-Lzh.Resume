@@ -234,6 +234,9 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+    /* 演示数据标注 */
+    .demo-badge { position: fixed; left: 16px; bottom: 16px; background: var(--color-surface); color: var(--color-text-secondary); border: 1px solid var(--color-border); padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.4); letter-spacing: 0.3px; }
+
     /* loading */
     .spinner {
       width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.2);
@@ -353,6 +356,7 @@
   </div>
 
   <div id="toast" class="toast">✓ 操作成功</div>
+  <div class="demo-badge">🔧 演示数据 / Demo Data</div>
 
   <script>
     // ============================

@@ -54,7 +54,34 @@ async function run() {
 
   // 1) 首屏加载无 JS 报错
   await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
+  await page.waitForTimeout(400);
   check('页面加载无 JS 报错', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
+  // 1b) 首屏 hero 名字可见（reveal 已生效，非空白页）
+  const heroVisible = await page.locator('.hero-name').evaluate((el) => {
+    const s = getComputedStyle(el); return parseFloat(s.opacity) > 0.5 && el.getBoundingClientRect().width > 0;
+  }).catch(() => false);
+  check('首屏 hero 名字可见（非空白页）', heroVisible === true);
+  const heroName = await page.locator('.hero-name').textContent();
+  check('hero 名字有内容', !!(heroName && heroName.trim()), JSON.stringify(heroName));
+  // 滚动触发 reveal
+  await page.evaluate(() => document.getElementById('summary').scrollIntoView());
+  await page.waitForTimeout(500);
+  const revealInAfterScroll = await page.locator('.reveal.in').count();
+  check('滚动后 .reveal 渐入 > 0', revealInAfterScroll > 0, `in=${revealInAfterScroll}`);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(200);
+
+  // 1c) 深链 #work/supermagic 直接加载：抽屉开 + 背后 hero 仍可见
+  const errBefore = consoleErrors.length;
+  await page.goto(base + '/index.html#work/supermagic', { waitUntil: 'networkidle' });
+  await page.waitForTimeout(500);
+  check('深链直接加载无新 JS 报错', consoleErrors.length === errBefore, consoleErrors.slice(errBefore, errBefore + 2).join(' | '));
+  check('深链直接加载抽屉自动打开', (await page.locator('#pf-drawer.open').count()) === 1);
+  const heroVisible2 = await page.locator('.hero-name').evaluate((el) => parseFloat(getComputedStyle(el).opacity) > 0.5).catch(() => false);
+  check('深链加载时背后页面内容可见', heroVisible2 === true);
+  // 回到干净首页继续后续用例
+  await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
+  await page.waitForTimeout(300);
 
   // 2) 能力矩阵渲染 11 条
   const capCount = await page.locator('.pf-cap').count();

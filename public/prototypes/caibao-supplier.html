@@ -75,6 +75,9 @@
     .status-ok { color: var(--suc); }
     .status-warn { color: var(--acc); }
 
+    /* 演示数据标注 */
+    .demo-badge { position: fixed; left: 16px; bottom: 16px; background: rgba(13,17,23,0.82); color: #fff; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; z-index: 3000; box-shadow: 0 2px 8px rgba(0,0,0,0.2); letter-spacing: 0.3px; }
+
     /* 历史表格 */
     .table { width: 100%; border-collapse: collapse; font-size: 14px; }
     .table th { text-align: left; padding: 12px; color: var(--txt2); border-bottom: 1px solid var(--bdr); }
@@ -91,8 +94,10 @@
     <div id="req-panel-body" class="req-panel-body"></div>
   </div>
 
+  <div class="demo-badge">🔧 演示数据 / Demo Data</div>
+
   <div class="left-panel">
-    <div class="list-header">供应商列表 (6)</div>
+    <div class="list-header" id="list-header">供应商列表</div>
     <!-- REQ: 供应商列表 - 展示系统所有供应商及综合评分 | 规则: 评分>=80为绿，60-79为橙，<60为红 | 优先级: P0 -->
     <div class="supplier-list" id="supplier-list"></div>
   </div>
@@ -222,6 +227,7 @@
     }
 
     function renderList() {
+      document.getElementById('list-header').innerText = `供应商列表 (${MOCK_DATA.length})`;
       const list = document.getElementById('supplier-list');
       list.innerHTML = MOCK_DATA.map(s => `
         <div class="supplier-item ${s.id === activeSupplier.id ? 'active' : ''}" onclick="switchSupplier('${s.id}')">

@@ -1,2 +1,5 @@
 _brief.md
 .DS_Store
+node_modules/
+dist/
+.playwright/
