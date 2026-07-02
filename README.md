@@ -69,3 +69,33 @@ python3 -m http.server 8080
 ## 部署
 
 纯静态，把整个目录上传到任意静态托管（GitHub Pages / Vercel / Netlify / 对象存储）即可，无需构建步骤。
+
+## 作品集（Portfolio）
+
+首页「作品集」区提供两个入口，都能单点跳转到对应作品：
+
+- **能力矩阵**：11 条能力分 3 组（AI/Agent 工程 · 产品/商业 · 差异化）。点击任一能力 → 下方作品自动高亮匹配、淡化无关；再点取消。
+- **作品卡（分三档）**：① 线上/可运行真产品 ② 高保真交互原型 ③ 往期 B 端代表作。点卡片 → 右侧抽屉详情。
+  - 交互原型（龙虾 / 老板助手）在抽屉内 **iframe 内嵌真实原型**，可直接操作；
+  - 线上产品（超级麦吉）用真实官网截图 + 线上/GitHub 链接；
+  - 可运行项目（采购 Cloud / AI-Order）给启动命令 + 架构/方案；观麦平台给架构图。
+
+### 可分享深链
+
+- `#work/<id>`：直达某作品详情，如 `#work/supermagic`、`#work/lobster`
+- `#cap/<id>`：直达并按某能力筛选，如 `#cap/mm`（多模态/OCR）、`#cap/fullstack`
+
+### 相关文件
+
+- `assets/js/portfolio-data.js`：作品集数据（能力 + 作品，`window.PORTFOLIO`）
+- `assets/js/main.js`：`renderPortfolio()` 能力矩阵/分档卡片/筛选/抽屉/深链
+- `portfolio/`：截图与架构图　`prototypes/`：内嵌的原型 HTML
+- 数据口径：成果指标以简历为准、不夸大；原型内为「演示数据」并已标注。
+
+## 端到端自测
+
+```bash
+npm install            # 安装 playwright（使用系统 Chrome）
+node tests/e2e-portfolio.mjs   # 起本地静态服务 + 真实浏览器，跑 27 项断言
+```
+覆盖：能力矩阵渲染/筛选高亮、作品抽屉（截图/内嵌原型/移动端框）、hash 深链、首屏与深链页面可见性、图片与原型资源可访问、双语切换。

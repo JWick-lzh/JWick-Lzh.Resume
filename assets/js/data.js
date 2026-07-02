@@ -48,8 +48,8 @@ window.RESUME = {
       salary: "面议",
       stats: [
         { value: "10 年+", label: "toB/SaaS 产品经验" },
-        { value: "约 80 人", label: "统筹产品研发中心" },
-        { value: "4 大", label: "AI 产品矩阵" },
+        { value: "4 条", label: "从 0 搭起的 AI 产品线" },
+        { value: "★4.9k", label: "超级麦吉开源 · GitHub" },
         { value: "20+ 人", label: "AI Agent 团队交付" }
       ]
     },
@@ -405,8 +405,8 @@ window.RESUME = {
       salary: "Negotiable",
       stats: [
         { value: "10+ yrs", label: "toB/SaaS product" },
-        { value: "~80", label: "R&D center led" },
-        { value: "4", label: "AI product matrix" },
+        { value: "4", label: "AI product lines built 0→1" },
+        { value: "★4.9k", label: "Super Magic open-source · GitHub" },
         { value: "20+", label: "AI Agent team delivered" }
       ]
     },
