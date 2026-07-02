@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>沟通渠道 - 原型</title>
+  <style>
+    /* ===== 设计系统变量 (基于 Linear 规范) ===== */
+    :root {
+      --color-bg: #08090a;
+      --color-panel: #0f1011;
+      --color-surface: #191a1b;
+      --color-primary: #5e6ad2;
+      --color-primary-hover: #7170ff;
+      --color-danger: #ff4d4f;
+      --color-success: #10b981;
+      --color-text: #f7f8f8;
+      --color-text-secondary: #d0d6e0;
+      --color-text-tertiary: #8a8f98;
+      --color-border: rgba(255, 255, 255, 0.08);
+      --color-border-hover: rgba(255, 255, 255, 0.15);
+      --border-radius-sm: 6px;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --font-family: 'Inter Variable', -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-family);
+      line-height: 1.6;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== 页面布局 ===== */
+    .page-container {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header {
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 590;
+      letter-spacing: -0.704px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: var(--color-text-secondary);
+      font-size: 15px;
+    }
+
+    /* ===== 卡片网格 ===== */
+    .channel-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .channel-card {
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .channel-card:hover {
+      border-color: var(--color-border-hover);
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    .channel-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+
+    .channel-name {
+      font-size: 18px;
+      font-weight: 510;
+      margin-bottom: 8px;
+    }
+
+    .channel-desc {
+      font-size: 13px;
+      color: var(--color-text-tertiary);
+      margin-bottom: 24px;
+      flex: 1;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.05);
+      margin-bottom: 16px;
+      align-self: flex-start;
+    }
+    .status-badge.active { color: var(--color-success); background: rgba(16, 185, 129, 0.1); }
+    .status-badge.inactive { color: var(--color-text-tertiary); }
+    .status-badge.always { color: var(--color-primary); background: rgba(94, 106, 210, 0.1); }
+
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* ===== 按钮 ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 510;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--color-text);
+    }
+    .btn:hover { background: rgba(255, 255, 255, 0.08); }
+    .btn:active { transform: scale(0.98); }
+    
+    .btn-primary { background: var(--color-primary); color: #fff; }
+    .btn-primary:hover { background: var(--color-primary-hover); }
+    
+    .btn-danger { color: var(--color-danger); background: transparent; border-color: rgba(255, 77, 79, 0.2); }
+    .btn-danger:hover { background: rgba(255, 77, 79, 0.1); border-color: var(--color-danger); }
+
+    .btn-group { display: flex; gap: 8px; margin-top: auto; }
+
+    /* ===== 弹窗 ===== */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100;
+      opacity: 0; transition: opacity 0.2s ease;
+    }
+    .modal-overlay.show { display: flex; opacity: 1; }
+    
+    .modal {
+      background: var(--color-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      width: 440px; max-width: 90vw;
+      box-shadow: var(--shadow-modal);
+      transform: translateY(10px); transition: transform 0.2s ease;
+    }
+    .modal-overlay.show .modal { transform: translateY(0); }
+
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { font-size: 16px; font-weight: 590; }
+    .modal-close { cursor: pointer; color: var(--color-text-tertiary); font-size: 20px; }
+    .modal-close:hover { color: var(--color-text); }
+    
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end; gap: 12px; }
+
+    /* ===== 表单 ===== */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; }
+    .form-input {
+      width: 100%; background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      padding: 10px 12px; border-radius: var(--border-radius-sm);
+      font-family: var(--font-family); font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { outline: none; border-color: var(--color-primary); }
+    .form-error { color: var(--color-danger); font-size: 12px; margin-top: 4px; display: none; }
+
+    /* ===== 需求说明面板 ===== */
+    .req-panel {
+      width: 320px; background: var(--color-panel);
+      border-left: 1px solid var(--color-border);
+      display: flex; flex-direction: column;
+      transition: transform 0.3s ease;
+    }
+    .req-panel.collapsed { transform: translateX(320px); position: absolute; right: 0; height: 100%; }
+    .req-panel-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--color-border);
+      font-weight: 510; cursor: pointer; display: flex; justify-content: space-between;
+    }
+    .req-panel-body { padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+    
+    .req-item {
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-sm); padding: 12px;
+      font-size: 13px;
+    }
+    .req-item-title { font-weight: 590; color: var(--color-primary); margin-bottom: 6px; }
+    .req-item-purpose { color: var(--color-text-secondary); margin-bottom: 6px; }
+    .req-item-rule { color: var(--color-text-tertiary); font-size: 12px; }
+    .req-priority { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; background: rgba(255,255,255,0.1); margin-bottom: 4px;}
+    .req-priority.P0 { color: var(--color-danger); background: rgba(255, 77, 79, 0.1); }
+
+    /* 高亮效果 */
+    .highlight-target { outline: 2px solid var(--color-primary); outline-offset: 4px; border-radius: 4px; }
+
+    /* ===== 轻提示 ===== */
+    .toast {
+      position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-20px);
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      padding: 10px 20px; border-radius: 9999px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: flex; align-items: center; gap: 8px; font-size: 14px;
+      opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 1000;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* loading */
+    .spinner {
+      width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn.loading .spinner { display: inline-block; }
+    .btn.loading { pointer-events: none; opacity: 0.8; }
+    
+    /* 响应式 */
+    @media (max-width: 1024px) {
+      .channel-grid { grid-template-columns: 1fr; }
+      .req-panel { position: fixed; right: 0; height: 100%; z-index: 50; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 页面主体 -->
+  <div class="page-container">
+    <div class="header">
+      <!-- REQ: 页面标题 - 明确当前页面位置和功能 | 规则: 静态展示 | 优先级: P2 -->
+      <h1 id="req-title">沟通渠道</h1>
+      <p>配置终端用户与系统的对话触点，支持多渠道接入。绑定不影响底层数据隔离。</p>
+    </div>
+
+    <!-- REQ: 渠道卡片组 - 展示所有支持的沟通渠道 | 规则: 根据 MOCK_DATA 动态渲染三种状态（已绑定、未绑定、始终可用） | 优先级: P0 -->
+    <div class="channel-grid" id="channel-container">
+      <!-- 卡片将由 JS 渲染 -->
+    </div>
+  </div>
+
+  <!-- 需求说明面板 -->
+  <div id="req-panel" class="req-panel">
+    <div class="req-panel-header" onclick="toggleReqPanel()">
+      <span>📋 需求说明</span>
+      <span id="req-toggle">▶</span>
+    </div>
+    <div id="req-panel-body" class="req-panel-body">
+      <!-- 需求项将由 JS 渲染 -->
+    </div>
+  </div>
+
+  <!-- 企业微信配置弹窗 -->
+  <div id="modal-wecom" class="modal-overlay">
+    <!-- REQ: 企微配置表单 - 输入企微自建应用参数以完成绑定 | 规则: CorpID 和 AgentID 为必填项，Secret 必填 | 优先级: P0 -->
+    <div class="modal" id="req-wecom-form">
+      <div class="modal-header">
+        <h3 id="wecom-modal-title">配置企业微信</h3>
+        <span class="modal-close" onclick="closeModal('modal-wecom')">×</span>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">CorpID (企业ID)</label>
+          <input type="text" id="input-corpid" class="form-input" placeholder="例如：ww1a2b3c4d5e6f7g8h" onblur="validateInput(this)">
+          <div class="form-error">CorpID 不能为空</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">AgentID (应用ID)</label>
+          <input type="text" id="input-agentid" class="form-input" placeholder="例如：1000002" onblur="validateInput(this)">
+          <div class="form-error">AgentID 不能为空</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Secret (凭证密钥)</label>
+          <input type="password" id="input-secret" class="form-input" placeholder="输入应用 Secret" onblur="validateInput(this)">
+          <div class="form-error">Secret 不能为空</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-wecom')">取消</button>
+        <!-- REQ: 保存配置按钮 - 提交企微配置 | 规则: 前端校验必填项，模拟网络请求 loading 状态 | 优先级: P0 -->
+        <button id="btn-save-wecom" class="btn btn-primary" onclick="handleSaveWecom(this)">
+          <span class="spinner"></span> 确认保存
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 微信扫码弹窗 -->
+  <div id="modal-wechat" class="modal-overlay">
+    <!-- REQ: 微信扫码绑定 - 通过微信扫码授权绑定公众号 | 规则: 静态展示二维码，模拟 3 秒后自动扫码成功 | 优先级: P0 -->
+    <div class="modal" id="req-wechat-qr">
+      <div class="modal-header">
+        <h3>微信扫码绑定</h3>
+        <span class="modal-close" onclick="closeModal('modal-wechat')">×</span>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 40px 24px;">
+        <div style="width: 180px; height: 180px; background: #fff; margin: 0 auto 16px; padding: 10px; border-radius: 8px;">
+          <!-- 模拟二维码 -->
+          <svg viewBox="0 0 100 100" style="width:100%;height:100%;fill:#000;"><path d="M10,10 h30 v30 h-30 z M15,15 v20 h20 v-20 z M60,10 h30 v30 h-30 z M65,15 v20 h20 v-20 z M10,60 h30 v30 h-30 z M15,65 v20 h20 v-20 z M50,50 h10 v10 h-10 z M70,50 h20 v10 h-20 z M60,70 h10 v20 h-10 z M80,80 h10 v10 h-10 z"></path></svg>
+        </div>
+        <p style="color: var(--color-text-secondary); font-size: 14px;">请使用微信扫描上方二维码</p>
+        <p id="wechat-scan-status" style="color: var(--color-primary); font-size: 13px; margin-top: 12px; display: none;">扫描成功，正在绑定...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 解除绑定二次确认弹窗 -->
+  <div id="modal-confirm" class="modal-overlay">
+    <!-- REQ: 解绑确认 - 危险操作二次确认 | 规则: 点击确认后删除渠道配置数据 | 优先级: P0 -->
+    <div class="modal" id="req-unbind-confirm">
+      <div class="modal-header">
+        <h3>解除绑定确认</h3>
+        <span class="modal-close" onclick="closeModal('modal-confirm')">×</span>
+      </div>
+      <div class="modal-body">
+        <p>确定要解除与 <strong id="unbind-target-name"></strong> 的绑定吗？</p>
+        <p style="color: var(--color-text-tertiary); font-size: 13px; margin-top: 8px;">解除绑定后，该渠道的用户将无法继续访问系统。</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-confirm')">取消</button>
+        <button id="btn-confirm-unbind" class="btn btn-danger" onclick="executeUnbind(this)">
+          <span class="spinner"></span> 确认解绑
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">✓ 操作成功</div>
+
+  <script>
+    // ============================
+    // Mock 数据区
+    // ============================
+    const MOCK_DATA = {
+      channels: [
+        { 
+          id: 'web', type: 'web', name: 'Web 网页端', icon: '🌐', status: 'always', 
+          desc: '提供独立网页链接，用户可在浏览器中直接访问对话界面。', config: {} 
+        },
+        { 
+          id: 'wecom', type: 'wecom', name: '企业微信', icon: '🏢', status: 'unbound', 
+          desc: '绑定企业微信自建应用，员工可在企微工作台中直接使用。', config: null 
+        },
+        { 
+          id: 'wechat', type: 'wechat', name: '微信公众号', icon: '💬', status: 'bound', 
+          desc: '绑定微信服务号，客户可通过微信菜单或扫码直接发起对话。', config: { boundTime: '2023-10-12 14:00' } 
+        }
+      ]
+    };
+
+    let currentUnbindId = null;
+
+    // ============================
+    // 需求说明注册
+    // ============================
+    const REQ_SPECS = [
+      { id: "req-title", name: "页面标题", purpose: "明确当前页面位置和功能", rules: "静态展示；说明同邀请码下多绑定归同一客户（数据隔离规则）", priority: "P2" },
+      { id: "channel-container", name: "渠道卡片组", purpose: "展示所有支持的沟通渠道", rules: "Web始终可用无操作；企微/微信分未绑定和已绑定两态；提供配置/解绑入口", priority: "P0" },
+      { id: "req-wecom-form", name: "企微配置表单", purpose: "输入企微自建应用参数以完成绑定或修改", rules: "CorpID 和 AgentID 为必填项，失去焦点时校验", priority: "P0" },
+      { id: "btn-save-wecom", name: "保存企微配置", purpose: "提交企微配置参数", rules: "点击触发 loading 状态；模拟 500ms 后成功", priority: "P0" },
+      { id: "req-wechat-qr", name: "微信扫码绑定", purpose: "通过微信扫码授权绑定公众号", rules: "打开弹窗后，模拟 3 秒自动轮询扫码成功，并关闭弹窗刷新状态", priority: "P0" },
+      { id: "req-unbind-confirm", name: "解绑确认", purpose: "拦截危险操作", rules: "必须二次确认；解除后不可恢复，对应状态重置为 unbound", priority: "P0" }
+    ];
+
+    // ============================
+    // 渲染函数
+    // ============================
+    function renderChannels() {
+      const container = document.getElementById('channel-container');
+      container.innerHTML = '';
+      
+      MOCK_DATA.channels.forEach(ch => {
+        let statusHtml = '';
+        let btnHtml = '';
+
+        if (ch.status === 'always') {
+          statusHtml = `<div class="status-badge always"><div class="status-dot"></div>始终可用</div>`;
+          btnHtml = `<button class="btn" onclick="showToast('链接已复制')">复制 Web 链接</button>`;
+        } else if (ch.status === 'bound') {
+          statusHtml = `<div class="status-badge active"><div class="status-dot"></div>已绑定</div>`;
+          btnHtml = `
+            <button class="btn" onclick="openConfig('${ch.id}')">修改配置</button>
+            <button class="btn btn-danger" onclick="confirmUnbind('${ch.id}')">解绑</button>
+          `;
+        } else {
+          statusHtml = `<div class="status-badge inactive"><div class="status-dot"></div>未绑定</div>`;
+          btnHtml = `<button class="btn btn-primary" onclick="openBind('${ch.id}')">立即绑定</button>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'channel-card';
+        card.innerHTML = `
+          <div class="channel-icon">${ch.icon}</div>
+          ${statusHtml}
+          <div class="channel-name">${ch.name}</div>
+          <div class="channel-desc">${ch.desc}</div>
+          <div class="btn-group">
+            ${btnHtml}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderReqPanel() {
+      const body = document.getElementById('req-panel-body');
+      body.innerHTML = REQ_SPECS.map(req => `
+        <div class="req-item" onmouseenter="highlightElem('${req.id}')" onmouseleave="removeHighlight('${req.id}')">
+          <div class="req-item-title"><span class="req-priority ${req.priority}">${req.priority}</span> ${req.name}</div>
+          <div class="req-item-purpose">目的：${req.purpose}</div>
+          <div class="req-item-rule">规则：${req.rules}</div>
+        </div>
+      `).join('');
+    }
+
+    // ============================
+    // 交互行为模拟
+    // ============================
+    function mockRequest(delay = 500) {
+      return new Promise(resolve => setTimeout(resolve, delay));
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.innerHTML = `<span style="color:var(--color-success)">✓</span> ${msg}`;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2000);
+    }
+
+    function toggleReqPanel() {
+      const panel = document.getElementById('req-panel');
+      const toggle = document.getElementById('req-toggle');
+      panel.classList.toggle('collapsed');
+      toggle.innerText = panel.classList.contains('collapsed') ? '◀' : '▶';
+    }
+
+    // 高亮联动
+    function highlightElem(id) {
+      const el = document.getElementById(id);
+      if(el) el.classList.add('highlight-target');
+    }
+    function removeHighlight(id) {
+      const el = document.getElementById(id);
+      if(el) el.classList.remove('highlight-target');
+    }
+
+    // 弹窗控制
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    // 绑定与配置
+    function openBind(id) {
+      if (id === 'wecom') {
+        document.getElementById('wecom-modal-title').innerText = '配置企业微信';
+        document.querySelectorAll('.form-input').forEach(el => el.value = '');
+        openModal('modal-wecom');
+      } else if (id === 'wechat') {
+        openModal('modal-wechat');
+        simulateWechatScan();
+      }
+    }
+
+    function openConfig(id) {
+      if (id === 'wecom') {
+        document.getElementById('wecom-modal-title').innerText = '修改企微配置';
+        const config = MOCK_DATA.channels.find(c => c.id === 'wecom').config;
+        document.getElementById('input-corpid').value = config.corpId || '';
+        document.getElementById('input-agentid').value = config.agentId || '';
+        document.getElementById('input-secret').value = '********';
+        openModal('modal-wecom');
+      }
+    }
+
+    function confirmUnbind(id) {
+      currentUnbindId = id;
+      const ch = MOCK_DATA.channels.find(c => c.id === id);
+      document.getElementById('unbind-target-name').innerText = ch.name;
+      openModal('modal-confirm');
+    }
+
+    // 表单校验
+    function validateInput(el) {
+      const err = el.nextElementSibling;
+      if (!el.value.trim()) {
+        el.style.borderColor = 'var(--color-danger)';
+        err.style.display = 'block';
+        return false;
+      } else {
+        el.style.borderColor = 'var(--color-border)';
+        err.style.display = 'none';
+        return true;
+      }
+    }
+
+    // 提交动作
+    async function handleSaveWecom(btn) {
+      const i1 = document.getElementById('input-corpid');
+      const i2 = document.getElementById('input-agentid');
+      const i3 = document.getElementById('input-secret');
+      
+      const v1 = validateInput(i1);
+      const v2 = validateInput(i2);
+      const v3 = validateInput(i3);
+      if(!v1 || !v2 || !v3) return;
+
+      btn.classList.add('loading');
+      await mockRequest(600);
+      btn.classList.remove('loading');
+      
+      const ch = MOCK_DATA.channels.find(c => c.id === 'wecom');
+      ch.status = 'bound';
+      ch.config = { corpId: i1.value, agentId: i2.value };
+      
+      closeModal('modal-wecom');
+      renderChannels();
+      showToast('配置保存成功');
+    }
+
+    async function executeUnbind(btn) {
+      btn.classList.add('loading');
+      await mockRequest(500);
+      btn.classList.remove('loading');
+      
+      const ch = MOCK_DATA.channels.find(c => c.id === currentUnbindId);
+      ch.status = 'unbound';
+      ch.config = null;
+      
+      closeModal('modal-confirm');
+      renderChannels();
+      showToast(`已解除绑定`);
+    }
+
+    // 模拟微信扫码流程
+    let scanTimeout;
+    function simulateWechatScan() {
+      const status = document.getElementById('wechat-scan-status');
+      status.style.display = 'none';
+      clearTimeout(scanTimeout);
+      
+      // 模拟 3 秒后用户扫码
+      scanTimeout = setTimeout(async () => {
+        if (!document.getElementById('modal-wechat').classList.contains('show')) return;
+        status.style.display = 'block';
+        await mockRequest(1000);
+        const ch = MOCK_DATA.channels.find(c => c.id === 'wechat');
+        ch.status = 'bound';
+        ch.config = { boundTime: new Date().toLocaleString() };
+        closeModal('modal-wechat');
+        renderChannels();
+        showToast('微信绑定成功');
+      }, 3000);
+    }
+
+    // 初始化
+    function init() {
+      renderChannels();
+      renderReqPanel();
+    }
+    init();
+  </script>
+</body>
+</html>

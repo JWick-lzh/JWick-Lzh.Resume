@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>供应商画像 - 采宝原型</title>
+  <style>
+    :root {
+      --pri: #1A5FA8; --acc: #E87722; --suc: #0B7A4E; --dan: #C0392B;
+      --bg: #F5F6FA; --card: #FFFFFF; --bdr: #E4E7EF;
+      --txt: #0D1117; --txt2: #5A6478; --txt3: #9AA3B2;
+      --radius: 12px; --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--txt); height: 100vh; display: flex; padding: 24px; gap: 24px; }
+    
+    /* 需求说明面板 */
+    .req-panel { position: fixed; right: 20px; top: 20px; width: 320px; background: white; border: 1px solid var(--bdr); border-radius: var(--radius); box-shadow: var(--shadow); z-index: 1000; font-size: 13px; max-height: 80vh; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+    .req-panel.collapsed { transform: translateX(calc(100% - 30px)); }
+    .req-panel-header { padding: 12px 16px; background: #fafafa; border-bottom: 1px solid var(--bdr); font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; border-radius: var(--radius) var(--radius) 0 0; }
+    .req-panel-body { padding: 12px; overflow-y: auto; flex: 1; }
+    .req-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--bdr); }
+    .req-title { font-weight: bold; color: var(--pri); margin-bottom: 4px; }
+    .req-priority { background: #ffe58f; color: #d46b08; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+    /* Layout */
+    .left-panel { width: 300px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; }
+    .right-panel { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; transition: opacity 0.18s ease-in-out; }
+    .fading { opacity: 0; }
+
+    /* 左侧列表 */
+    .list-header { padding: 16px; border-bottom: 1px solid var(--bdr); font-weight: bold; font-size: 16px; }
+    .supplier-list { flex: 1; overflow-y: auto; }
+    .supplier-item { padding: 16px; border-bottom: 1px solid var(--bdr); cursor: pointer; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; }
+    .supplier-item:hover { background: var(--bg); }
+    .supplier-item.active { background: #E8F0F8; border-left: 4px solid var(--pri); }
+    .supplier-name { font-weight: 500; font-size: 15px; }
+    .score-badge { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; color: white; }
+    .score-green { background: var(--suc); }
+    .score-orange { background: var(--acc); }
+    .score-red { background: var(--dan); }
+
+    /* 右侧卡片通用 */
+    .card { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+    .card-title { font-size: 16px; font-weight: bold; margin-bottom: 16px; color: var(--txt); }
+
+    /* 顶部区域 (环形图 + 建议) */
+    .top-section { display: grid; grid-template-columns: 200px 1fr; gap: 20px; }
+    .score-ring-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+    #score-canvas { width: 160px; height: 160px; }
+    .score-value { position: absolute; top: 60px; font-size: 32px; font-weight: bold; }
+
+    .agent-advice { background: linear-gradient(135deg, #1A5FA8, #2980B9); color: white; border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column; justify-content: center; }
+    .agent-advice h3 { font-size: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .agent-advice p { font-size: 15px; line-height: 1.6; opacity: 0.9; }
+
+    /* 中部区域 (雷达图 + 对比 + 资质) */
+    .middle-section { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    .radar-container { display: flex; justify-content: center; align-items: center; }
+    #radar-canvas { width: 100%; max-width: 280px; height: 280px; }
+
+    /* 数据对比卡片 */
+    .compare-item { margin-bottom: 16px; }
+    .compare-lbl { font-size: 13px; color: var(--txt2); margin-bottom: 4px; }
+    .compare-val { font-size: 18px; font-weight: bold; }
+    .compare-bar-bg { width: 100%; height: 6px; background: #eee; border-radius: 3px; margin-top: 6px; }
+    .compare-bar-fill { height: 100%; background: var(--pri); border-radius: 3px; }
+
+    /* 资质信息卡片 */
+    .qual-list { display: flex; flex-direction: column; gap: 12px; }
+    .qual-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--bdr); }
+    .qual-item:last-child { border-bottom: none; }
+    .qual-lbl { color: var(--txt2); font-size: 14px; }
+    .qual-val { font-weight: 500; font-size: 14px; }
+    .status-ok { color: var(--suc); }
+    .status-warn { color: var(--acc); }
+
+    /* 历史表格 */
+    .table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .table th { text-align: left; padding: 12px; color: var(--txt2); border-bottom: 1px solid var(--bdr); }
+    .table td { padding: 12px; border-bottom: 1px solid var(--bdr); }
+    .table tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+  <div id="req-panel" class="req-panel">
+    <div class="req-panel-header" onclick="toggleReqPanel()">
+      📋 需求说明 <span id="req-toggle">▶</span>
+    </div>
+    <div id="req-panel-body" class="req-panel-body"></div>
+  </div>
+
+  <div class="left-panel">
+    <div class="list-header">供应商列表 (6)</div>
+    <!-- REQ: 供应商列表 - 展示系统所有供应商及综合评分 | 规则: 评分>=80为绿，60-79为橙，<60为红 | 优先级: P0 -->
+    <div class="supplier-list" id="supplier-list"></div>
+  </div>
+
+  <div class="right-panel" id="right-panel">
+    <div class="top-section">
+      <div class="card score-ring-container">
+        <!-- REQ: 弧形评分环 - 可视化综合评分 | 规则: 纯 Canvas 绘制，270度弧度，随分数变色 | 优先级: P1 -->
+        <canvas id="score-canvas"></canvas>
+        <div class="score-value" id="score-val">88</div>
+        <div style="color:var(--txt2); font-size:13px; margin-top:8px;">综合评分</div>
+      </div>
+      <!-- REQ: 采宝建议卡 - 展示口语化的综合评价 | 规则: 第一人称，蓝底渐变，提取核心风险或优势 | 优先级: P0 -->
+      <div class="agent-advice card">
+        <h3>🤖 采宝的建议</h3>
+        <p id="agent-advice-text">
+          华鲜农贸各项指标都不错，尤其是履约准时率极高（100%）。不过他家近期的价格稍微偏硬，让步空间不大。建议把高质量要求、易损耗的品类（比如西红柿）交给他，保证不断货。
+        </p>
+      </div>
+    </div>
+
+    <div class="middle-section">
+      <div class="card">
+        <div class="card-title">6维能力模型</div>
+        <div class="radar-container">
+          <!-- REQ: 6维雷达图 - 多维度能力雷达 | 规则: 纯 Canvas 绘制，六边形蜘蛛网，六个维度展示能力偏向 | 优先级: P0 -->
+          <canvas id="radar-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">多源价格对比 (均值)</div>
+        <div id="price-compare-container">
+          <!-- REQ: 价格对比卡 - 横向对比市场与主流平台 | 规则: 百分比横条展示，直观对比自身与大盘差异 | 优先级: P1 -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">资质与风险</div>
+        <div class="qual-list" id="qual-container">
+          <!-- REQ: 资质信息卡 - 展示合规情况 | 规则: 红绿色标记异常状态 | 优先级: P1 -->
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">近5期历史议价记录</div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>采购品类</th>
+            <th>初始报价</th>
+            <th>最终成交价</th>
+            <th>让价幅度</th>
+            <th>议价轮次</th>
+          </tr>
+        </thead>
+        <tbody id="history-table">
+          <!-- REQ: 历史议价表 - 展示过往议价效果 | 规则: 辅助判断当前供应商的压价空间 | 优先级: P2 -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const MOCK_DATA = [
+      { id: 'S1', name: '华鲜农贸', score: 88, advice: '华鲜农贸各项指标都不错，尤其是履约准时率极高（100%）。不过他家近期的价格稍微偏硬，让步空间不大。建议把高质量要求、易损耗的品类（比如西红柿）交给他，保证不断货。', radar: [85, 100, 95, 80, 90, 90], priceObj: { sys: 3.2, market: 3.0, platform: 3.5 }, qual: { license: '正常有效', capital: '500万', risk: '无异常', years: '8年' }, history: [ { date: '2023-10-25', sku: '西红柿', init: 3.5, final: 3.2, margin: '8.5%', rounds: 3 }, { date: '2023-10-24', sku: '黄瓜', init: 2.2, final: 2.0, margin: '9.0%', rounds: 2 }, { date: '2023-10-23', sku: '白菜', init: 1.2, final: 1.1, margin: '8.3%', rounds: 3 } ] },
+      { id: 'S2', name: '冷链直供', score: 75, advice: '冷链直供的价格优势很明显，基本上是全网最低。但是履约时间偶尔会波动，且最近有一条工商提示记录。建议用于非紧急的大宗低价品类（如白菜、土豆）。', radar: [95, 60, 70, 85, 75, 65], priceObj: { sys: 1.8, market: 2.1, platform: 2.2 }, qual: { license: '正常有效', capital: '200万', risk: '1条被执行(轻微)', years: '3年' }, history: [ { date: '2023-10-25', sku: '白菜', init: 1.1, final: 0.9, margin: '18.1%', rounds: 4 }, { date: '2023-10-24', sku: '土豆', init: 1.5, final: 1.3, margin: '13.3%', rounds: 2 } ] },
+      { id: 'S3', name: '鑫农批发', score: 52, advice: '鑫农批发近期退货率偏高，而且资质有过期的情况。我已经自动拦截了对他家的高优分配。除非极端缺货，否则不建议从他家拿。', radar: [70, 50, 40, 60, 40, 50], priceObj: { sys: 4.0, market: 3.8, platform: 3.8 }, qual: { license: '即将过期', capital: '50万', risk: '存在多条诉讼', years: '1年' }, history: [] }
+    ];
+
+    const REQ_SPECS = [
+      { id: "supplier-list", name: "供应商列表", purpose: "左侧导航切换供应商", rules: "评分>=80绿，60-79橙，<60红。切换时有180ms渐隐过渡", priority: "P0" },
+      { id: "score-canvas", name: "弧形评分环", purpose: "直观展示供应商综合实力", rules: "基于 Canvas 的270度圆弧绘制", priority: "P1" },
+      { id: "agent-advice-text", name: "采宝建议", purpose: "大模型总结的业务结论", rules: "口语化总结优势和劣势，给出分配建议", priority: "P0" },
+      { id: "radar-canvas", name: "6维雷达图", purpose: "能力偏向分析", rules: "绘制价格、履约、品质、响应、资质、健康度六个维度", priority: "P0" },
+      { id: "price-compare-container", name: "价格对比", purpose: "验证自身采购价是否合理", rules: "对比自身价、市场均价和平台价", priority: "P1" }
+    ];
+
+    let activeSupplier = MOCK_DATA[0];
+
+    function init() {
+      renderReqPanel();
+      renderList();
+      updateView(activeSupplier);
+    }
+
+    function renderReqPanel() {
+      const body = document.getElementById('req-panel-body');
+      body.innerHTML = REQ_SPECS.map(req => `
+        <div class="req-item" onmouseenter="highlightElem('${req.id}')" onmouseleave="unhighlightElem('${req.id}')">
+          <div class="req-title">${req.name}</div>
+          <div class="req-meta"><span class="req-priority">${req.priority}</span></div>
+          <div style="margin-bottom: 4px;"><strong>目的：</strong>${req.purpose}</div>
+          <div><strong>规则：</strong>${req.rules}</div>
+        </div>
+      `).join('');
+    }
+
+    function toggleReqPanel() {
+      const panel = document.getElementById('req-panel');
+      const toggle = document.getElementById('req-toggle');
+      panel.classList.toggle('collapsed');
+      toggle.innerText = panel.classList.contains('collapsed') ? '◀' : '▶';
+    }
+
+    let currentHighlight = null;
+    function highlightElem(id) {
+      const el = document.getElementById(id);
+      if(el) { currentHighlight = el.style.outline; el.style.outline = '3px solid var(--pri)'; el.style.outlineOffset = '-3px'; }
+    }
+    function unhighlightElem(id) {
+      const el = document.getElementById(id);
+      if(el) { el.style.outline = currentHighlight || ''; }
+    }
+
+    function getScoreColor(score) {
+      if (score >= 80) return 'var(--suc)';
+      if (score >= 60) return 'var(--acc)';
+      return 'var(--dan)';
+    }
+    function getScoreClass(score) {
+      if (score >= 80) return 'score-green';
+      if (score >= 60) return 'score-orange';
+      return 'score-red';
+    }
+
+    function renderList() {
+      const list = document.getElementById('supplier-list');
+      list.innerHTML = MOCK_DATA.map(s => `
+        <div class="supplier-item ${s.id === activeSupplier.id ? 'active' : ''}" onclick="switchSupplier('${s.id}')">
+          <div class="supplier-name">${s.name}</div>
+          <div class="score-badge ${getScoreClass(s.score)}">${s.score}</div>
+        </div>
+      `).join('');
+    }
+
+    function switchSupplier(id) {
+      if (activeSupplier.id === id) return;
+      activeSupplier = MOCK_DATA.find(s => s.id === id);
+      renderList();
+      
+      const panel = document.getElementById('right-panel');
+      panel.classList.add('fading');
+      setTimeout(() => {
+        updateView(activeSupplier);
+        panel.classList.remove('fading');
+      }, 180);
+    }
+
+    function updateView(data) {
+      document.getElementById('score-val').innerText = data.score;
+      document.getElementById('agent-advice-text').innerText = data.advice;
+      
+      // 更新价格对比
+      const maxPrice = Math.max(data.priceObj.sys, data.priceObj.market, data.priceObj.platform);
+      const ctn = document.getElementById('price-compare-container');
+      ctn.innerHTML = `
+        <div class="compare-item">
+          <div class="compare-lbl">我们的成交均价</div>
+          <div class="compare-val" style="color:var(--pri)">¥${data.priceObj.sys}</div>
+          <div class="compare-bar-bg"><div class="compare-bar-fill" style="width:${(data.priceObj.sys/maxPrice)*100}%"></div></div>
+        </div>
+        <div class="compare-item">
+          <div class="compare-lbl">市场批发均价</div>
+          <div class="compare-val">¥${data.priceObj.market}</div>
+          <div class="compare-bar-bg"><div class="compare-bar-fill" style="width:${(data.priceObj.market/maxPrice)*100}%; background:var(--txt3)"></div></div>
+        </div>
+        <div class="compare-item">
+          <div class="compare-lbl">主流生鲜平台均价</div>
+          <div class="compare-val">¥${data.priceObj.platform}</div>
+          <div class="compare-bar-bg"><div class="compare-bar-fill" style="width:${(data.priceObj.platform/maxPrice)*100}%; background:var(--txt3)"></div></div>
+        </div>
+      `;
+
+      // 更新资质
+      const q = data.qual;
+      const riskColor = q.risk === '无异常' ? 'status-ok' : 'status-warn';
+      const licColor = q.license === '正常有效' ? 'status-ok' : 'status-warn';
+      document.getElementById('qual-container').innerHTML = `
+        <div class="qual-item"><span class="qual-lbl">营业执照</span><span class="qual-val ${licColor}">${q.license}</span></div>
+        <div class="qual-item"><span class="qual-lbl">注册资本</span><span class="qual-val">${q.capital}</span></div>
+        <div class="qual-item"><span class="qual-lbl">工商风险</span><span class="qual-val ${riskColor}">${q.risk}</span></div>
+        <div class="qual-item"><span class="qual-lbl">注册年限</span><span class="qual-val">${q.years}</span></div>
+      `;
+
+      // 更新历史
+      const tbody = document.getElementById('history-table');
+      if(data.history.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">暂无议价记录</td></tr>';
+      } else {
+        tbody.innerHTML = data.history.map(h => `
+          <tr>
+            <td>${h.date}</td><td>${h.sku}</td><td>¥${h.init}</td>
+            <td style="color:var(--pri); font-weight:bold;">¥${h.final}</td>
+            <td style="color:var(--suc)">↓ ${h.margin}</td><td>${h.rounds}轮</td>
+          </tr>
+        `).join('');
+      }
+
+      // 重绘画布
+      requestAnimationFrame(() => {
+        drawScoreRing(data.score);
+        drawRadar(data.radar);
+      });
+    }
+
+    function drawScoreRing(score) {
+      const canvas = document.getElementById('score-canvas');
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const size = 160;
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, size, size);
+
+      const cx = size/2, cy = size/2, r = 60;
+      const startAngle = Math.PI * 0.75;
+      const endAngle = Math.PI * 2.25;
+
+      // 底环
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, startAngle, endAngle);
+      ctx.lineWidth = 12;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#eee';
+      ctx.stroke();
+
+      // 进度环
+      const progressAngle = startAngle + (endAngle - startAngle) * (score / 100);
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, startAngle, progressAngle);
+      ctx.lineWidth = 12;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = getScoreColor(score);
+      ctx.stroke();
+    }
+
+    function drawRadar(dataScores) {
+      const canvas = document.getElementById('radar-canvas');
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const size = 280;
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, size, size);
+
+      const cx = size/2, cy = size/2, maxR = 90;
+      const sides = 6;
+      const labels = ['价格竞争力', '履约准时', '品质稳定', '响应速度', '资质完整', '经营健康'];
+
+      // 画网格
+      ctx.strokeStyle = '#e4e7ef';
+      ctx.lineWidth = 1;
+      for (let level = 1; level <= 4; level++) {
+        const r = (maxR / 4) * level;
+        ctx.beginPath();
+        for (let i = 0; i < sides; i++) {
+          const angle = i * Math.PI * 2 / sides - Math.PI / 2;
+          const px = cx + r * Math.cos(angle);
+          const py = cy + r * Math.sin(angle);
+          if (i===0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+
+      // 画轴线和标签
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = 'var(--txt2)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (let i = 0; i < sides; i++) {
+        const angle = i * Math.PI * 2 / sides - Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + maxR * Math.cos(angle), cy + maxR * Math.sin(angle));
+        ctx.stroke();
+        
+        const lx = cx + (maxR + 20) * Math.cos(angle);
+        const ly = cy + (maxR + 15) * Math.sin(angle);
+        ctx.fillText(labels[i], lx, ly);
+      }
+
+      // 画数据区
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        const angle = i * Math.PI * 2 / sides - Math.PI / 2;
+        const r = maxR * (dataScores[i] / 100);
+        const px = cx + r * Math.cos(angle);
+        const py = cy + r * Math.sin(angle);
+        if (i===0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(26, 95, 168, 0.2)';
+      ctx.fill();
+      ctx.strokeStyle = '#1A5FA8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // 画点
+      for (let i = 0; i < sides; i++) {
+        const angle = i * Math.PI * 2 / sides - Math.PI / 2;
+        const r = maxR * (dataScores[i] / 100);
+        const px = cx + r * Math.cos(angle);
+        const py = cy + r * Math.sin(angle);
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI*2);
+        ctx.fillStyle = '#1A5FA8';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.stroke();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>资料上传 - 原型</title>
+  <style>
+    /* ===== 设计系统变量 (Linear 暗色风格 - 对齐 AGENTS.md) ===== */
+    :root {
+      --color-primary: #5e6ad2;
+      --color-primary-hover: #828fff;
+      --color-primary-glow: rgba(94,106,210,0.15);
+      --color-danger: #ff4d4f;
+      --color-warning: #f59e0b;
+      --color-success: #10b981;
+      --color-text: #f7f8f8;
+      --color-text-secondary: #d0d6e0;
+      --color-text-tertiary: #8a8f98;
+      --color-text-disabled: #62666d;
+      --color-border: rgba(255,255,255,0.08);
+      --color-border-light: rgba(255,255,255,0.05);
+      --color-bg-page: #08090a;
+      --color-bg-panel: #0f1011;
+      --color-bg-surface: #191a1b;
+      --color-bg-hover: rgba(255,255,255,0.05);
+      --color-bg-active: rgba(255,255,255,0.08);
+      --border-radius-sm: 4px;
+      --border-radius: 6px;
+      --border-radius-lg: 8px;
+      --border-radius-xl: 12px;
+      --border-radius-pill: 9999px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.5);
+      --shadow-lg: 0 20px 40px rgba(0,0,0,0.5);
+      --font-family: 'Inter Variable', -apple-system, system-ui, sans-serif;
+      --font-mono: 'Berkeley Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--color-bg-page);
+      color: var(--color-text);
+      font-family: var(--font-family);
+      font-size: 14px;
+      line-height: 1.5;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== 左侧边栏 ===== */
+    .sidebar {
+      width: 240px;
+      background: var(--color-bg-panel);
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .sidebar-header {
+      padding: 20px;
+      font-size: 15px;
+      font-weight: 510;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.3px;
+    }
+    .sidebar-logo {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+      border-radius: var(--border-radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: #fff;
+    }
+    .user-profile {
+      margin: 16px;
+      padding: 12px;
+      background: var(--color-bg-surface);
+      border-radius: var(--border-radius-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--color-border);
+    }
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: var(--border-radius);
+      background: linear-gradient(135deg, var(--color-primary), #828fff);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 510; font-size: 13px; color: #fff;
+    }
+    .menu { flex: 1; padding: 12px 8px; overflow-y: auto; }
+    .menu-group { margin-bottom: 24px; }
+    .menu-group-title {
+      font-size: 11px;
+      font-weight: 510;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0 12px;
+      margin-bottom: 8px;
+    }
+    .menu-item {
+      padding: 8px 12px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 2px;
+      transition: all 0.15s;
+      font-size: 13px;
+    }
+    .menu-item:hover { background: var(--color-bg-hover); color: var(--color-text); }
+    .menu-item.active {
+      background: var(--color-bg-active);
+      color: var(--color-text);
+      font-weight: 510;
+    }
+    .menu-icon { font-size: 16px; width: 20px; text-align: center; }
+
+    /* ===== 页面主体 ===== */
+    .page-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 32px;
+      overflow-y: auto;
+      min-width: 0;
+    }
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 510;
+      letter-spacing: -0.528px;
+      margin-bottom: 6px;
+    }
+    .page-header p {
+      color: var(--color-text-secondary);
+      font-size: 13px;
+    }
+
+    /* ===== 统计卡片 ===== */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--color-bg-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      padding: 16px 20px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 22px;
+      font-weight: 510;
+      font-family: var(--font-mono);
+      letter-spacing: -0.3px;
+    }
+
+    /* ===== 工具栏 ===== */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+    .toolbar-left { display: flex; gap: 10px; align-items: center; }
+    .toolbar-right { display: flex; gap: 10px; }
+
+    /* ===== 通用按钮 ===== */
+    .btn {
+      padding: 7px 14px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--color-border);
+      background: var(--color-bg-surface);
+      color: var(--color-text);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      transition: all 0.15s;
+      outline: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--color-bg-hover); }
+    .btn:active { transform: scale(0.98); }
+    .btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+    .btn-primary {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--color-primary-hover); }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+    .btn-ghost { background: transparent; border-color: transparent; }
+    .btn-ghost:hover { background: var(--color-bg-hover); }
+    .btn-danger { color: var(--color-danger); border-color: rgba(255,77,79,0.3); }
+    .btn-danger:hover { background: rgba(255,77,79,0.08); }
+
+    /* ===== 输入框 ===== */
+    .input {
+      padding: 7px 12px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--color-border);
+      background: var(--color-bg-surface);
+      color: var(--color-text);
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color 0.15s;
+    }
+    .input:focus { border-color: var(--color-primary); }
+    .input::placeholder { color: var(--color-text-disabled); }
+
+    /* ===== Select ===== */
+    .select {
+      padding: 7px 12px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--color-border);
+      background: var(--color-bg-surface);
+      color: var(--color-text);
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238a8f98' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+    }
+    .select:focus { border-color: var(--color-primary); }
+
+    /* ===== 表格 ===== */
+    .table-panel {
+      background: var(--color-bg-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      flex: 1;
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th {
+      padding: 12px 16px;
+      color: var(--color-text-tertiary);
+      font-weight: 510;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid var(--color-border);
+      background: rgba(255,255,255,0.02);
+    }
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--color-border-light);
+      font-size: 13px;
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr { transition: background 0.1s; }
+    tbody tr:hover { background: var(--color-bg-hover); }
+
+    /* ===== 标签 ===== */
+    .tag {
+      padding: 3px 10px;
+      border-radius: var(--border-radius-pill);
+      font-size: 11px;
+      font-weight: 510;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid var(--color-border);
+      background: rgba(255,255,255,0.03);
+    }
+    .tag .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .tag-success { color: var(--color-success); border-color: rgba(16,185,129,0.25); background: rgba(16,185,129,0.06); }
+    .tag-processing { color: var(--color-primary); border-color: rgba(94,106,210,0.25); background: rgba(94,106,210,0.06); }
+    .tag-failed { color: var(--color-danger); border-color: rgba(255,77,79,0.25); background: rgba(255,77,79,0.06); }
+    .tag-format { color: var(--color-text-secondary); }
+    .tag-category { color: var(--color-warning); border-color: rgba(245,158,11,0.25); background: rgba(245,158,11,0.06); }
+
+    /* ===== 操作链接 ===== */
+    .action-link {
+      color: var(--color-text-tertiary);
+      text-decoration: none;
+      font-size: 12px;
+      cursor: pointer;
+      transition: color 0.15s;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    .action-link:hover { color: var(--color-primary); background: var(--color-primary-glow); }
+    .action-link-danger:hover { color: var(--color-danger); background: rgba(255,77,79,0.08); }
+    .action-divider { color: var(--color-border); margin: 0 4px; }
+
+    /* ===== 弹窗 Modal ===== */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.15s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .modal {
+      width: 560px;
+      max-width: 90vw;
+      max-height: 85vh;
+      background: var(--color-bg-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-xl);
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.2s ease;
+    }
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 {
+      font-size: 16px;
+      font-weight: 510;
+      letter-spacing: -0.3px;
+    }
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .btn-close {
+      background: transparent;
+      border: none;
+      color: var(--color-text-tertiary);
+      font-size: 18px;
+      cursor: pointer;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--border-radius);
+      transition: all 0.15s;
+    }
+    .btn-close:hover { background: var(--color-bg-hover); color: var(--color-text); }
+
+    /* ===== 表单 ===== */
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      font-weight: 510;
+    }
+    .form-label .required { color: var(--color-danger); margin-left: 2px; }
+    .form-input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--color-border);
+      background: var(--color-bg-page);
+      color: var(--color-text);
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color 0.15s;
+    }
+    .form-input:focus { border-color: var(--color-primary); }
+    .form-input::placeholder { color: var(--color-text-disabled); }
+    .form-input[readonly] {
+      background: var(--color-bg-surface);
+      color: var(--color-text-secondary);
+      cursor: default;
+    }
+    textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.6; }
+    select.form-input {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238a8f98' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-hint {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      margin-top: 4px;
+    }
+    .form-error {
+      font-size: 12px;
+      color: var(--color-danger);
+      margin-top: 4px;
+      display: none;
+    }
+
+    /* ===== 详情面板 ===== */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 12px 16px;
+      font-size: 13px;
+    }
+    .detail-label { color: var(--color-text-tertiary); }
+    .detail-value { color: var(--color-text); }
+
+    /* ===== 上传区域 ===== */
+    .upload-area {
+      border: 2px dashed var(--color-border);
+      border-radius: var(--border-radius-lg);
+      padding: 36px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .upload-area:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-glow);
+    }
+    .upload-area.dragover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-glow);
+    }
+    .upload-icon { font-size: 36px; margin-bottom: 12px; }
+    .upload-title { font-weight: 510; margin-bottom: 6px; }
+    .upload-hint { font-size: 12px; color: var(--color-text-tertiary); }
+
+    /* ===== 上传进度 ===== */
+    .progress-container { margin-top: 16px; display: none; }
+    .progress-file {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      margin-bottom: 8px;
+    }
+    .progress-file-icon { font-size: 20px; flex-shrink: 0; }
+    .progress-file-info { flex: 1; min-width: 0; }
+    .progress-file-name {
+      font-size: 13px;
+      font-weight: 510;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .progress-bar-bg {
+      height: 4px;
+      background: var(--color-bg-page);
+      border-radius: 2px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--color-primary);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .progress-percent {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      font-family: var(--font-mono);
+      flex-shrink: 0;
+    }
+
+    /* ===== 分页 ===== */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-top: 1px solid var(--color-border);
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+    .pagination-info { font-family: var(--font-mono); font-size: 12px; }
+    .pagination-actions { display: flex; gap: 4px; }
+    .page-btn {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--color-border);
+      background: transparent;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.15s;
+    }
+    .page-btn:hover { background: var(--color-bg-hover); color: var(--color-text); }
+    .page-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+
+    /* ===== 空状态 ===== */
+    .empty-state {
+      padding: 64px 24px;
+      text-align: center;
+      color: var(--color-text-tertiary);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.5; }
+    .empty-title { font-size: 14px; font-weight: 510; margin-bottom: 6px; color: var(--color-text-secondary); }
+    .empty-desc { font-size: 13px; }
+
+    /* ===== 需求说明面板 ===== */
+    .req-panel {
+      position: fixed;
+      right: 20px;
+      top: 20px;
+      width: 300px;
+      background: var(--color-bg-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-xl);
+      box-shadow: var(--shadow-lg);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 40px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .req-panel.collapsed { transform: translateX(calc(100% - 40px)); }
+    .req-panel-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+      font-weight: 510;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .req-panel-body {
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .req-panel.collapsed .req-panel-body { display: none; }
+    .req-item {
+      background: var(--color-bg-page);
+      border: 1px solid var(--color-border);
+      padding: 10px;
+      border-radius: var(--border-radius);
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .req-item:hover { border-color: rgba(94,106,210,0.3); }
+    .req-item-head { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .req-name { font-weight: 510; color: var(--color-primary); font-size: 12px; }
+    .req-pri { background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 3px; font-size: 10px; color: var(--color-text-tertiary); }
+    .req-desc { color: var(--color-text-secondary); margin-bottom: 2px; }
+    .req-rule { color: var(--color-text-tertiary); font-style: italic; }
+    .highlight-req { outline: 2px solid var(--color-primary) !important; outline-offset: 2px; }
+
+    /* ===== Toast ===== */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      padding: 10px 20px;
+      border-radius: var(--border-radius);
+      font-size: 13px;
+      font-weight: 510;
+      z-index: 10000;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast-success { background: rgba(16,185,129,0.15); color: var(--color-success); border: 1px solid rgba(16,185,129,0.3); }
+    .toast-error { background: rgba(255,77,79,0.15); color: var(--color-danger); border: 1px solid rgba(255,77,79,0.3); }
+    .toast-warning { background: rgba(245,158,11,0.15); color: var(--color-warning); border: 1px solid rgba(245,158,11,0.3); }
+
+    /* ===== 二次确认 ===== */
+    .confirm-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .confirm-box {
+      width: 400px;
+      background: var(--color-bg-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-xl);
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.2s ease;
+    }
+    .confirm-title { font-weight: 510; margin-bottom: 8px; }
+    .confirm-desc { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 20px; }
+    .confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- Toast 提示 -->
+  <div id="toast" class="toast toast-success"></div>
+
+  <!-- 左侧边栏 -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🦞</div>
+      知识进化系统
+    </div>
+    <div class="user-profile">
+      <div class="avatar">字</div>
+      <div style="flex:1">
+        <div style="font-weight: 510; font-size: 13px;">小字</div>
+        <div style="font-size: 11px; color: var(--color-text-tertiary)">知识库管理员</div>
+      </div>
+    </div>
+    <div class="menu">
+      <div class="menu-group">
+        <div class="menu-group-title">知识库管理</div>
+        <div class="menu-item active"><span class="menu-icon">📤</span> 资料上传</div>
+        <div class="menu-item"><span class="menu-icon">📋</span> 任务中心</div>
+      </div>
+      <div class="menu-group">
+        <div class="menu-group-title">系统管理</div>
+        <div class="menu-item"><span class="menu-icon">⚙️</span> Skill 管理</div>
+        <div class="menu-item"><span class="menu-icon">🗄️</span> 数据源</div>
+        <div class="menu-item"><span class="menu-icon">💬</span> 沟通渠道</div>
+        <div class="menu-item"><span class="menu-icon">👤</span> 角色权限</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页面主体 -->
+  <div class="page-container">
+    <div class="page-header">
+      <h1>资料上传</h1>
+      <p>上传资料至知识库，系统自动解析并分类整理为知识卡片</p>
+    </div>
+
+    <!-- REQ: 统计概览 - 快速了解资料整体状态 | 规则: 实时统计各状态的文件数量 | 优先级: P1 -->
+    <div class="stats-row" id="stats-row">
+      <!-- JS 动态渲染 -->
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <!-- REQ: 搜索框 - 支持根据文件名称搜索已上传的资料 | 规则: 模糊匹配，回车或点击搜索触发 | 优先级: P0 -->
+        <input type="text" class="input" id="search-input" placeholder="搜索文件名称..." style="width: 260px;" />
+        <!-- REQ: 分类筛选 - 按分类过滤资料列表 | 规则: 支持全部/技术文档/培训资料/业务报告/其他 | 优先级: P1 -->
+        <select class="select" id="filter-category" onchange="handleFilter()">
+          <option value="">全部分类</option>
+          <option value="技术文档">技术文档</option>
+          <option value="培训资料">培训资料</option>
+          <option value="业务报告">业务报告</option>
+          <option value="其他">其他</option>
+        </select>
+        <!-- REQ: 状态筛选 - 按处理状态过滤资料列表 | 规则: 支持全部/已完成/处理中/解析失败 | 优先级: P1 -->
+        <select class="select" id="filter-status" onchange="handleFilter()">
+          <option value="">全部状态</option>
+          <option value="success">已完成</option>
+          <option value="processing">处理中</option>
+          <option value="failed">解析失败</option>
+        </select>
+      </div>
+      <div class="toolbar-right">
+        <!-- REQ: 上传资料按钮 - 打开上传弹窗 | 规则: 有上传权限的用户可点击 | 优先级: P0 -->
+        <button class="btn btn-primary" id="btn-upload" onclick="openUploadModal()">
+          <span style="font-size: 16px;">+</span> 上传资料
+        </button>
+      </div>
+    </div>
+
+    <div class="table-panel">
+      <!-- REQ: 资料列表 - 展示所有上传的历史记录及状态 | 规则: 按上传时间倒序排列，支持查看/编辑/删除 | 优先级: P0 -->
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th style="width: 40px;"><input type="checkbox" onchange="toggleAllCheck(this.checked)"></th>
+            <th>文件名称</th>
+            <th>分类</th>
+            <th>大小</th>
+            <th>格式</th>
+            <th>上传时间</th>
+            <th>上传人</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="table-tbody">
+          <!-- JS 动态渲染 -->
+        </tbody>
+      </table>
+      <div class="pagination" id="pagination">
+        <!-- JS 动态渲染 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 需求说明面板 -->
+  <!-- REQ: 需求说明面板 - 展示当前页面所有功能点的需求说明 | 规则: 默认展开，可点击折叠 | 优先级: P2 -->
+  <div id="req-panel" class="req-panel">
+    <div class="req-panel-header" onclick="toggleReqPanel()">
+      📋 需求说明 <span id="req-toggle">▶</span>
+    </div>
+    <div id="req-panel-body" class="req-panel-body"></div>
+  </div>
+
+  <!-- 上传资料弹窗 -->
+  <!-- REQ: 上传弹窗 - 支持拖拽或点击上传文件，可填写备注和分类 | 规则: 限制格式为PDF/DOCX/TXT等文本格式，大小不超过50MB | 优先级: P0 -->
+  <div class="modal-overlay" id="upload-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>上传资料</h3>
+        <button class="btn-close" onclick="closeModal('upload-modal')" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="upload-area" id="upload-area" onclick="triggerFileInput()"
+             ondragover="event.preventDefault(); this.classList.add('dragover')"
+             ondragleave="this.classList.remove('dragover')"
+             ondrop="event.preventDefault(); this.classList.remove('dragover'); simulateUpload()">
+          <div class="upload-icon">📄</div>
+          <div class="upload-title">点击或拖拽文件到此处上传</div>
+          <div class="upload-hint">支持 PDF、DOCX、TXT、XLSX 等格式，单文件不超过 50MB</div>
+        </div>
+        <div class="progress-container" id="upload-progress">
+          <div class="progress-file">
+            <span class="progress-file-icon">📄</span>
+            <div class="progress-file-info">
+              <div class="progress-file-name" id="upload-file-name">文件名称.pdf</div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="upload-bar"></div>
+              </div>
+            </div>
+            <span class="progress-percent" id="upload-percent">0%</span>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 20px;">
+          <label class="form-label">文件备注</label>
+          <textarea class="form-input" id="upload-remark" placeholder="添加备注说明（可选）" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">资料分类</label>
+          <select class="form-input" id="upload-category">
+            <option value="技术文档">技术文档</option>
+            <option value="培训资料">培训资料</option>
+            <option value="业务报告">业务报告</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('upload-modal')">取消</button>
+        <button class="btn btn-primary" id="btn-confirm-upload" onclick="confirmUpload()">确认上传</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 查看详情弹窗 -->
+  <!-- REQ: 详情弹窗 - 查看文件的完整元数据信息 | 规则: 只读模式展示文件所有属性 | 优先级: P0 -->
+  <div class="modal-overlay" id="detail-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📄 文件详情</h3>
+        <button class="btn-close" onclick="closeModal('detail-modal')" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body" id="detail-modal-body">
+        <!-- JS 动态渲染 -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('detail-modal')">关闭</button>
+        <button class="btn btn-primary" onclick="closeModal('detail-modal'); openEditModal(currentDetailId)">编辑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑弹窗 -->
+  <!-- REQ: 编辑弹窗 - 修改文件名称、备注和分类标签 | 规则: 文件名不能为空；保存后立即更新列表 | 优先级: P0 -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>✏️ 编辑资料信息</h3>
+        <button class="btn-close" onclick="closeModal('edit-modal')" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-id" />
+        <div class="form-group">
+          <label class="form-label">文件名称<span class="required">*</span></label>
+          <input type="text" class="form-input" id="edit-name" placeholder="请输入文件名称" />
+          <div class="form-error" id="edit-name-error">文件名称不能为空</div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">文件大小</label>
+            <input type="text" class="form-input" id="edit-size" readonly />
+          </div>
+          <div class="form-group">
+            <label class="form-label">文件格式</label>
+            <input type="text" class="form-input" id="edit-format" readonly />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">资料分类</label>
+          <select class="form-input" id="edit-category">
+            <option value="技术文档">技术文档</option>
+            <option value="培训资料">培训资料</option>
+            <option value="业务报告">业务报告</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">备注说明</label>
+          <textarea class="form-input" id="edit-remark" placeholder="添加备注说明（可选）" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('edit-modal')">取消</button>
+        <button class="btn btn-primary" onclick="saveEdit()">保存修改</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 二次确认弹窗 -->
+  <div class="confirm-overlay" id="confirm-dialog">
+    <div class="confirm-box">
+      <div class="confirm-title" id="confirm-title">确认操作</div>
+      <div class="confirm-desc" id="confirm-desc">确定要执行此操作吗？</div>
+      <div class="confirm-actions">
+        <button class="btn" onclick="closeConfirm()">取消</button>
+        <button class="btn btn-danger" id="confirm-btn" onclick="executeConfirm()">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================
+    // Mock 数据区（所有数据在此定义）
+    // ============================
+    const MOCK_DATA = {
+      uploadList: [
+        { id: 1, name: "2024年Q1财务报告_v2.pdf", size: "2.4 MB", format: "PDF", time: "2024-05-10 10:23", uploader: "小字", status: "success", category: "业务报告", remark: "包含Q1营收、利润、费用明细" },
+        { id: 2, name: "新员工入职培训手册.docx", size: "1.2 MB", format: "DOCX", time: "2024-05-11 14:15", uploader: "小字", status: "processing", category: "培训资料", remark: "2024年新版入职培训材料" },
+        { id: 3, name: "产品需求文档_V3_draft.pdf", size: "5.8 MB", format: "PDF", time: "2024-05-12 09:00", uploader: "张总", status: "failed", category: "技术文档", remark: "知识进化系统V3版本PRD" },
+        { id: 4, name: "竞品分析数据总结_2023.xlsx", size: "4.1 MB", format: "XLSX", time: "2024-05-12 11:30", uploader: "李四", status: "success", category: "业务报告", remark: "" },
+        { id: 5, name: "API接口文档_v2.1.pdf", size: "3.2 MB", format: "PDF", time: "2024-05-13 08:45", uploader: "赵技术", status: "success", category: "技术文档", remark: "RESTful API完整接口文档" },
+        { id: 6, name: "客户成功案例合集.docx", size: "6.7 MB", format: "DOCX", time: "2024-05-13 16:20", uploader: "张客成", status: "success", category: "其他", remark: "10个典型客户成功案例" },
+        { id: 7, name: "数据库设计文档_ER图.pdf", size: "1.8 MB", format: "PDF", time: "2024-05-14 10:00", uploader: "赵技术", status: "processing", category: "技术文档", remark: "" }
+      ]
+    };
+
+    // 模拟异步请求
+    function mockRequest(data, delay = 500) {
+      return new Promise(resolve => setTimeout(() => resolve(data), delay));
+    }
+
+    // ============================
+    // 需求说明注册
+    // ============================
+    const REQ_SPECS = [
+      { id: "stats-row", name: "统计概览", purpose: "快速了解资料整体状态", rules: "实时统计各状态文件数量", pri: "P1" },
+      { id: "search-input", name: "搜索框", purpose: "根据文件名称搜索", rules: "模糊匹配，回车或点击搜索触发", pri: "P0" },
+      { id: "filter-category", name: "分类筛选", purpose: "按分类过滤资料列表", rules: "支持全部/技术文档/培训资料/业务报告/其他", pri: "P1" },
+      { id: "filter-status", name: "状态筛选", purpose: "按处理状态过滤资料列表", rules: "支持全部/已完成/处理中/解析失败", pri: "P1" },
+      { id: "btn-upload", name: "上传资料按钮", purpose: "打开上传弹窗", rules: "有上传权限的用户可点击", pri: "P0" },
+      { id: "data-table", name: "资料列表", purpose: "展示上传历史及状态", rules: "按上传时间倒序，支持查看/编辑/删除", pri: "P0" },
+      { id: "upload-modal", name: "上传弹窗", purpose: "拖拽或点击上传文件", rules: "限PDF/DOCX/TXT，大小≤50MB，含进度条", pri: "P0" },
+      { id: "detail-modal", name: "详情弹窗", purpose: "查看文件完整元数据", rules: "只读展示文件所有属性", pri: "P0" },
+      { id: "edit-modal", name: "编辑弹窗", purpose: "修改文件名称/备注/分类", rules: "文件名不能为空，保存后更新列表", pri: "P0" }
+    ];
+
+    // ============================
+    // 状态管理
+    // ============================
+    let currentDetailId = null;
+    let confirmCallback = null;
+    let uploadSimulated = false;
+
+    // ============================
+    // 渲染函数
+    // ============================
+
+    function getFilteredData() {
+      const keyword = document.getElementById('search-input').value.toLowerCase();
+      const catFilter = document.getElementById('filter-category').value;
+      const statusFilter = document.getElementById('filter-status').value;
+
+      return MOCK_DATA.uploadList.filter(item => {
+        const matchName = item.name.toLowerCase().includes(keyword);
+        const matchCat = !catFilter || item.category === catFilter;
+        const matchStatus = !statusFilter || item.status === statusFilter;
+        return matchName && matchCat && matchStatus;
+      });
+    }
+
+    function renderStats() {
+      const list = MOCK_DATA.uploadList;
+      const total = list.length;
+      const success = list.filter(i => i.status === 'success').length;
+      const processing = list.filter(i => i.status === 'processing').length;
+      const failed = list.filter(i => i.status === 'failed').length;
+
+      document.getElementById('stats-row').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-label">总文件数</div>
+          <div class="stat-value">${total}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">已完成</div>
+          <div class="stat-value" style="color: var(--color-success)">${success}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">处理中</div>
+          <div class="stat-value" style="color: var(--color-primary)">${processing}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">解析失败</div>
+          <div class="stat-value" style="color: var(--color-danger)">${failed}</div>
+        </div>
+      `;
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('table-tbody');
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">暂无符合条件的资料</div><div class="empty-desc">尝试调整筛选条件或上传新的资料</div></div></td></tr>`;
+        document.getElementById('pagination').style.display = 'none';
+        return;
+      }
+      document.getElementById('pagination').style.display = 'flex';
+
+      let html = '';
+      data.forEach(item => {
+        let statusTag = '';
+        if (item.status === 'success') {
+          statusTag = `<span class="tag tag-success"><span class="dot"></span> 已完成</span>`;
+        } else if (item.status === 'processing') {
+          statusTag = `<span class="tag tag-processing"><span class="dot"></span> 处理中</span>`;
+        } else if (item.status === 'failed') {
+          statusTag = `<span class="tag tag-failed"><span class="dot"></span> 解析失败</span>`;
+        }
+
+        const categoryTag = item.category
+          ? `<span class="tag tag-category">${item.category}</span>`
+          : `<span style="color:var(--color-text-disabled)">—</span>`;
+
+        // REQ: 列表操作列 - 对已上传的资料进行管理 | 规则: 查看/编辑始终可用；失败可重新处理；删除需二次确认 | 优先级: P0
+        let actions = `
+          <span class="action-link" onclick="openDetailModal(${item.id})">查看</span>
+          <span class="action-divider">|</span>
+          <span class="action-link" onclick="openEditModal(${item.id})">编辑</span>
+        `;
+        if (item.status === 'failed') {
+          actions += `<span class="action-divider">|</span><span class="action-link" onclick="handleRetry(${item.id})">重试</span>`;
+        }
+        actions += `<span class="action-divider">|</span><span class="action-link action-link-danger" onclick="handleDelete(${item.id})">删除</span>`;
+
+        html += `
+          <tr>
+            <td><input type="checkbox" data-id="${item.id}"></td>
+            <td style="font-weight: 500; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.name}">${item.name}</td>
+            <td>${categoryTag}</td>
+            <td style="color: var(--color-text-secondary); font-family: var(--font-mono); font-size: 12px;">${item.size}</td>
+            <td><span class="tag tag-format">${item.format}</span></td>
+            <td style="color: var(--color-text-secondary); font-family: var(--font-mono); font-size: 12px;">${item.time}</td>
+            <td style="color: var(--color-text-secondary);">${item.uploader}</td>
+            <td>${statusTag}</td>
+            <td style="white-space: nowrap;">${actions}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+
+      // 渲染分页
+      document.getElementById('pagination').innerHTML = `
+        <div class="pagination-info">共 ${data.length} 条记录</div>
+        <div class="pagination-actions">
+          <button class="page-btn" disabled>‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn" disabled>›</button>
+        </div>
+      `;
+    }
+
+    function renderReqPanel() {
+      const body = document.getElementById('req-panel-body');
+      let h = '';
+      REQ_SPECS.forEach(r => {
+        h += `
+          <div class="req-item" onmouseenter="highlightEl('${r.id}')" onmouseleave="unhighlightEl('${r.id}')">
+            <div class="req-item-head">
+              <span class="req-name">${r.name}</span>
+              <span class="req-pri">${r.pri}</span>
+            </div>
+            <div class="req-desc">${r.purpose}</div>
+            <div class="req-rule">规则: ${r.rules}</div>
+          </div>
+        `;
+      });
+      body.innerHTML = h;
+    }
+
+    // ============================
+    // 交互逻辑
+    // ============================
+
+    // 搜索
+    document.getElementById('search-input').addEventListener('keyup', function(e) {
+      if (e.key === 'Enter') handleFilter();
+    });
+    function handleFilter() {
+      renderTable(getFilteredData());
+    }
+
+    // 全选
+    function toggleAllCheck(checked) {
+      document.querySelectorAll('#table-tbody input[type="checkbox"]').forEach(cb => cb.checked = checked);
+    }
+
+    // 打开详情弹窗
+    function openDetailModal(id) {
+      const item = MOCK_DATA.uploadList.find(i => i.id === id);
+      if (!item) return;
+      currentDetailId = id;
+
+      let statusText = '', statusClass = '';
+      if (item.status === 'success') { statusText = '✅ 已完成'; statusClass = 'color: var(--color-success)'; }
+      else if (item.status === 'processing') { statusText = '🔄 处理中'; statusClass = 'color: var(--color-primary)'; }
+      else { statusText = '❌ 解析失败'; statusClass = 'color: var(--color-danger)'; }
+
+      document.getElementById('detail-modal-body').innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-label">文件名称</div>
+          <div class="detail-value" style="font-weight: 510;">${item.name}</div>
+          <div class="detail-label">资料分类</div>
+          <div class="detail-value"><span class="tag tag-category">${item.category || '未分类'}</span></div>
+          <div class="detail-label">文件大小</div>
+          <div class="detail-value" style="font-family: var(--font-mono);">${item.size}</div>
+          <div class="detail-label">文件格式</div>
+          <div class="detail-value"><span class="tag tag-format">${item.format}</span></div>
+          <div class="detail-label">上传时间</div>
+          <div class="detail-value" style="font-family: var(--font-mono);">${item.time}</div>
+          <div class="detail-label">上传人</div>
+          <div class="detail-value">${item.uploader}</div>
+          <div class="detail-label">处理状态</div>
+          <div class="detail-value" style="${statusClass}; font-weight: 510;">${statusText}</div>
+          <div class="detail-label">备注</div>
+          <div class="detail-value">${item.remark || '<span style="color:var(--color-text-disabled)">暂无备注</span>'}</div>
+        </div>
+      `;
+      openModal('detail-modal');
+    }
+
+    // 打开编辑弹窗
+    function openEditModal(id) {
+      const item = MOCK_DATA.uploadList.find(i => i.id === id);
+      if (!item) return;
+
+      document.getElementById('edit-id').value = id;
+      document.getElementById('edit-name').value = item.name;
+      document.getElementById('edit-size').value = item.size;
+      document.getElementById('edit-format').value = item.format;
+      document.getElementById('edit-category').value = item.category || '其他';
+      document.getElementById('edit-remark').value = item.remark || '';
+      document.getElementById('edit-name-error').style.display = 'none';
+
+      openModal('edit-modal');
+    }
+
+    // 保存编辑
+    function saveEdit() {
+      const id = parseInt(document.getElementById('edit-id').value);
+      const name = document.getElementById('edit-name').value.trim();
+
+      if (!name) {
+        document.getElementById('edit-name-error').style.display = 'block';
+        document.getElementById('edit-name').focus();
+        return;
+      }
+      document.getElementById('edit-name-error').style.display = 'none';
+
+      const item = MOCK_DATA.uploadList.find(i => i.id === id);
+      if (item) {
+        item.name = name;
+        item.category = document.getElementById('edit-category').value;
+        item.remark = document.getElementById('edit-remark').value.trim();
+      }
+
+      closeModal('edit-modal');
+      renderTable(getFilteredData());
+      renderStats();
+      showToast('保存成功');
+    }
+
+    // 失去焦点校验
+    document.getElementById('edit-name').addEventListener('blur', function() {
+      if (!this.value.trim()) {
+        document.getElementById('edit-name-error').style.display = 'block';
+      } else {
+        document.getElementById('edit-name-error').style.display = 'none';
+      }
+    });
+
+    // 上传弹窗
+    function openUploadModal() {
+      uploadSimulated = false;
+      document.getElementById('upload-progress').style.display = 'none';
+      document.getElementById('upload-remark').value = '';
+      document.getElementById('upload-category').value = '技术文档';
+      document.getElementById('upload-area').style.display = 'block';
+      document.getElementById('btn-confirm-upload').disabled = true;
+      document.getElementById('btn-confirm-upload').style.opacity = '0.5';
+      openModal('upload-modal');
+    }
+
+    function triggerFileInput() {
+      simulateUpload();
+    }
+
+    function simulateUpload() {
+      if (uploadSimulated) return;
+      uploadSimulated = true;
+
+      const fileName = '新上传文档_' + Math.floor(Math.random() * 1000) + '.pdf';
+      document.getElementById('upload-file-name').textContent = fileName;
+      document.getElementById('upload-progress').style.display = 'block';
+      document.getElementById('upload-area').style.display = 'none';
+
+      let progress = 0;
+      const bar = document.getElementById('upload-bar');
+      const percent = document.getElementById('upload-percent');
+
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 15) + 5;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          document.getElementById('btn-confirm-upload').disabled = false;
+          document.getElementById('btn-confirm-upload').style.opacity = '1';
+        }
+        bar.style.width = progress + '%';
+        percent.textContent = progress + '%';
+      }, 200);
+    }
+
+    function confirmUpload() {
+      const remark = document.getElementById('upload-remark').value.trim();
+      const category = document.getElementById('upload-category').value;
+      const fileName = document.getElementById('upload-file-name').textContent;
+
+      MOCK_DATA.uploadList.unshift({
+        id: Date.now(),
+        name: fileName,
+        size: (Math.random() * 10 + 0.5).toFixed(1) + ' MB',
+        format: 'PDF',
+        time: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        uploader: '小字',
+        status: 'processing',
+        category: category,
+        remark: remark
+      });
+
+      closeModal('upload-modal');
+      renderTable(getFilteredData());
+      renderStats();
+      showToast('文件已上传，正在处理中');
+    }
+
+    // 删除
+    function handleDelete(id) {
+      const item = MOCK_DATA.uploadList.find(i => i.id === id);
+      if (!item) return;
+      showConfirm(
+        '确认删除',
+        `确定要删除「${item.name}」吗？删除后文件及解析内容将不可恢复。`,
+        '确认删除',
+        () => {
+          MOCK_DATA.uploadList = MOCK_DATA.uploadList.filter(i => i.id !== id);
+          renderTable(getFilteredData());
+          renderStats();
+          showToast('删除成功');
+        }
+      );
+    }
+
+    // 重试
+    function handleRetry(id) {
+      const item = MOCK_DATA.uploadList.find(i => i.id === id);
+      if (item) {
+        item.status = 'processing';
+        renderTable(getFilteredData());
+        renderStats();
+        showToast('已重新加入处理队列');
+      }
+    }
+
+    // ============================
+    // 公共工具函数
+    // ============================
+
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function showConfirm(title, desc, btnText, callback) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-desc').textContent = desc;
+      document.getElementById('confirm-btn').textContent = btnText;
+      confirmCallback = callback;
+      document.getElementById('confirm-dialog').style.display = 'flex';
+    }
+    function closeConfirm() {
+      document.getElementById('confirm-dialog').style.display = 'none';
+      confirmCallback = null;
+    }
+    function executeConfirm() {
+      if (confirmCallback) confirmCallback();
+      closeConfirm();
+    }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = `toast toast-${type}`;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function toggleReqPanel() {
+      const panel = document.getElementById('req-panel');
+      const toggle = document.getElementById('req-toggle');
+      panel.classList.toggle('collapsed');
+      toggle.innerText = panel.classList.contains('collapsed') ? '◀' : '▶';
+    }
+
+    function highlightEl(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('highlight-req');
+    }
+    function unhighlightEl(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('highlight-req');
+    }
+
+    // ============================
+    // 页面初始化
+    // ============================
+    function init() {
+      renderStats();
+      renderTable(MOCK_DATA.uploadList);
+      renderReqPanel();
+    }
+    init();
+  </script>
+</body>
+</html>

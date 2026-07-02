@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>配置中心 - 采宝原型</title>
+  <style>
+    :root {
+      --pri: #1A5FA8; --acc: #E87722; --suc: #0B7A4E; --dan: #C0392B;
+      --bg: #F5F6FA; --card: #FFFFFF; --bdr: #E4E7EF;
+      --txt: #0D1117; --txt2: #5A6478; --txt3: #9AA3B2;
+      --radius: 12px; --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--txt); padding: 24px; position: relative; }
+    
+    /* 需求说明面板 */
+    .req-panel { position: fixed; right: 20px; top: 20px; width: 320px; background: white; border: 1px solid var(--bdr); border-radius: var(--radius); box-shadow: var(--shadow); z-index: 1000; font-size: 13px; max-height: 80vh; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+    .req-panel.collapsed { transform: translateX(calc(100% - 30px)); }
+    .req-panel-header { padding: 12px 16px; background: #fafafa; border-bottom: 1px solid var(--bdr); font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; border-radius: var(--radius) var(--radius) 0 0; }
+    .req-panel-body { padding: 12px; overflow-y: auto; flex: 1; }
+    .req-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--bdr); }
+    .req-title { font-weight: bold; color: var(--pri); margin-bottom: 4px; }
+    .req-priority { background: #ffe58f; color: #d46b08; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+    .page-container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+
+    .card { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+    .card-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid var(--bdr); padding-bottom: 12px; }
+
+    .form-group { margin-bottom: 20px; display: flex; align-items: flex-start; }
+    .form-label { width: 180px; font-size: 14px; font-weight: 500; color: var(--txt); padding-top: 8px; }
+    .form-content { flex: 1; }
+    .form-tip { font-size: 12px; color: var(--txt3); margin-top: 6px; }
+
+    /* 输入控件 */
+    .input { width: 100%; max-width: 300px; padding: 10px 12px; border: 1px solid var(--bdr); border-radius: 6px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .input:focus { border-color: var(--pri); box-shadow: 0 0 0 2px rgba(26,95,168,0.1); }
+    .input-group { display: flex; align-items: center; gap: 8px; }
+    .select { width: 100%; max-width: 300px; padding: 10px 12px; border: 1px solid var(--bdr); border-radius: 6px; font-size: 14px; outline: none; background: white; }
+
+    /* Switch */
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--pri); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    /* 采宝行为预览 */
+    .behavior-preview { background: #E8F0F8; border-radius: 8px; padding: 16px; margin-top: 12px; font-size: 14px; color: var(--txt2); line-height: 1.5; border-left: 4px solid var(--pri); }
+    
+    /* Toolbar & Loading */
+    .toolbar { display: flex; justify-content: flex-end; padding-top: 16px; }
+    .btn { padding: 10px 24px; border-radius: 6px; border: none; cursor: pointer; font-size: 15px; font-weight: 500; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn:hover { opacity: 0.9; }
+    .btn-primary { background: var(--pri); color: white; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Toast */
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--suc); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 9999; }
+    .toast.show { opacity: 1; visibility: visible; top: 40px; }
+  </style>
+</head>
+<body>
+
+  <div id="req-panel" class="req-panel">
+    <div class="req-panel-header" onclick="toggleReqPanel()">
+      📋 需求说明 <span id="req-toggle">▶</span>
+    </div>
+    <div id="req-panel-body" class="req-panel-body"></div>
+  </div>
+
+  <div class="page-container">
+    
+    <div class="card">
+      <div class="card-title">🛡️ 采购业务规则设置</div>
+      
+      <!-- REQ: 市价偏离熔断 - 设置采购异常拦截 | 规则: 超过大盘价此比例时，暂停自动议价并转人工T3 | 优先级: P0 -->
+      <div class="form-group">
+        <div class="form-label">市价偏离熔断</div>
+        <div class="form-content">
+          <div class="input-group">
+            <input type="number" id="rule-market-cap" class="input" value="15" style="width:100px;">
+            <span>%</span>
+          </div>
+          <div class="form-tip">当供应商最低报价高于市场均价设定百分比时，强制转人工审核</div>
+        </div>
+      </div>
+
+      <!-- REQ: 历史最低价参考 - 议价锚点 | 规则: 开启后采宝会以历史最低价为目标价 | 优先级: P1 -->
+      <div class="form-group">
+        <div class="form-label">严格参考历史最低价</div>
+        <div class="form-content">
+          <label class="switch">
+            <input type="checkbox" id="rule-history-low" checked onchange="updatePreview()">
+            <span class="slider"></span>
+          </label>
+          <div class="form-tip">开启后，采宝的议价目标价将不超过该供应商近3个月的历史最低价</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚠️ 安全与风控规则</div>
+
+      <!-- REQ: 紧急采购比例限制 - 风控拦截 | 规则: 每日无议价采购订单总额不得超过设定比例 | 优先级: P1 -->
+      <div class="form-group">
+        <div class="form-label">紧急采购总额上限</div>
+        <div class="form-content">
+          <div class="input-group">
+            <input type="number" id="rule-emergency-ratio" class="input" value="10" style="width:100px;">
+            <span>%</span>
+          </div>
+          <div class="form-tip">每日不经过 T2 议价阶段直接下单的金额占当日总采购额的最高比例</div>
+        </div>
+      </div>
+
+      <!-- REQ: 最大自动议价轮次 - 效率限制 | 规则: 防止AI陷入死循环或引起供应商反感 | 优先级: P0 -->
+      <div class="form-group">
+        <div class="form-label">自动议价最大轮次</div>
+        <div class="form-content">
+          <select id="rule-max-rounds" class="select" onchange="updatePreview()">
+            <option value="2">最多 2 轮</option>
+            <option value="3" selected>最多 3 轮</option>
+            <option value="5">最多 5 轮</option>
+          </select>
+          <div class="form-tip">单个 SKU 与单个供应商的最大自动还价次数，达到上限则锁定当前价</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">采宝会怎么做？</div>
+        <div class="form-content">
+          <!-- REQ: 行为预览说明 - 所见即所得策略反馈 | 规则: 根据上方规则动态更新说明文案 | 优先级: P1 -->
+          <div class="behavior-preview" id="behavior-preview">
+            "好的，我记住了！在议价时，我会以他们<strong>历史最低价</strong>作为锚点死磕。每次最多只谈 <strong>3轮</strong>，如果谈不下来或者发现他家报价比市场均价高出 <strong>15%</strong>，我就不跟他废话了，直接把单子推给你审批。紧急单子我会控制在今天总预算的 <strong>10%</strong> 以内。"
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <!-- REQ: 保存规则按钮 - 提交配置 | 规则: 点击后展示0.8s Loading态，随后Toast成功提示 | 优先级: P0 -->
+      <button class="btn btn-primary" id="btn-save" onclick="saveConfig()">
+        <span class="spinner" id="btn-spinner"></span>
+        <span id="btn-text">更新采宝的规则</span>
+      </button>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast">✅ 采宝的规则已更新</div>
+
+  <script>
+    const REQ_SPECS = [
+      { id: "rule-market-cap", name: "市价偏离熔断", purpose: "防止异常高价自动成交", rules: "超过大盘价比例时转人工", priority: "P0" },
+      { id: "rule-history-low", name: "严格参考历史最低价", purpose: "优化议价锚点", rules: "开关状态控制采宝目标价策略", priority: "P1" },
+      { id: "rule-emergency-ratio", name: "紧急采购总额上限", purpose: "控制跳过议价的风控敞口", rules: "百分比输入，每日校验", priority: "P1" },
+      { id: "rule-max-rounds", name: "自动议价最大轮次", purpose: "保证议价效率", rules: "下拉选择2/3/5轮", priority: "P0" },
+      { id: "behavior-preview", name: "行为预览", purpose: "透明化展示Agent运行逻辑", rules: "修改上方表单时，此段文案实时联动更新", priority: "P1" },
+      { id: "btn-save", name: "更新规则按钮", purpose: "保存配置", rules: "前端模拟 0.8s 异步保存并弹成功 Toast", priority: "P0" }
+    ];
+
+    function init() {
+      renderReqPanel();
+      
+      // 绑定输入事件以更新预览
+      document.getElementById('rule-market-cap').addEventListener('input', updatePreview);
+      document.getElementById('rule-emergency-ratio').addEventListener('input', updatePreview);
+    }
+
+    function renderReqPanel() {
+      const body = document.getElementById('req-panel-body');
+      body.innerHTML = REQ_SPECS.map(req => `
+        <div class="req-item" onmouseenter="highlightElem('${req.id}')" onmouseleave="unhighlightElem('${req.id}')">
+          <div class="req-title">${req.name}</div>
+          <div class="req-meta"><span class="req-priority">${req.priority}</span></div>
+          <div style="margin-bottom: 4px;"><strong>目的：</strong>${req.purpose}</div>
+          <div><strong>规则：</strong>${req.rules}</div>
+        </div>
+      `).join('');
+    }
+
+    function toggleReqPanel() {
+      const panel = document.getElementById('req-panel');
+      const toggle = document.getElementById('req-toggle');
+      panel.classList.toggle('collapsed');
+      toggle.innerText = panel.classList.contains('collapsed') ? '◀' : '▶';
+    }
+
+    let currentHighlight = null;
+    function highlightElem(id) {
+      const el = document.getElementById(id);
+      if(el) { currentHighlight = el.style.outline; el.style.outline = '3px solid var(--pri)'; el.style.outlineOffset = '-3px'; }
+    }
+    function unhighlightElem(id) {
+      const el = document.getElementById(id);
+      if(el) { el.style.outline = currentHighlight || ''; }
+    }
+
+    function updatePreview() {
+      const cap = document.getElementById('rule-market-cap').value || 0;
+      const historyOn = document.getElementById('rule-history-low').checked;
+      const ratio = document.getElementById('rule-emergency-ratio').value || 0;
+      const rounds = document.getElementById('rule-max-rounds').value;
+
+      const historyText = historyOn ? "以他们<strong>历史最低价</strong>作为锚点死磕" : "以<strong>系统大盘价</strong>作为参考来谈";
+
+      document.getElementById('behavior-preview').innerHTML = 
+        `"好的，我记住了！在议价时，我会${historyText}。每次最多只谈 <strong>${rounds}轮</strong>，如果谈不下来或者发现他家报价比市场均价高出 <strong>${cap}%</strong>，我就不跟他废话了，直接把单子推给你审批。紧急单子我会控制在今天总预算的 <strong>${ratio}%</strong> 以内。"`;
+    }
+
+    function saveConfig() {
+      const btn = document.getElementById('btn-save');
+      const spinner = document.getElementById('btn-spinner');
+      const text = document.getElementById('btn-text');
+      
+      btn.disabled = true;
+      spinner.style.display = 'inline-block';
+      text.innerText = '正在同步给采宝...';
+
+      // 模拟异步请求延迟
+      setTimeout(() => {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        text.innerText = '更新采宝的规则';
+        
+        showToast();
+      }, 800);
+    }
+
+    function showToast() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    init();
+  </script>
+</body>
+</html>

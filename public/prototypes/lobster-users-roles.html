@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>权限与角色管理 - 原型</title>
+  <style>
+    /* ===== 设计系统变量 (Linear 暗色风格 - 对齐 AGENTS.md) ===== */
+    :root {
+      --color-primary: #5e6ad2;
+      --color-primary-hover: #828fff;
+      --color-primary-glow: rgba(94,106,210,0.15);
+      --color-danger: #ff4d4f;
+      --color-warning: #f59e0b;
+      --color-success: #10b981;
+      --color-text: #f7f8f8;
+      --color-text-secondary: #d0d6e0;
+      --color-text-tertiary: #8a8f98;
+      --color-text-disabled: #62666d;
+      --color-border: rgba(255,255,255,0.08);
+      --color-border-light: rgba(255,255,255,0.05);
+      --color-bg-page: #08090a;
+      --color-bg-panel: #0f1011;
+      --color-bg-surface: #191a1b;
+      --color-bg-hover: rgba(255,255,255,0.05);
+      --color-bg-active: rgba(255,255,255,0.08);
+      --border-radius-sm: 4px;
+      --border-radius: 6px;
+      --border-radius-lg: 8px;
+      --border-radius-xl: 12px;
+      --border-radius-pill: 9999px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.5);
+      --shadow-lg: 0 20px 40px rgba(0,0,0,0.5);
+      --font-family: 'Inter Variable', -apple-system, system-ui, sans-serif;
+      --font-mono: 'Berkeley Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--color-bg-page);
+      color: var(--color-text);
+      font-family: var(--font-family);
+      font-size: 14px;
+      line-height: 1.5;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== 左侧边栏 ===== */
+    .sidebar {
+      width: 240px;
+      background: var(--color-bg-panel);
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .sidebar-header {
+      padding: 20px;
+      font-size: 15px;
+      font-weight: 510;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.3px;
+    }
+    .sidebar-logo {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+      border-radius: var(--border-radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: #fff;
+    }
+    .user-profile {
+      margin: 16px;
+      padding: 12px;
+      background: var(--color-bg-surface);
+      border-radius: var(--border-radius-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--color-border);
+    }
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: var(--border-radius);
+      background: linear-gradient(135deg, var(--color-primary), #828fff);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 510; font-size: 13px; color: #fff;
+    }
+    .menu { flex: 1; padding: 12px 8px; overflow-y: auto; }
+    .menu-group { margin-bottom: 24px; }
+    .menu-group-title {
+      font-size: 11px; font-weight: 510;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding: 0 12px; margin-bottom: 8px;
+    }
+    .menu-item {
+      padding: 8px 12px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      color: var(--color-text-secondary);
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 2px;
+      transition: all 0.15s;
+      font-size: 13px;
+    }
+    .menu-item:hover { background: var(--color-bg-hover); color: var(--color-text); }
+    .menu-item.active { background: var(--color-bg-active); color: var(--color-text); font-weight: 510; }
+    .menu-icon { font-size: 16px; width: 20px; text-align: center; }
+
+    /* ===== 页面主体 ===== */
+    .page-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      padding: 28px 32px 0;
+      flex-shrink: 0;
+    }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 510;
+      letter-spacing: -0.528px;
+      margin-bottom: 4px;
+    }
+    .page-header p {
+      color: var(--color-text-secondary);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    /* ===== Tabs ===== */
+    .tabs-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--color-border);
+      padding: 0 32px;
+      flex-shrink: 0;
+    }
+    .tab-item {
+      padding: 10px 20px;
+      cursor: pointer;
+      color: var(--color-text-tertiary);
+      font-size: 13px;
+      font-weight: 510;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+    .tab-item:hover { color: var(--color-text-secondary); }
+    .tab-item.active {
+      color: var(--color-text);
+      border-bottom-color: var(--color-primary);
+    }
+    .tab-icon { font-size: 15px; }
+
+    /* ===== 页面内容滚动区 ===== */
+    .page-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 32px 32px;
+    }
+
+    /* ===== 用户管理布局 ===== */
+    .user-management {
+      display: flex;
+      gap: 20px;
+      height: 100%;
+      min-height: 500px;
+    }
+
+    /* 左侧：组织架构树 */
+    .org-panel {
+      width: 220px;
+      background: var(--color-bg-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-xl);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .org-panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 13px;
+      font-weight: 510;
+      color: var(--color-text-secondary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .org-panel-body { padding: 8px; flex: 1; overflow-y: auto; }
+    .tree-node {
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+    .tree-node:hover { background: var(--color-bg-hover); color: var(--color-text); }
+    .tree-node.active { background: var(--color-bg-active); color: var(--color-primary); font-weight: 510; }
+    .tree-indent { width: 16px; flex-shrink: 0; }
+    .tree-icon { font-size: 14px; flex-shrink: 0; }
+    .tree-count {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--color-text-disabled);
+      font-family: var(--font-mono);
+    }
+
+    /* 右侧：用户列表 */
+    .user-list-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    /* ===== 通用组件 ===== */
+    .btn {
+      padding: 7px 14px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--color-border);
+      background: var(--color-bg-surface);
+      color: var(--color-text);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      transition: all 0.15s;
+      outline: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--color-bg-hover); }
+    .btn:active { transform: scale(0.98); }
+    .btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+    .btn-primary { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+    .btn-primary:hover { background: var(--color-primary-hover); }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+    .btn-danger { color: var(--color-danger); border-color: rgba(255,77,79,0.3); }
+    .btn-danger:hover { background: rgba(255,77,79,0.08); }
+    .btn-close {
+      background: transparent; border: none;
+      color: var(--color-text-tertiary); font-size: 18px;
+      cursor: pointer; width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--border-radius); transition: all 0.15s;
+    }
+    .btn-close:hover { background: var(--color-bg-hover); color: var(--color-text); }
+
+    .input {
+      padding: 7px 12px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--color-border);
+      background: var(--color-bg-surface);
+      color: var(--color-text);
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color 0.15s;
+    }
+    .input:focus { border-color: var(--color-primary); }
+    .input::placeholder { color: var(--color-text-disabled); }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .toolbar-left { display: flex; gap: 10px; align-items: center; }
+    .toolbar-right { display: flex; gap: 10px; }
+
+    /* ===== 表格 ===== */
+    .table-panel {
+      background: var(--color-bg-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      flex: 1;
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th {
+      padding: 12px 16px;
+      color: var(--color-text-tertiary);
+      font-weight: 510;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid var(--color-border);
+      background: rgba(255,255,255,0.02);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border-light);
+      font-size: 13px;
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr { transition: background 0.1s; }
+    tbody tr:hover { background: var(--color-bg-hover); }
+
+    .tag {
+      padding: 3px 10px;
+      border-radius: var(--border-radius-pill);
+      font-size: 11px;
+      font-weight: 510;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid var(--color-border);
+      background: rgba(255,255,255,0.03);
+    }
+    .tag .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .tag-success { color: var(--color-success); border-color: rgba(16,185,129,0.25); background: rgba(16,185,129,0.06); }
+    .tag-disabled { color: var(--color-text-disabled); }
+    .tag-role { color: var(--color-primary); border-color: rgba(94,106,210,0.25); background: rgba(94,106,210,0.06); }
+
+    .action-link {
+      color: var(--color-text-tertiary);
+      text-decoration: none;
+      font-size: 12px;
+      cursor: pointer;
+      transition: color 0.15s;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    .action-link:hover { color: var(--color-primary); background: var(--color-primary-glow); }
+    .action-link-danger:hover { color: var(--color-danger); background: rgba(255,77,79,0.08); }
+    .action-divider { color: var(--color-border); margin: 0 4px; }
+
+    /* ===== 角色卡片网格 ===== */
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .role-card {
+      background: var(--color-bg-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-xl);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .role-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--color-primary);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .role-card:hover {
+      border-color: rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.02);
+    }
+    .role-card:hover::before { opacity: 1; }
+    .role-card.active {
+      border-color: var(--color-primary);
+      background: var(--color-primary-glow);
+    }
+    .role-card.active::before { opacity: 1; }
+
+    .role-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .role-card-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--border-radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+    }
+    .role-card-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: var(--border-radius-pill);
+      background: rgba(255,255,255,0.06);
+      color: var(--color-text-tertiary);
+      border: 1px solid var(--color-border-light);
+    }
+    .role-card-badge.custom {
+      color: var(--color-primary);
+      background: var(--color-primary-glow);
+      border-color: rgba(94,106,210,0.2);
+    }
+    .role-card-name {
+      font-size: 15px;
+      font-weight: 510;
+      letter-spacing: -0.2px;
+      margin-bottom: 4px;
+    }
+    .role-card-desc {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .role-card-meta {
+      display: flex;
+      gap: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--color-border-light);
+    }
+    .role-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+    }
+    .role-meta-value { color: var(--color-text-secondary); font-family: var(--font-mono); }
+
+    /* ===== 权限矩阵展开区 ===== */
+    .perm-detail-panel {
+      background: var(--color-bg-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-xl);
+      margin-top: 20px;
+      display: none;
+      animation: slideUp 0.2s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .perm-detail-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .perm-detail-title { font-size: 14px; font-weight: 510; }
+    .perm-detail-body { padding: 20px; }
+    .perm-module { margin-bottom: 24px; }
+    .perm-module:last-child { margin-bottom: 0; }
+    .perm-module-title {
+      font-size: 12px;
+      font-weight: 510;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--color-border-light);
+    }
+    .perm-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .perm-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border-light);
+      border-radius: var(--border-radius);
+      transition: all 0.15s;
+    }
+    .perm-item.has-perm {
+      border-color: rgba(94,106,210,0.2);
+      background: rgba(94,106,210,0.04);
+    }
+    .perm-item.no-perm { opacity: 0.35; }
+    .perm-check {
+      width: 16px; height: 16px;
+      border-radius: 3px;
+      border: 1px solid var(--color-border);
+      background: var(--color-bg-page);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      font-size: 10px;
+    }
+    .perm-check.checked {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #fff;
+    }
+    .perm-name { font-size: 13px; font-weight: 500; }
+    .perm-desc { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+
+    /* ===== Modal ===== */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      width: 520px;
+      max-width: 90vw;
+      max-height: 85vh;
+      background: var(--color-bg-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-xl);
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.2s ease;
+    }
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 { font-size: 16px; font-weight: 510; letter-spacing: -0.3px; }
+    .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--color-border);
+      display: flex; justify-content: flex-end; gap: 10px;
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: block; margin-bottom: 6px;
+      font-size: 13px; color: var(--color-text-secondary); font-weight: 510;
+    }
+    .form-label .required { color: var(--color-danger); margin-left: 2px; }
+    .form-input {
+      width: 100%; padding: 8px 12px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--color-border);
+      background: var(--color-bg-page);
+      color: var(--color-text);
+      outline: none; font-family: inherit; font-size: 13px;
+      transition: border-color 0.15s;
+    }
+    .form-input:focus { border-color: var(--color-primary); }
+    .form-input::placeholder { color: var(--color-text-disabled); }
+    textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.6; }
+    select.form-input {
+      cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238a8f98' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
+    }
+    .form-error { font-size: 12px; color: var(--color-danger); margin-top: 4px; display: none; }
+
+    /* ===== 权限勾选区域 ===== */
+    .perm-checkbox-group {
+      background: var(--color-bg-page);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      padding: 16px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .perm-checkbox-section { margin-bottom: 16px; }
+    .perm-checkbox-section:last-child { margin-bottom: 0; }
+    .perm-checkbox-section-title {
+      font-size: 12px; font-weight: 510;
+      color: var(--color-text-tertiary);
+      margin-bottom: 8px;
+    }
+    .perm-checkbox-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 8px;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      transition: background 0.1s;
+      margin-bottom: 2px;
+    }
+    .perm-checkbox-item:hover { background: var(--color-bg-hover); }
+    .perm-checkbox-item input[type="checkbox"] {
+      appearance: none; width: 15px; height: 15px;
+      border: 1px solid var(--color-border); border-radius: 3px;
+      background: var(--color-bg-surface); cursor: pointer;
+      position: relative; flex-shrink: 0;
+    }
+    .perm-checkbox-item input[type="checkbox"]:checked {
+      background: var(--color-primary); border-color: var(--color-primary);
+    }
+    .perm-checkbox-item input[type="checkbox"]:checked::after {
+      content: "✓"; position: absolute; color: #fff; font-size: 10px; left: 2px; top: -1px;
+    }
+    .perm-checkbox-label { font-size: 13px; }
+    .perm-checkbox-desc { font-size: 11px; color: var(--color-text-tertiary); margin-left: auto; }
+
+    /* ===== 二次确认 ===== */
+    .confirm-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center; z-index: 2000;
+    }
+    .confirm-box {
+      width: 400px; background: var(--color-bg-panel);
+      border: 1px solid var(--color-border); border-radius: var(--border-radius-xl);
+      padding: 24px; box-shadow: var(--shadow-lg); animation: slideUp 0.2s ease;
+    }
+    .confirm-title { font-weight: 510; margin-bottom: 8px; }
+    .confirm-desc { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 20px; line-height: 1.6; }
+    .confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+    /* ===== 需求说明面板 ===== */
+    .req-panel {
+      position: fixed; right: 20px; top: 20px; width: 300px;
+      background: var(--color-bg-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-xl);
+      box-shadow: var(--shadow-lg); z-index: 9999;
+      display: flex; flex-direction: column;
+      max-height: calc(100vh - 40px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .req-panel.collapsed { transform: translateX(calc(100% - 40px)); }
+    .req-panel-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+      font-weight: 510; font-size: 13px; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center; user-select: none;
+    }
+    .req-panel-body { padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .req-panel.collapsed .req-panel-body { display: none; }
+    .req-item {
+      background: var(--color-bg-page); border: 1px solid var(--color-border);
+      padding: 10px; border-radius: var(--border-radius); font-size: 12px;
+      cursor: pointer; transition: border-color 0.15s;
+    }
+    .req-item:hover { border-color: rgba(94,106,210,0.3); }
+    .req-item-head { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .req-name { font-weight: 510; color: var(--color-primary); font-size: 12px; }
+    .req-pri { background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 3px; font-size: 10px; color: var(--color-text-tertiary); }
+    .req-desc { color: var(--color-text-secondary); margin-bottom: 2px; }
+    .req-rule { color: var(--color-text-tertiary); font-style: italic; }
+    .highlight-req { outline: 2px solid var(--color-primary) !important; outline-offset: 2px; }
+
+    /* ===== Toast ===== */
+    .toast {
+      position: fixed; top: 20px; left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      padding: 10px 20px; border-radius: var(--border-radius);
+      font-size: 13px; font-weight: 510; z-index: 10000;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast-success { background: rgba(16,185,129,0.15); color: var(--color-success); border: 1px solid rgba(16,185,129,0.3); }
+    .toast-warning { background: rgba(245,158,11,0.15); color: var(--color-warning); border: 1px solid rgba(245,158,11,0.3); }
+    .toast-error { background: rgba(255,77,79,0.15); color: var(--color-danger); border: 1px solid rgba(255,77,79,0.3); }
+
+    /* ===== 隐藏视图切换 ===== */
+    .view-hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- Toast -->
+  <div id="toast" class="toast toast-success"></div>
+
+  <!-- 左侧边栏 -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🦞</div>
+      知识进化系统
+    </div>
+    <div class="user-profile">
+      <div class="avatar">管</div>
+      <div style="flex:1">
+        <div style="font-weight: 510; font-size: 13px;">林管理员</div>
+        <div style="font-size: 11px; color: var(--color-text-tertiary)">超级管理员</div>
+      </div>
+    </div>
+    <div class="menu">
+      <div class="menu-group">
+        <div class="menu-group-title">知识库管理</div>
+        <div class="menu-item"><span class="menu-icon">📤</span> 资料上传</div>
+        <div class="menu-item"><span class="menu-icon">📋</span> 任务中心</div>
+      </div>
+      <div class="menu-group">
+        <div class="menu-group-title">系统管理</div>
+        <div class="menu-item"><span class="menu-icon">⚙️</span> Skill 管理</div>
+        <div class="menu-item"><span class="menu-icon">🗄️</span> 数据源</div>
+        <div class="menu-item"><span class="menu-icon">💬</span> 沟通渠道</div>
+        <div class="menu-item active"><span class="menu-icon">👤</span> 角色权限</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页面主体 -->
+  <div class="page-container">
+    <div class="page-header">
+      <h1>权限与角色管理</h1>
+      <p>基于 RBAC 原则，功能权限 × 知识库范围两层控制。支持自定义角色扩展。</p>
+    </div>
+
+    <!-- REQ: 顶部Tab切换 - 切换用户管理与角色权限视图 | 规则: 默认选中用户管理 | 优先级: P0 -->
+    <div class="tabs-bar" id="tab-nav">
+      <div class="tab-item active" onclick="switchTab('users')">
+        <span class="tab-icon">👥</span> 用户管理
+      </div>
+      <div class="tab-item" onclick="switchTab('roles')">
+        <span class="tab-icon">🛡️</span> 角色权限
+      </div>
+    </div>
+
+    <!-- ===== 用户管理视图 ===== -->
+    <div class="page-body" id="view-users">
+      <div class="user-management">
+        <!-- REQ: 组织架构树 - 展示公司部门层级，筛选该部门下用户 | 规则: 默认选中"全公司"根节点 | 优先级: P1 -->
+        <div class="org-panel" id="org-tree-panel">
+          <div class="org-panel-header">🏢 组织架构</div>
+          <div class="org-panel-body" id="org-tree-body">
+            <!-- JS 动态渲染 -->
+          </div>
+        </div>
+
+        <div class="user-list-panel">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <!-- REQ: 搜索框 - 根据姓名或手机号搜索用户 | 规则: 模糊匹配当前选中部门的用户 | 优先级: P0 -->
+              <input type="text" class="input" id="search-user" placeholder="搜索姓名/手机号..." style="width: 240px;" oninput="filterUsers()" />
+            </div>
+            <div class="toolbar-right">
+              <!-- REQ: 新建用户按钮 - 打开新建用户弹窗 | 规则: 仅超级管理员可见 | 优先级: P0 -->
+              <button class="btn btn-primary" id="btn-add-user" onclick="openUserModal()">
+                <span style="font-size: 16px;">+</span> 新建用户
+              </button>
+            </div>
+          </div>
+
+          <div class="table-panel">
+            <!-- REQ: 用户列表 - 展示用户详情及相关操作 | 规则: 分页展示 | 优先级: P0 -->
+            <table id="user-table">
+              <thead>
+                <tr>
+                  <th style="width: 40px;"><input type="checkbox" onchange="toggleAll(this.checked)"></th>
+                  <th>姓名</th>
+                  <th>手机号</th>
+                  <th>所属部门</th>
+                  <th>角色</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="user-tbody">
+                <!-- JS 动态渲染 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 角色权限视图 ===== -->
+    <div class="page-body view-hidden" id="view-roles">
+      <div class="toolbar" style="margin-bottom: 20px;">
+        <div>
+          <span style="color: var(--color-text-secondary); font-size: 13px;">
+            权限分两层：① 功能权限（能做哪些操作） ② 资源范围（作用在哪些库或部门）
+          </span>
+        </div>
+        <!-- REQ: 新建自定义角色 - 创建新角色并分配功能权限 | 规则: 创建后可分配给具体用户 | 优先级: P0 -->
+        <button class="btn btn-primary" id="btn-add-role" onclick="openRoleModal()">
+          <span style="font-size: 16px;">+</span> 新建自定义角色
+        </button>
+      </div>
+
+      <!-- REQ: 角色卡片网格 - 以卡片方式展示所有角色 | 规则: 预置角色标记"预置"徽标；点击展开权限详情 | 优先级: P0 -->
+      <div class="roles-grid" id="roles-grid">
+        <!-- JS 动态渲染 -->
+      </div>
+
+      <!-- REQ: 权限详情面板 - 展示选中角色的权限矩阵 | 规则: 按模块分组展示勾选状态；预置角色不可修改 | 优先级: P0 -->
+      <div class="perm-detail-panel" id="perm-detail-panel">
+        <div class="perm-detail-header">
+          <div class="perm-detail-title" id="perm-detail-title">权限明细</div>
+          <button class="btn btn-sm" onclick="closePermDetail()">收起</button>
+        </div>
+        <div class="perm-detail-body" id="perm-detail-body">
+          <!-- JS 动态渲染 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 需求说明面板 -->
+  <div id="req-panel" class="req-panel">
+    <div class="req-panel-header" onclick="toggleReqPanel()">
+      📋 需求说明 <span id="req-toggle">▶</span>
+    </div>
+    <div id="req-panel-body" class="req-panel-body"></div>
+  </div>
+
+  <!-- 用户表单弹窗 -->
+  <!-- REQ: 用户表单弹窗 - 录入/编辑用户信息 | 规则: 必填项校验不通过不可提交 | 优先级: P0 -->
+  <div class="modal-overlay" id="user-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="user-modal-title">新建用户</h3>
+        <button class="btn-close" onclick="closeModal('user-modal')" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="form-user-id" />
+        <div class="form-group">
+          <label class="form-label">姓名<span class="required">*</span></label>
+          <input type="text" class="form-input" id="form-user-name" placeholder="请输入姓名" />
+          <div class="form-error" id="form-name-error">姓名不能为空</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">手机号<span class="required">*</span></label>
+          <input type="text" class="form-input" id="form-user-phone" placeholder="请输入11位手机号" />
+          <div class="form-error" id="form-phone-error">请输入有效的手机号</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">所属部门</label>
+          <select class="form-input" id="form-user-dept">
+            <option value="研发部">研发部</option>
+            <option value="设计部">设计部</option>
+            <option value="运营部">运营部</option>
+            <option value="总裁办">总裁办</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">角色分配</label>
+          <!-- REQ: 授权角色给用户 - 在用户表单中直接指派角色 | 规则: 支持选择预置或自定义角色 | 优先级: P0 -->
+          <select class="form-input" id="form-user-role">
+            <option value="普通成员">普通成员</option>
+            <option value="部门管理员">部门管理员</option>
+            <option value="超级管理员">超级管理员</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('user-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitUser()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 角色表单弹窗 -->
+  <!-- REQ: 角色定义弹窗 - 定义角色名称及功能权限范围 | 规则: 角色名称唯一；包含权限勾选列表 | 优先级: P0 -->
+  <div class="modal-overlay" id="role-modal">
+    <div class="modal" style="width: 560px;">
+      <div class="modal-header">
+        <h3>新建自定义角色</h3>
+        <button class="btn-close" onclick="closeModal('role-modal')" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">角色名称<span class="required">*</span></label>
+          <input type="text" class="form-input" id="form-role-name" placeholder="例如：外部审核员" />
+          <div class="form-error" id="form-role-error">角色名称不能为空</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">角色描述</label>
+          <textarea class="form-input" id="form-role-desc" placeholder="描述该角色的职能和权限范围" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">功能权限</label>
+          <div class="perm-checkbox-group" id="role-perm-checkboxes">
+            <!-- JS 动态渲染 -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('role-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitRole()">创建角色</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 二次确认 -->
+  <div class="confirm-overlay" id="confirm-dialog">
+    <div class="confirm-box">
+      <div class="confirm-title" id="confirm-title">确认操作</div>
+      <div class="confirm-desc" id="confirm-desc"></div>
+      <div class="confirm-actions">
+        <button class="btn" onclick="closeConfirm()">取消</button>
+        <button class="btn btn-danger" id="confirm-btn" onclick="executeConfirm()">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================
+    // Mock 数据区
+    // ============================
+    const PERMISSIONS = [
+      {
+        module: '客户管理',
+        items: [
+          { id: 'p1', name: '查看邀请码列表', desc: '查看系统发出的所有邀请码' },
+          { id: 'p2', name: '生成/吊销邀请码', desc: '创建新邀请码或作废已有邀请码' },
+          { id: 'p3', name: '查看客户列表与详情', desc: '查看所有入驻客户及详细信息' },
+          { id: 'p4', name: '调整客户额度', desc: '修改客户的 API 调用或资源配额' },
+          { id: 'p5', name: '停用/恢复客户', desc: '冻结或解冻客户租户' },
+        ]
+      },
+      {
+        module: '知识与运维',
+        items: [
+          { id: 'p6', name: '查看官方知识库', desc: '浏览官方预置的知识与文档' },
+          { id: 'p7', name: '编辑官方知识库', desc: '修改或上传官方知识' },
+          { id: 'p8', name: '客户运维全部', desc: '进入客户运维面板并执行高危操作' },
+          { id: 'p9', name: '维护数据源目录', desc: '管理系统底层数据源连接' },
+        ]
+      },
+      {
+        module: '系统与监控',
+        items: [
+          { id: 'p10', name: '查看定时任务监控', desc: '查看系统后台任务运行状态' },
+          { id: 'p11', name: '查看操作日志', desc: '审计全体人员操作记录' },
+          { id: 'p12', name: '管理角色与权限', desc: '创建角色并分配权限（超管专属）' },
+        ]
+      }
+    ];
+
+    const MOCK_ROLES = [
+      { id: 'r1', name: '超级管理员', icon: '👑', isPreset: true, desc: '拥有系统全部权限，可管理所有用户和角色', perms: ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12'] },
+      { id: 'r2', name: '客户成功', icon: '🤝', isPreset: true, desc: '管理客户生命周期与运维服务', perms: ['p1','p2','p3','p8','p10'] },
+      { id: 'r3', name: '运营', icon: '📊', isPreset: true, desc: '查看数据和监控，日常运营管理', perms: ['p1','p3','p10','p11'] },
+      { id: 'r4', name: '内容运营', icon: '📝', isPreset: true, desc: '维护官方知识库与预置知识', perms: ['p6','p7'] },
+      { id: 'r5', name: '技术运维', icon: '🔧', isPreset: true, desc: '处理技术问题，维护数据源', perms: ['p8','p9','p10','p11'] },
+      { id: 'r6', name: '初级审核员', icon: '📋', isPreset: false, desc: '临时建立的审核角色，仅查看权限', perms: ['p1','p3'] },
+    ];
+
+    const MOCK_ORG = [
+      { id: 1, name: '全公司', icon: '🏢', children: [
+        { id: 2, name: '总裁办', icon: '💼', count: 2 },
+        { id: 3, name: '研发部', icon: '💻', count: 8 },
+        { id: 4, name: '设计部', icon: '🎨', count: 4 },
+        { id: 5, name: '运营部', icon: '📈', count: 6 },
+      ]}
+    ];
+
+    const MOCK_USERS = [
+      { id: 101, name: '张三', phone: '13800138001', dept: '研发部', role: '超级管理员', status: '正常' },
+      { id: 102, name: '李四', phone: '13900139002', dept: '设计部', role: '普通成员', status: '正常' },
+      { id: 103, name: '王五', phone: '13700137003', dept: '运营部', role: '部门管理员', status: '停用' },
+      { id: 104, name: '赵六', phone: '13600136004', dept: '研发部', role: '普通成员', status: '正常' },
+      { id: 105, name: '孙七', phone: '13500135005', dept: '总裁办', role: '超级管理员', status: '正常' },
+      { id: 106, name: '周八', phone: '13400134006', dept: '设计部', role: '内容运营', status: '正常' },
+    ];
+
+    // ============================
+    // 需求说明注册
+    // ============================
+    const REQ_SPECS = [
+      { id: 'tab-nav', name: '顶部Tab切换', purpose: '切换用户管理与角色权限视图', rules: '默认选中用户管理', pri: 'P0' },
+      { id: 'org-tree-panel', name: '组织架构树', purpose: '展示公司部门层级，筛选部门用户', rules: '默认选中根节点"全公司"', pri: 'P1' },
+      { id: 'search-user', name: '搜索框', purpose: '根据姓名或手机号搜索用户', rules: '模糊匹配当前选中部门的用户', pri: 'P0' },
+      { id: 'btn-add-user', name: '新建用户按钮', purpose: '打开新建用户弹窗', rules: '仅超级管理员可见', pri: 'P0' },
+      { id: 'user-table', name: '用户列表', purpose: '展示用户详情及相关操作', rules: '分页展示', pri: 'P0' },
+      { id: 'user-modal', name: '用户表单弹窗', purpose: '录入/编辑用户信息', rules: '必填项校验不通过不可提交', pri: 'P0' },
+      { id: 'form-user-role', name: '角色分配', purpose: '在用户表单中指派角色', rules: '支持选择预置或自定义角色', pri: 'P0' },
+      { id: 'btn-add-role', name: '新建自定义角色', purpose: '创建新角色并分配功能权限', rules: '创建后可分配给具体用户', pri: 'P0' },
+      { id: 'roles-grid', name: '角色卡片网格', purpose: '以卡片方式展示所有角色', rules: '预置角色标记徽标；点击展开权限详情', pri: 'P0' },
+      { id: 'perm-detail-panel', name: '权限详情面板', purpose: '展示选中角色的权限矩阵', rules: '按模块分组展示勾选状态', pri: 'P0' },
+      { id: 'role-modal', name: '角色定义弹窗', purpose: '定义角色名称及权限范围', rules: '角色名称唯一；包含权限勾选列表', pri: 'P0' },
+    ];
+
+    // ============================
+    // 状态管理
+    // ============================
+    let state = {
+      currentTab: 'users',
+      selectedDept: '全公司',
+      selectedRoleId: null,
+      editingUserId: null,
+      confirmCallback: null
+    };
+
+    // ============================
+    // 渲染函数
+    // ============================
+
+    function renderOrgTree() {
+      const container = document.getElementById('org-tree-body');
+      let html = '';
+      function buildNodes(nodes, level) {
+        nodes.forEach(node => {
+          const isActive = node.name === state.selectedDept;
+          html += `
+            <div class="tree-node ${isActive ? 'active' : ''}" style="padding-left: ${level * 16 + 12}px" onclick="selectDept('${node.name}')">
+              <span class="tree-icon">${node.icon || '📂'}</span>
+              <span>${node.name}</span>
+              ${node.count !== undefined ? `<span class="tree-count">${node.count}</span>` : ''}
+            </div>
+          `;
+          if (node.children) buildNodes(node.children, level + 1);
+        });
+      }
+      buildNodes(MOCK_ORG, 0);
+      container.innerHTML = html;
+    }
+
+    function selectDept(dept) {
+      state.selectedDept = dept;
+      renderOrgTree();
+      filterUsers();
+    }
+
+    function filterUsers() {
+      const keyword = document.getElementById('search-user').value.toLowerCase();
+      let filtered = MOCK_USERS.filter(u => {
+        const matchSearch = u.name.toLowerCase().includes(keyword) || u.phone.includes(keyword);
+        const matchDept = state.selectedDept === '全公司' || u.dept === state.selectedDept;
+        return matchSearch && matchDept;
+      });
+      renderUserTable(filtered);
+    }
+
+    function renderUserTable(data) {
+      const tbody = document.getElementById('user-tbody');
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--color-text-tertiary);padding:48px;">暂无数据</td></tr>';
+        return;
+      }
+
+      let html = '';
+      data.forEach(user => {
+        const statusTag = user.status === '正常'
+          ? '<span class="tag tag-success"><span class="dot"></span> 正常</span>'
+          : '<span class="tag tag-disabled"><span class="dot"></span> 停用</span>';
+
+        html += `
+          <tr>
+            <td><input type="checkbox" data-id="${user.id}"></td>
+            <td style="font-weight: 500;">${user.name}</td>
+            <td style="color: var(--color-text-secondary); font-family: var(--font-mono); font-size: 12px;">${user.phone}</td>
+            <td style="color: var(--color-text-secondary);">${user.dept}</td>
+            <td><span class="tag tag-role">${user.role}</span></td>
+            <td>${statusTag}</td>
+            <td style="white-space: nowrap;">
+              <span class="action-link" onclick="editUser(${user.id})">编辑</span>
+              <span class="action-divider">|</span>
+              <span class="action-link action-link-danger" onclick="deleteUser(${user.id})">删除</span>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function renderRolesGrid() {
+      const grid = document.getElementById('roles-grid');
+      const allPermCount = PERMISSIONS.reduce((acc, m) => acc + m.items.length, 0);
+
+      let html = '';
+      MOCK_ROLES.forEach(role => {
+        const isActive = state.selectedRoleId === role.id;
+        const userCount = MOCK_USERS.filter(u => u.role === role.name).length;
+
+        html += `
+          <div class="role-card ${isActive ? 'active' : ''}" onclick="selectRole('${role.id}')">
+            <div class="role-card-header">
+              <div class="role-card-icon">${role.icon}</div>
+              <span class="role-card-badge ${role.isPreset ? '' : 'custom'}">${role.isPreset ? '预置' : '自定义'}</span>
+            </div>
+            <div class="role-card-name">${role.name}</div>
+            <div class="role-card-desc">${role.desc}</div>
+            <div class="role-card-meta">
+              <div class="role-meta-item">
+                🔑 <span class="role-meta-value">${role.perms.length}/${allPermCount}</span> 权限
+              </div>
+              <div class="role-meta-item">
+                👤 <span class="role-meta-value">${userCount}</span> 用户
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      grid.innerHTML = html;
+    }
+
+    function selectRole(roleId) {
+      state.selectedRoleId = roleId;
+      renderRolesGrid();
+      renderPermDetail();
+    }
+
+    function renderPermDetail() {
+      const panel = document.getElementById('perm-detail-panel');
+      const role = MOCK_ROLES.find(r => r.id === state.selectedRoleId);
+      if (!role) { panel.style.display = 'none'; return; }
+
+      panel.style.display = 'block';
+      document.getElementById('perm-detail-title').textContent = `🛡️ ${role.name} — 权限明细`;
+
+      let html = '';
+      PERMISSIONS.forEach(mod => {
+        let itemsHtml = '';
+        mod.items.forEach(perm => {
+          const hasPerm = role.perms.includes(perm.id);
+          itemsHtml += `
+            <div class="perm-item ${hasPerm ? 'has-perm' : 'no-perm'}">
+              <div class="perm-check ${hasPerm ? 'checked' : ''}">${hasPerm ? '✓' : ''}</div>
+              <div>
+                <div class="perm-name">${perm.name}</div>
+                <div class="perm-desc">${perm.desc}</div>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+          <div class="perm-module">
+            <div class="perm-module-title">${mod.module}</div>
+            <div class="perm-grid">${itemsHtml}</div>
+          </div>
+        `;
+      });
+      document.getElementById('perm-detail-body').innerHTML = html;
+    }
+
+    function closePermDetail() {
+      state.selectedRoleId = null;
+      document.getElementById('perm-detail-panel').style.display = 'none';
+      renderRolesGrid();
+    }
+
+    // 渲染角色弹窗中的权限勾选
+    function renderRolePermCheckboxes() {
+      const container = document.getElementById('role-perm-checkboxes');
+      let html = '';
+      PERMISSIONS.forEach(mod => {
+        html += `<div class="perm-checkbox-section"><div class="perm-checkbox-section-title">${mod.module}</div>`;
+        mod.items.forEach(perm => {
+          html += `
+            <label class="perm-checkbox-item">
+              <input type="checkbox" value="${perm.id}" />
+              <span class="perm-checkbox-label">${perm.name}</span>
+              <span class="perm-checkbox-desc">${perm.desc}</span>
+            </label>
+          `;
+        });
+        html += '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function renderReqPanel() {
+      const body = document.getElementById('req-panel-body');
+      let h = '';
+      REQ_SPECS.forEach(r => {
+        h += `
+          <div class="req-item" onmouseenter="highlightEl('${r.id}')" onmouseleave="unhighlightEl('${r.id}')">
+            <div class="req-item-head">
+              <span class="req-name">${r.name}</span>
+              <span class="req-pri">${r.pri}</span>
+            </div>
+            <div class="req-desc">${r.purpose}</div>
+            <div class="req-rule">规则: ${r.rules}</div>
+          </div>
+        `;
+      });
+      body.innerHTML = h;
+    }
+
+    // ============================
+    // 交互逻辑
+    // ============================
+
+    function switchTab(tab) {
+      state.currentTab = tab;
+      document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+      document.querySelector(`.tab-item[onclick="switchTab('${tab}')"]`).classList.add('active');
+
+      if (tab === 'users') {
+        document.getElementById('view-users').classList.remove('view-hidden');
+        document.getElementById('view-roles').classList.add('view-hidden');
+      } else {
+        document.getElementById('view-users').classList.add('view-hidden');
+        document.getElementById('view-roles').classList.remove('view-hidden');
+        renderRolesGrid();
+      }
+    }
+
+    function toggleAll(checked) {
+      document.querySelectorAll('#user-tbody input[type="checkbox"]').forEach(cb => cb.checked = checked);
+    }
+
+    // 用户 CRUD
+    function openUserModal(userId) {
+      state.editingUserId = userId || null;
+      document.getElementById('user-modal-title').textContent = userId ? '编辑用户' : '新建用户';
+      document.getElementById('form-name-error').style.display = 'none';
+      document.getElementById('form-phone-error').style.display = 'none';
+
+      if (userId) {
+        const user = MOCK_USERS.find(u => u.id === userId);
+        if (user) {
+          document.getElementById('form-user-id').value = user.id;
+          document.getElementById('form-user-name').value = user.name;
+          document.getElementById('form-user-phone').value = user.phone;
+          document.getElementById('form-user-dept').value = user.dept;
+          document.getElementById('form-user-role').value = user.role;
+        }
+      } else {
+        document.getElementById('form-user-id').value = '';
+        document.getElementById('form-user-name').value = '';
+        document.getElementById('form-user-phone').value = '';
+        document.getElementById('form-user-dept').value = '研发部';
+        document.getElementById('form-user-role').value = '普通成员';
+      }
+      openModal('user-modal');
+    }
+
+    function editUser(id) { openUserModal(id); }
+
+    function submitUser() {
+      const name = document.getElementById('form-user-name').value.trim();
+      const phone = document.getElementById('form-user-phone').value.trim();
+      let valid = true;
+
+      if (!name) {
+        document.getElementById('form-name-error').style.display = 'block';
+        valid = false;
+      } else {
+        document.getElementById('form-name-error').style.display = 'none';
+      }
+      if (!phone || phone.length < 11) {
+        document.getElementById('form-phone-error').style.display = 'block';
+        valid = false;
+      } else {
+        document.getElementById('form-phone-error').style.display = 'none';
+      }
+      if (!valid) return;
+
+      if (state.editingUserId) {
+        const user = MOCK_USERS.find(u => u.id === state.editingUserId);
+        if (user) {
+          user.name = name;
+          user.phone = phone;
+          user.dept = document.getElementById('form-user-dept').value;
+          user.role = document.getElementById('form-user-role').value;
+        }
+        showToast('用户信息已更新');
+      } else {
+        MOCK_USERS.push({
+          id: Date.now(),
+          name, phone,
+          dept: document.getElementById('form-user-dept').value,
+          role: document.getElementById('form-user-role').value,
+          status: '正常'
+        });
+        showToast('用户创建成功');
+      }
+
+      closeModal('user-modal');
+      filterUsers();
+    }
+
+    // onBlur 校验
+    document.getElementById('form-user-name').addEventListener('blur', function() {
+      document.getElementById('form-name-error').style.display = this.value.trim() ? 'none' : 'block';
+    });
+    document.getElementById('form-user-phone').addEventListener('blur', function() {
+      document.getElementById('form-phone-error').style.display = this.value.trim().length >= 11 ? 'none' : 'block';
+    });
+
+    function deleteUser(id) {
+      const user = MOCK_USERS.find(u => u.id === id);
+      if (!user) return;
+      showConfirm('确认删除', `确定要删除用户「${user.name}」吗？删除后不可恢复。`, '确认删除', () => {
+        const idx = MOCK_USERS.findIndex(u => u.id === id);
+        if (idx > -1) MOCK_USERS.splice(idx, 1);
+        filterUsers();
+        showToast('删除成功');
+      });
+    }
+
+    // 角色 CRUD
+    function openRoleModal() {
+      document.getElementById('form-role-name').value = '';
+      document.getElementById('form-role-desc').value = '';
+      document.getElementById('form-role-error').style.display = 'none';
+      renderRolePermCheckboxes();
+      openModal('role-modal');
+    }
+
+    function submitRole() {
+      const name = document.getElementById('form-role-name').value.trim();
+      if (!name) {
+        document.getElementById('form-role-error').style.display = 'block';
+        document.getElementById('form-role-name').focus();
+        return;
+      }
+
+      const checkedPerms = [];
+      document.querySelectorAll('#role-perm-checkboxes input[type="checkbox"]:checked').forEach(cb => {
+        checkedPerms.push(cb.value);
+      });
+
+      MOCK_ROLES.push({
+        id: 'r_' + Date.now(),
+        name: name,
+        icon: '🏷️',
+        isPreset: false,
+        desc: document.getElementById('form-role-desc').value.trim() || '自定义角色',
+        perms: checkedPerms
+      });
+
+      closeModal('role-modal');
+      renderRolesGrid();
+      showToast('角色创建成功');
+    }
+
+    document.getElementById('form-role-name').addEventListener('blur', function() {
+      document.getElementById('form-role-error').style.display = this.value.trim() ? 'none' : 'block';
+    });
+
+    // ============================
+    // 公共工具函数
+    // ============================
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function showConfirm(title, desc, btnText, callback) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-desc').textContent = desc;
+      document.getElementById('confirm-btn').textContent = btnText;
+      state.confirmCallback = callback;
+      document.getElementById('confirm-dialog').style.display = 'flex';
+    }
+    function closeConfirm() { document.getElementById('confirm-dialog').style.display = 'none'; state.confirmCallback = null; }
+    function executeConfirm() { if (state.confirmCallback) state.confirmCallback(); closeConfirm(); }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = `toast toast-${type}`;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function toggleReqPanel() {
+      const panel = document.getElementById('req-panel');
+      const toggle = document.getElementById('req-toggle');
+      panel.classList.toggle('collapsed');
+      toggle.innerText = panel.classList.contains('collapsed') ? '◀' : '▶';
+    }
+
+    function highlightEl(id) { const el = document.getElementById(id); if (el) el.classList.add('highlight-req'); }
+    function unhighlightEl(id) { const el = document.getElementById(id); if (el) el.classList.remove('highlight-req'); }
+
+    // ============================
+    // 页面初始化
+    // ============================
+    function init() {
+      renderOrgTree();
+      renderUserTable(MOCK_USERS);
+      renderReqPanel();
+    }
+    init();
+  </script>
+</body>
+</html>
