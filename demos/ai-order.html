@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI-Order 智能录单 · 产品方案与演示</title>
+<style>
+  :root{
+    --bg:#0c1215; --bg-soft:#0f181c; --surface:#121d22; --surface-2:#17262c;
+    --text:#e9eef0; --muted:#9fb0b8; --faint:#6b7d86;
+    --accent:#2fd6c3; --accent-2:#5fe6d6; --accent-soft:rgba(47,214,195,.12);
+    --border:#1e2a30; --shadow:0 8px 30px rgba(0,0,0,.35); --glow:0 0 22px rgba(47,214,195,.22);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.75;
+    background-image:radial-gradient(900px 500px at 82% -8%,rgba(47,214,195,.08),transparent 60%);}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--border);padding:16px 0;position:sticky;top:0;background:rgba(12,18,21,.8);backdrop-filter:blur(10px);z-index:10}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .back{font-size:14px;color:var(--muted);border:1px solid var(--border);padding:7px 14px;border-radius:10px}
+  .back:hover{border-color:var(--accent);color:var(--accent)}
+  .badge{font-size:11px;color:var(--accent);border:1px solid var(--accent);padding:3px 10px;border-radius:999px;background:var(--accent-soft)}
+  .hero{padding:48px 0 24px}
+  .kicker{font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:clamp(28px,4.5vw,42px);font-weight:800;letter-spacing:-.4px;line-height:1.2}
+  .sub{color:var(--muted);margin-top:14px;font-size:16px;max-width:680px}
+  .metrics{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .metric{font-size:13px;background:var(--surface);border:1px solid var(--border);padding:7px 13px;border-radius:10px;color:var(--muted)}
+  .metric b{color:var(--accent)}
+  section{padding:26px 0;border-top:1px solid var(--border)}
+  h2{font-size:20px;font-weight:750;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:26px;height:2px;background:var(--accent);border-radius:2px}
+  .flow{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--muted);white-space:pre;overflow-x:auto;line-height:1.7}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .card h3{font-size:14px;color:var(--accent);margin-bottom:8px}
+  .card p{font-size:13.5px;color:var(--muted)}
+  ul.ach{list-style:none;display:flex;flex-direction:column;gap:10px}
+  ul.ach li{position:relative;padding-left:20px;color:var(--muted);font-size:14.5px}
+  ul.ach li::before{content:"";position:absolute;left:2px;top:10px;width:8px;height:8px;border-radius:2px;background:var(--accent)}
+  .sample{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+  .sample img{width:280px;max-width:100%;border:1px solid var(--border);border-radius:12px}
+  .sample .cap{flex:1;min-width:220px;color:var(--muted);font-size:14px}
+  pre.code{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--muted);white-space:pre-wrap;line-height:1.7}
+  .note{font-size:13px;color:var(--faint);border-left:2px solid var(--border);padding-left:12px;margin-top:16px}
+  footer{padding:32px 0;color:var(--faint);font-size:13px;border-top:1px solid var(--border);text-align:center}
+  .demo-tag{position:fixed;left:14px;bottom:14px;font-size:11px;color:var(--faint);background:var(--surface);border:1px solid var(--border);padding:5px 11px;border-radius:999px;z-index:20}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap top">
+    <a class="back" href="../index.html#work/ai-order">← 返回作品集</a>
+    <span class="badge">可运行 · 全栈</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="kicker">观麦「智能录单」产品线 · 产品方案与演示</div>
+    <h1>AI-Order 智能录单</h1>
+    <p class="sub">生鲜录单常是微信里的文字、截图、Excel，格式乱、强度大。上传订单图片 / PDF / Excel / 文本 → 自动识别商品、数量、价格、备注，结构化输出。规则引擎处理方言别名（“番茄→西红柿”）。</p>
+    <div class="metrics">
+      <span class="metric">编排 <b>LangGraph 5 节点</b></span>
+      <span class="metric">OCR <b>PaddleOCR</b></span>
+      <span class="metric">LLM <b>Qwen</b></span>
+      <span class="metric">部署 <b>Docker Compose</b></span>
+    </div>
+  </div>
+
+  <section>
+    <h2>识别流程（LangGraph 5 节点工作流）</h2>
+    <div class="flow">输入（文本 / 图片 / PDF / Excel）
+        │  路由节点（判断输入类型）
+   ┌────┼──────┬────────┐
+ 文本   图片OCR   PDF      Excel
+   └────┴──────┴────────┘
+        │ 规则检索（方言别名 / 历史修正规则）
+        ▼
+   LLM 识别（Qwen）——抽取 商品 / 数量 / 价格 / 备注
+        ▼
+   结构化输出（标准 JSON）</div>
+  </section>
+
+  <section>
+    <h2>演示：一份真实订单文档的识别</h2>
+    <div class="sample">
+      <img src="../portfolio/aiorder-sample.png" alt="示例订单：食堂肉菜配送采购清单" />
+      <div class="cap">
+        <p><b>演示输入</b>：食堂肉类、瓜果蔬菜配送采购清单（含品名 / 规格 / 单位 / 数量的表格）。</p>
+        <p style="margin-top:10px">系统会对这类图片走 <b>图片 OCR 节点</b> → PaddleOCR 提取文字 → 规则检索归一化品名 → Qwen 抽取为结构化条目（如 五花肉 · 斤 · 1200）。</p>
+        <p class="note">此为演示数据 / Demo Data，用于说明识别链路，非真实经营数据。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>关键能力</h2>
+    <ul class="ach">
+      <li>LangGraph 5 节点工作流：路由 → 文本/图片/PDF/Excel → 规则检索 → LLM 识别 → 结构化输出</li>
+      <li>PaddleOCR 中文识别 + 启动预热；规则引擎处理方言别名与历史修正</li>
+      <li>FastAPI REST（图片/PDF/Excel/文本 四端点）+ Streamlit 交互界面 + 健康检查</li>
+      <li>Docker 双容器（API + UI），开发 / 生产模式切换</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>技术栈</h2>
+    <div class="grid">
+      <div class="card"><h3>Agent 编排</h3><p>LangGraph 有向图工作流，条件路由 + 节点化处理</p></div>
+      <div class="card"><h3>多模态识别</h3><p>PaddleOCR（图片/PDF）+ pandas（Excel）+ Qwen（理解抽取）</p></div>
+      <div class="card"><h3>后端</h3><p>FastAPI REST，四类输入端点 + 健康检查 + 日志</p></div>
+      <div class="card"><h3>前端 / 部署</h3><p>Streamlit 交互界面；Docker Compose 双容器</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>本地启动（可现场演示）</h2>
+    <pre class="code">$ docker compose up
+  →  API      http://localhost:8000
+  →  Streamlit UI  http://localhost:8501</pre>
+    <p class="note">本项目为可运行的全栈应用，未部署公网；以上为本地启动方式，面试可现场演示或看录屏。</p>
+  </section>
+</div>
+
+<footer class="wrap">林灶辉 · 作品集 · AI-Order 智能录单方案页 · <a href="../index.html#work/ai-order">返回作品集</a></footer>
+<div class="demo-tag">🔧 演示数据 / Demo Data</div>
+</body>
+</html>

@@ -153,7 +153,32 @@ async function run() {
   const mobileFrame = await page.locator('#pf-drawer-body .pf-frame.mobile').count();
   check('老板助手用移动端手机框', mobileFrame === 1);
 
+  // 10b) 每个作品打开后：入口链接没有 href="#"（点了不会跳顶），且每个可运行/原型作品有可打开的真实入口
+  const workIds = await page.evaluate(() => window.PORTFOLIO.works.map(w => ({ id: w.id, tier: w.tier })));
+  let badHash = 0, missingReal = 0;
+  for (const w of workIds) {
+    await page.goto(base + '/index.html#work/' + w.id, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(250);
+    const links = await page.$$eval('#pf-drawer-body .pf-links a', (as) => as.map(a => ({ href: a.getAttribute('href'), target: a.getAttribute('target') })));
+    if (links.some(l => l.href === '#')) badHash++;
+    // Tier A/B 至少一个真实可打开入口（http 或 .html 或 demos）
+    if ((w.tier === 'A' || w.tier === 'B') && w.id !== 'guanmai-platform') {
+      const hasReal = links.some(l => /^https?:|\.html|\/demos\//.test(l.href || ''));
+      if (!hasReal) missingReal++;
+    }
+  }
+  check('所有作品入口无 href="#"（不会跳顶）', badHash === 0, `bad=${badHash}`);
+  check('可运行/原型作品均有可打开的真实入口', missingReal === 0, `missing=${missingReal}`);
+
+  // 10c) AI-Order 独立演示页可访问且渲染
+  const aiDemo = await page.request.get(base + '/demos/ai-order.html');
+  check('AI-Order 独立演示页可访问', aiDemo.ok(), `HTTP ${aiDemo.status()}`);
+  await page.goto(base + '/demos/ai-order.html', { waitUntil: 'networkidle' });
+  const aiDemoTitle = await page.locator('h1').first().textContent().catch(() => '');
+  check('AI-Order 演示页标题正确', /AI-Order/.test(aiDemoTitle || ''), aiDemoTitle || '');
+
   // 11) 四张真实图片资源可访问（200 + 非空）
+  await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
   for (const img of ['supermagic-home.png', 'guanmai-arch.png', 'dtyq-home.png', 'aiorder-sample.png']) {
     const resp = await page.request.get(`${base}/portfolio/${img}`);
     check(`图片可访问 portfolio/${img}`, resp.ok(), `HTTP ${resp.status()}`);

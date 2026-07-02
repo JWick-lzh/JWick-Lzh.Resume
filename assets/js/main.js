@@ -704,9 +704,13 @@
       var linkWrap = h("div", { class: "pf-block" }, [h("h4", { text: "入口 / 原型" })]);
       var linkRow = h("div", { class: "pf-links" });
       allLinks.forEach(function (l) {
-        var external = l.href.indexOf("http") === 0 || l.href.indexOf(".html") !== -1;
-        var a = h("a", { class: "pf-btn" + (l.primary ? " primary" : ""), href: l.href, text: l.label });
-        if (external) { a.setAttribute("target", "_blank"); a.setAttribute("rel", "noopener noreferrer"); }
+        var href = l.href || "";
+        // 占位/空链接：渲染为不可跳转，绝不跳到页面顶部
+        var placeholder = (href === "" || href === "#");
+        var external = href.indexOf("http") === 0 || href.indexOf(".html") !== -1;
+        var a = h("a", { class: "pf-btn" + (l.primary ? " primary" : "") + (placeholder ? " pf-btn-disabled" : ""), href: placeholder ? "javascript:void(0)" : href, text: l.label });
+        if (placeholder) { a.setAttribute("aria-disabled", "true"); a.addEventListener("click", function (e) { e.preventDefault(); }); }
+        else if (external) { a.setAttribute("target", "_blank"); a.setAttribute("rel", "noopener noreferrer"); }
         linkRow.appendChild(a);
       });
       linkWrap.appendChild(linkRow);

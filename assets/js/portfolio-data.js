@@ -85,7 +85,7 @@ window.PORTFOLIO = {
         arch: "输入（文本 / 图片 / PDF / Excel）\n        │  路由节点\n   ┌────┼──────┬────────┐\n 文本  图片OCR  PDF     Excel\n   └────┴──────┴────────┘\n        │ 规则检索（别名 / 历史修正）\n        ▼\n   LLM 识别（Qwen）→ 结构化 JSON 输出",
         caption: "产品方案 · 观麦「智能录单」产品线（演示输入示例：食堂肉菜配送采购清单 · 演示数据）"
       },
-      links: [{ label: "启动：docker compose up → API:8000 / UI:8501", href: "#", primary: true }]
+      links: [{ label: "查看产品方案与演示 →", href: "./demos/ai-order.html", primary: true }]
     },
     {
       id: "caigou-cloud", tier: "A", statusLabel: "可运行 · 全栈",
@@ -107,7 +107,7 @@ window.PORTFOLIO = {
         arch: "用户一句话 / 一个文件\n   │\n   ▼\n[询价构建] → [发送网关(可插拔)] → [报价识别 GLM-4v]\n   │                                    │\n   ▼                                    ▼\n[状态机议价引擎] ←──────────── [定价] → [采购单] → 回写 ERP\n   │  APScheduler 计时 · SSE/WS 实时推送",
         caption: "本地可运行，启动即演示（演示数据全 mock、自洽闭环）"
       },
-      links: [{ label: "本地可跑（启动即演示）", href: "#", primary: true }],
+      links: [{ label: "打开采宝原型演示 →", href: "./prototypes/caibao-workbench.html", primary: true }],
       note: "早期采宝 HTML 原型（工作台/议价中心/供应商画像/配置中心）可作为「从原型到产品」的演进佐证，见下方原型入口。",
       protoLinks: [
         { label: "工作台原型", href: "./prototypes/caibao-workbench.html" },
