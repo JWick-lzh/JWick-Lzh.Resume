@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>议价中心 - 采宝原型</title>
+  <style>
+    :root {
+      --pri: #1A5FA8; --acc: #E87722; --suc: #0B7A4E; --dan: #C0392B;
+      --bg: #F5F6FA; --card: #FFFFFF; --bdr: #E4E7EF;
+      --txt: #0D1117; --txt2: #5A6478; --txt3: #9AA3B2;
+      --radius: 12px; --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--txt); height: 100vh; display: flex; padding: 24px; gap: 24px; position: relative; }
+    
+    /* 需求说明面板 */
+    .req-panel { position: fixed; right: 20px; top: 20px; width: 320px; background: white; border: 1px solid var(--bdr); border-radius: var(--radius); box-shadow: var(--shadow); z-index: 1000; font-size: 13px; max-height: 80vh; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+    .req-panel.collapsed { transform: translateX(calc(100% - 30px)); }
+    .req-panel-header { padding: 12px 16px; background: #fafafa; border-bottom: 1px solid var(--bdr); font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; border-radius: var(--radius) var(--radius) 0 0; }
+    .req-panel-body { padding: 12px; overflow-y: auto; flex: 1; }
+    .req-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--bdr); }
+    .req-title { font-weight: bold; color: var(--pri); margin-bottom: 4px; }
+    .req-priority { background: #ffe58f; color: #d46b08; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+    /* Layout */
+    .left-panel { width: 320px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; }
+    .right-panel { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+    /* 会话列表 */
+    .list-header { padding: 16px; border-bottom: 1px solid var(--bdr); font-weight: bold; font-size: 16px; }
+    .session-list { flex: 1; overflow-y: auto; }
+    .session-item { padding: 16px; border-bottom: 1px solid var(--bdr); cursor: pointer; transition: background 0.2s; }
+    .session-item:hover { background: var(--bg); }
+    .session-item.active { background: #E8F0F8; border-left: 4px solid var(--pri); }
+    .session-title { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; }
+    .session-price { font-size: 13px; color: var(--txt2); display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .status-tag { padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: normal; }
+    .status-active { background: #e6f4ff; color: var(--pri); }
+    .status-done { background: #f6ffed; color: var(--suc); }
+
+    /* 右侧主区 */
+    .top-info { background: var(--card); border-radius: var(--radius); padding: 16px 24px; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
+    
+    /* 压价空间条 */
+    .price-bar-container { flex: 1; margin: 0 40px; position: relative; height: 40px; display: flex; align-items: center; }
+    .price-bar-bg { width: 100%; height: 8px; background: #eee; border-radius: 4px; position: relative; }
+    .price-bar-fill { position: absolute; height: 100%; background: var(--pri); border-radius: 4px; transition: width 0.3s; }
+    .price-marker { position: absolute; top: -20px; font-size: 12px; color: var(--txt2); transform: translateX(-50%); white-space: nowrap; }
+    .price-marker::after { content: ''; position: absolute; top: 16px; left: 50%; width: 2px; height: 8px; background: var(--txt2); }
+    .marker-current { color: var(--pri); font-weight: bold; }
+    .marker-current::after { background: var(--pri); }
+
+    /* 采宝判断 */
+    .agent-card { background: linear-gradient(to right, #E8F0F8, #FFFFFF); border-left: 4px solid var(--pri); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+    .agent-card-header { display: flex; justify-content: space-between; font-weight: bold; color: var(--pri); cursor: pointer; }
+    .agent-card-body { margin-top: 12px; font-size: 14px; line-height: 1.5; color: var(--txt2); }
+
+    /* 聊天区 */
+    .chat-box { flex: 1; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; }
+    .chat-history { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+    
+    .msg { display: flex; gap: 12px; max-width: 80%; }
+    .msg.agent { align-self: flex-end; flex-direction: row-reverse; }
+    .msg-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+    .agent .msg-avatar { background: var(--pri); color: white; }
+    .supplier .msg-avatar { background: #ddd; color: var(--txt2); }
+    .msg-bubble { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+    .agent .msg-bubble { background: var(--pri); color: white; border-top-right-radius: 2px; }
+    .supplier .msg-bubble { background: #f0f2f5; color: var(--txt); border-top-left-radius: 2px; }
+
+    /* 打字动画 */
+    .typing-indicator { display: none; padding: 12px 16px; background: #f0f2f5; border-radius: 12px; border-top-left-radius: 2px; align-self: flex-start; margin-bottom: 16px; }
+    .dot { display: inline-block; width: 6px; height: 6px; background: var(--txt3); border-radius: 50%; margin: 0 2px; animation: typing-bounce 1.4s infinite ease-in-out both; }
+    .dot:nth-child(1) { animation-delay: -0.32s; }
+    .dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typing-bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+    /* 底部操作区 */
+    .chat-input { padding: 16px 24px; border-top: 1px solid var(--bdr); display: flex; gap: 12px; background: #fafafa; }
+    .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .btn:hover { opacity: 0.9; }
+    .btn-primary { background: var(--pri); color: white; flex: 1; }
+    .btn-outline { border: 1px solid var(--pri); color: var(--pri); background: transparent; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Toast */
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--suc); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 9999; max-width: 80vw; }
+    .toast.show { opacity: 1; visibility: visible; top: 40px; }
+
+    /* 演示数据标注 */
+    .demo-badge { position: fixed; left: 16px; bottom: 16px; background: rgba(13,17,23,0.82); color: #fff; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; z-index: 3000; box-shadow: 0 2px 8px rgba(0,0,0,0.2); letter-spacing: 0.3px; }
+  </style>
+</head>
+<body>
+
+  <div class="toast" id="toast">✅ 操作成功</div>
+  <div class="demo-badge">🔧 演示数据 / Demo Data</div>
+
+  <div id="req-panel" class="req-panel">
+    <div class="req-panel-header" onclick="toggleReqPanel()">
+      📋 需求说明 <span id="req-toggle">▶</span>
+    </div>
+    <div id="req-panel-body" class="req-panel-body"></div>
+  </div>
+
+  <div class="left-panel">
+    <div class="list-header">正在议价的 SKU (4)</div>
+    <!-- REQ: 会话列表 - 展示各SKU议价进度 | 规则: 包含当前价、目标价、初始价及状态 | 优先级: P0 -->
+    <div class="session-list" id="session-list"></div>
+  </div>
+
+  <div class="right-panel">
+    <div class="top-info">
+      <div style="font-size: 18px; font-weight: bold;">青椒 300斤 / 绿源蔬菜</div>
+      
+      <!-- REQ: 压价空间条 - 可视化剩余议价空间 | 规则: 动态计算当前价在初始价和目标价之间的比例 | 优先级: P1 -->
+      <div class="price-bar-container" id="price-bar">
+        <div class="price-bar-bg">
+          <div class="price-bar-fill" style="width: 60%;"></div>
+        </div>
+        <div class="price-marker" style="left: 0%;">¥2.60<br>(目标价)</div>
+        <div class="price-marker marker-current" style="left: 40%; top: -25px;">¥2.80<br>(当前)</div>
+        <div class="price-marker" style="left: 100%;">¥3.10<br>(初始报价)</div>
+      </div>
+      
+      <div style="font-size: 14px; color: var(--txt2);">已进行 3 轮</div>
+    </div>
+
+    <!-- REQ: 采宝判断卡片 - 展示Agent推理过程 | 规则: 可折叠说明当前策略，口语化表达 | 优先级: P0 -->
+    <div class="agent-card">
+      <div class="agent-card-header" onclick="toggleAgentReason()">
+        <span>🤖 采宝的判断：绿源还有让步空间</span>
+        <span id="agent-toggle">▼</span>
+      </div>
+      <div class="agent-card-body" id="agent-body">
+        绿源蔬菜的初始报价是3.1元，经过3轮沟通已经降到2.8元。但根据最近一周的市场大盘数据，青椒均价在2.65元左右。
+        结合他家过往的议价记录（平均让步率12%），我认为他还有 <strong>0.1~0.2元</strong> 的利润空间。建议继续施压，或者用增加采购量作为交换条件。
+      </div>
+    </div>
+
+    <div class="chat-box">
+      <div class="chat-history" id="chat-history">
+        <div class="msg agent">
+          <div class="msg-avatar">宝</div>
+          <div class="msg-bubble">王总您好，我们这次要300斤青椒。您报的3.1元稍微有些偏高了，最近市场行情在2.7元左右。我们是长期合作的老客户了，您看能不能给个诚意价：2.6元？</div>
+        </div>
+        <div class="msg supplier">
+          <div class="msg-avatar">绿</div>
+          <div class="msg-bubble">哎呀，采宝兄弟，现在青椒产地也涨价了。2.6肯定做不下来，我看在老客户面子上，最多给你让到2.9元。不能再低了！</div>
+        </div>
+        <div class="msg agent">
+          <div class="msg-avatar">宝</div>
+          <div class="msg-bubble">王总，我刚才对比了下其他几家，别人给的可比2.9低哦。咱们如果这次价格合适，明天的冬瓜和芹菜我也优先考虑您。各退一步，2.75元怎么样？</div>
+        </div>
+        <div class="msg supplier">
+          <div class="msg-avatar">绿</div>
+          <div class="msg-bubble">真的是割肉价了... 行吧行吧，看在明天的订单份上，最低2.8元，这是底线了，再低我真得亏本。</div>
+        </div>
+        
+        <!-- REQ: 思考动画 - 模拟Agent生成回复的过程 | 规则: typing-bounce 关键帧动画，3个点弹跳 | 优先级: P2 -->
+        <div class="typing-indicator" id="typing-indicator">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+      </div>
+      
+      <div class="chat-input">
+        <button class="btn btn-outline" style="width: 120px;" onclick="acceptPrice()">接受报价</button>
+        <!-- REQ: 施压按钮 - 触发新一轮自动议价 | 规则: 点击后出现1.4s打字动画，随后展示新发言 | 优先级: P0 -->
+        <button class="btn btn-primary" id="btn-pressure" onclick="applyPressure()">继续施压 (让采宝再谈谈)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MOCK_DATA = {
+      sessions: [
+        { id: 'S1', sku: '青椒', supplier: '绿源蔬菜', current: 2.8, target: 2.6, initial: 3.1, status: 'active', active: true },
+        { id: 'S2', sku: '土豆', supplier: '东方果蔬', current: 1.5, target: 1.5, initial: 1.8, status: 'done', active: false },
+        { id: 'S3', sku: '白菜', supplier: '冷链直供', current: 0.9, target: 0.85, initial: 1.1, status: 'done', active: false },
+        { id: 'S4', sku: '西红柿', supplier: '华鲜农贸', current: 3.2, target: 3.0, initial: 3.5, status: 'active', active: false }
+      ]
+    };
+
+    const REQ_SPECS = [
+      { id: "session-list", name: "会话列表", purpose: "展示各SKU议价进度", rules: "高亮当前选中项，显示各状态标识", priority: "P0" },
+      { id: "price-bar", name: "压价空间条", purpose: "直观展示议价进度与目标差距", rules: "动态计算当前价在初始价和目标价之间的比例，以进度条形式展现", priority: "P1" },
+      { id: "agent-body", name: "采宝判断卡片", purpose: "解释AI当前的议价策略", rules: "口语化表达，包含市场数据和历史记录支撑结论", priority: "P0" },
+      { id: "typing-indicator", name: "思考动画", purpose: "提供操作反馈，拟人化展示", rules: "3个圆点循环弹跳动画", priority: "P2" },
+      { id: "btn-pressure", name: "施压按钮", purpose: "指令AI进行下一轮议价", rules: "点击后按钮禁用，显示打字动画1.4秒后添加新消息", priority: "P0" }
+    ];
+
+    function init() {
+      renderReqPanel();
+      renderSessions();
+    }
+
+    function renderReqPanel() {
+      const body = document.getElementById('req-panel-body');
+      body.innerHTML = REQ_SPECS.map(req => `
+        <div class="req-item" onmouseenter="highlightElem('${req.id}')" onmouseleave="unhighlightElem('${req.id}')">
+          <div class="req-title">${req.name}</div>
+          <div class="req-meta"><span class="req-priority">${req.priority}</span></div>
+          <div style="margin-bottom: 4px;"><strong>目的：</strong>${req.purpose}</div>
+          <div><strong>规则：</strong>${req.rules}</div>
+        </div>
+      `).join('');
+    }
+
+    function toggleReqPanel() {
+      const panel = document.getElementById('req-panel');
+      const toggle = document.getElementById('req-toggle');
+      panel.classList.toggle('collapsed');
+      toggle.innerText = panel.classList.contains('collapsed') ? '◀' : '▶';
+    }
+
+    let currentHighlight = null;
+    function highlightElem(id) {
+      const el = document.getElementById(id);
+      if(el) { currentHighlight = el.style.outline; el.style.outline = '3px solid var(--pri)'; el.style.outlineOffset = '-3px'; }
+    }
+    function unhighlightElem(id) {
+      const el = document.getElementById(id);
+      if(el) { el.style.outline = currentHighlight || ''; }
+    }
+
+    function renderSessions() {
+      const list = document.getElementById('session-list');
+      list.innerHTML = MOCK_DATA.sessions.map(s => `
+        <div class="session-item ${s.active ? 'active' : ''}" onclick="switchSession('${s.id}')">
+          <div class="session-title">
+            <span>${s.sku} - ${s.supplier}</span>
+            <span class="status-tag ${s.status === 'done' ? 'status-done' : 'status-active'}">${s.status === 'done' ? '已完成' : '议价中'}</span>
+          </div>
+          <div class="session-price">
+            <span>当前: ¥${s.current}</span>
+            <span>目标: ¥${s.target}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleAgentReason() {
+      const body = document.getElementById('agent-body');
+      const toggle = document.getElementById('agent-toggle');
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        toggle.innerText = '▼';
+      } else {
+        body.style.display = 'none';
+        toggle.innerText = '▶';
+      }
+    }
+
+    function applyPressure() {
+      const btn = document.getElementById('btn-pressure');
+      const indicator = document.getElementById('typing-indicator');
+      const history = document.getElementById('chat-history');
+      
+      btn.disabled = true;
+      btn.innerText = '采宝思考中...';
+      indicator.style.display = 'inline-block';
+      history.scrollTop = history.scrollHeight;
+
+      // 模拟 1.4s 打字延迟
+      setTimeout(() => {
+        indicator.style.display = 'none';
+        btn.disabled = false;
+        btn.innerText = '继续施压 (让采宝再谈谈)';
+        
+        const newMsg = document.createElement('div');
+        newMsg.className = 'msg agent';
+        newMsg.innerHTML = `
+          <div class="msg-avatar">宝</div>
+          <div class="msg-bubble">王总，2.8确实还有点距离。这样吧，只要您能给到2.7元，我就去给领导申请，不仅明天的冬瓜给您，后天的量也提前定给您。您也省得再找其他人销货了，您看行不行？</div>
+        `;
+        history.insertBefore(newMsg, indicator);
+        history.scrollTop = history.scrollHeight;
+        
+        // 更新压价条视觉
+        document.querySelector('.price-bar-fill').style.width = '20%';
+        const marker = document.querySelector('.marker-current');
+        marker.style.left = '20%';
+        marker.innerHTML = '¥2.70<br>(当前)';
+
+        document.querySelector('.top-info div:last-child').innerText = '已进行 4 轮';
+      }, 1400);
+    }
+
+    function switchSession(id) {
+      const target = MOCK_DATA.sessions.find(s => s.id === id);
+      MOCK_DATA.sessions.forEach(s => s.active = (s.id === id));
+      renderSessions();
+      if (id === 'S1') {
+        showToast(`已切换到「${target.sku} - ${target.supplier}」会话`);
+      } else {
+        showToast(`📋 演示原型：此处将加载「${target.sku} - ${target.supplier}」的议价会话`);
+      }
+    }
+
+    function acceptPrice() {
+      showToast('✅ 已接受当前报价，转入 T3 确认阶段 · 演示数据');
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg || '操作成功';
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    init();
+  </script>
+</body>
+</html>

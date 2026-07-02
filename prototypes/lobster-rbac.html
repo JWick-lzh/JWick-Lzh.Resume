@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>角色与权限管理 - 原型</title>
+  <style>
+    /* ===== 设计系统变量 (Linear 暗色风格) ===== */
+    :root {
+      --color-bg: #08090a;
+      --color-panel: #0f1011;
+      --color-surface: #191a1b;
+      --color-surface-hover: rgba(255, 255, 255, 0.08);
+      --color-text: #f7f8f8;
+      --color-text-secondary: #d0d6e0;
+      --color-text-tertiary: #8a8f98;
+      --color-disabled: #62666d;
+      --color-primary: #5e6ad2;
+      --color-primary-hover: #7170ff;
+      --color-success: #10b981;
+      --color-danger: #ff4d4f;
+      --color-warning: #f59e0b;
+      --color-border: rgba(255, 255, 255, 0.08);
+      --color-border-light: rgba(255, 255, 255, 0.04);
+      --border-radius-sm: 4px;
+      --border-radius: 6px;
+      --border-radius-lg: 12px;
+      --font-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: "Inter", -apple-system, system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== 公共组件 ===== */
+    button {
+      background: var(--color-surface);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    button:hover { background: var(--color-surface-hover); }
+    button:active { transform: scale(0.98); }
+    button.primary { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+    button.primary:hover { background: var(--color-primary-hover); }
+    button.danger { color: var(--color-danger); border-color: rgba(255, 77, 79, 0.3); }
+    button.danger:hover { background: rgba(255, 77, 79, 0.1); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    input {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      padding: 6px 10px;
+      border-radius: var(--border-radius);
+      font-size: 13px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus { border-color: var(--color-primary); }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+    }
+    .tag.success { color: var(--color-success); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); }
+    .tag.danger { color: var(--color-danger); background: rgba(255, 77, 79, 0.1); border-color: rgba(255, 77, 79, 0.2); }
+    .tag.warning { color: var(--color-warning); background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); }
+
+    .checkbox {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--color-border);
+      border-radius: 3px;
+      background: var(--color-bg);
+      cursor: pointer;
+      position: relative;
+    }
+    .checkbox:checked {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+    .checkbox:checked::after {
+      content: "✓";
+      position: absolute;
+      color: #fff;
+      font-size: 10px;
+      left: 2px;
+      top: -1px;
+    }
+    .checkbox:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ===== 布局 ===== */
+    .app-container {
+      display: flex;
+      flex: 1;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* 侧边导航 */
+    .sidebar {
+      width: 240px;
+      background: var(--color-panel);
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .sidebar-header h2 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+    .nav-menu { padding: 12px 8px; flex: 1; }
+    .nav-item {
+      padding: 8px 12px;
+      border-radius: var(--border-radius);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      transition: all 0.2s;
+    }
+    .nav-item:hover { background: var(--color-surface); color: var(--color-text); }
+    .nav-item.active { background: var(--color-surface-hover); color: var(--color-text); font-weight: 500; }
+
+    /* 侧边底部同步面板 */
+    .sync-panel {
+      padding: 16px;
+      border-top: 1px solid var(--color-border);
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+    }
+    .sync-panel .time { margin-bottom: 8px; font-family: var(--font-mono); }
+
+    /* 主内容区 - 三栏布局 */
+    .main-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    .col {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--color-border);
+      background: var(--color-bg);
+    }
+    .col-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      flex-shrink: 0;
+    }
+    .col-header h3 { font-size: 14px; font-weight: 500; }
+    .col-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    /* 栏宽度 */
+    .col-users { width: 300px; }
+    .col-roles { width: 340px; }
+    .col-perms { flex: 1; min-width: 400px; }
+
+    /* 列表项样式 */
+    .list-item {
+      padding: 12px;
+      border-radius: var(--border-radius);
+      border: 1px solid transparent;
+      cursor: pointer;
+      margin-bottom: 4px;
+      transition: all 0.2s;
+    }
+    .list-item:hover { background: var(--color-panel); }
+    .list-item.active { 
+      background: var(--color-surface); 
+      border-color: var(--color-border);
+    }
+    .user-item { display: flex; align-items: center; justify-content: space-between; }
+    .user-info { display: flex; flex-direction: column; gap: 4px; }
+    .user-name { font-weight: 500; }
+    .user-dept { font-size: 12px; color: var(--color-text-tertiary); }
+    
+    .role-item { display: flex; flex-direction: column; gap: 6px; }
+    .role-header { display: flex; justify-content: space-between; align-items: center; }
+    .role-name { font-weight: 500; }
+    .role-desc { font-size: 12px; color: var(--color-text-tertiary); line-height: 1.4; }
+
+    /* 权限树/表格样式 */
+    .perm-module { margin-bottom: 24px; }
+    .perm-module-title { 
+      font-size: 13px; 
+      font-weight: 600; 
+      color: var(--color-text-secondary);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--color-border-light);
+    }
+    .perm-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .perm-card {
+      background: var(--color-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      padding: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .perm-card:hover { border-color: rgba(255,255,255,0.15); }
+    .perm-info { flex: 1; }
+    .perm-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+    .perm-desc { font-size: 11px; color: var(--color-text-tertiary); }
+
+    /* 搜索框 */
+    .search-box {
+      padding: 12px;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-panel);
+    }
+
+    /* 空状态 */
+    .empty-state {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-tertiary);
+      text-align: center;
+      padding: 40px;
+    }
+    .empty-icon { font-size: 32px; margin-bottom: 16px; opacity: 0.5; }
+
+    /* ===== 需求说明面板 ===== */
+    .req-panel {
+      position: fixed;
+      right: 20px;
+      top: 20px;
+      width: 320px;
+      background: var(--color-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 40px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .req-panel.collapsed { transform: translateX(calc(100% - 40px)); }
+    .req-panel-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .req-panel-body {
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .req-item {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      padding: 10px;
+      border-radius: var(--border-radius);
+      font-size: 12px;
+    }
+    .req-item-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .req-name { font-weight: 600; color: var(--color-primary); }
+    .req-pri {
+      background: rgba(255,255,255,0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+    .req-desc { color: var(--color-text-secondary); margin-bottom: 4px; }
+    .req-rule { color: var(--color-text-tertiary); font-style: italic; }
+    
+    .highlight-elem {
+      outline: 2px solid var(--color-primary) !important;
+      outline-offset: 2px;
+      transition: outline 0.1s;
+    }
+
+    /* Modal / Drawer 弹窗 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: var(--color-panel);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      width: 480px;
+      max-width: 90vw;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-body { padding: 24px; }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--color-text-secondary); }
+
+    /* 新建角色弹窗内的权限选择 */
+    .perm-picker { max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; margin-top: 4px; }
+    .perm-picker .perm-module-title { margin-bottom: 8px; }
+    .perm-pick-row { display: flex; align-items: center; gap: 10px; padding: 6px 4px; cursor: pointer; }
+    .perm-pick-row:hover { background: var(--color-surface); border-radius: var(--border-radius-sm); }
+
+    /* 演示数据标注 */
+    .demo-badge { position: fixed; left: 16px; bottom: 16px; background: var(--color-surface); color: var(--color-text-secondary); border: 1px solid var(--color-border); padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.4); letter-spacing: 0.3px; }
+  </style>
+</head>
+<body>
+
+  <!-- REQ: 需求说明面板 - 展示当前页面所有功能点的需求说明 | 规则: 默认展开，可点击折叠；仅原型环境显示 | 优先级: P2 -->
+  <div id="req-panel" class="req-panel">
+    <div class="req-panel-header" onclick="toggleReqPanel()">
+      📋 需求规格 (PRD) <span id="req-toggle">▶</span>
+    </div>
+    <div id="req-panel-body" class="req-panel-body">
+      <!-- JS动态注入 -->
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>系统管理</h2>
+      </div>
+      <div class="nav-menu">
+        <div class="nav-item active">👤 角色与用户管理</div>
+        <div class="nav-item" onclick="navPlaceholder('租户管理')">🏢 租户管理</div>
+        <div class="nav-item" onclick="navPlaceholder('邀请码管理')">🎟 邀请码管理</div>
+      </div>
+      <!-- REQ: 企微同步模块 - 从企微拉取最新组织架构与员工状态 | 规则: 每日 03:00 自动同步，支持手动点击立即同步，同步异常需告警 | 优先级: P0 -->
+      <div class="sync-panel" id="req-sync">
+        <div class="time">上次同步: 2026-06-09 03:00</div>
+        <div style="color:var(--color-success);margin-bottom:12px">状态: 同步成功</div>
+        <button style="width:100%;justify-content:center" onclick="handleSync()">立即同步企微</button>
+      </div>
+    </div>
+
+    <!-- 主工作区：三栏布局 -->
+    <div class="main-content">
+      
+      <!-- 第一栏：员工列表 -->
+      <!-- REQ: 员工列表 - 展示从企微同步的员工，作为配置角色的入口 | 规则: 企微数据只读，仅允许内部搜索，不能新增删除员工 | 优先级: P0 -->
+      <div class="col col-users" id="req-user-list">
+        <div class="col-header">
+          <h3>员工列表 (企微同步)</h3>
+        </div>
+        <div class="search-box">
+          <input type="text" placeholder="搜索姓名/拼音/手机号..." onkeyup="filterUsers(this.value)" />
+        </div>
+        <div class="col-body" id="user-list-container">
+          <!-- 动态渲染用户列表 -->
+        </div>
+      </div>
+
+      <!-- 第二栏：角色管理 -->
+      <!-- REQ: 员工角色管理 - 管理当前选中员工拥有的角色 | 规则: 预置角色（超管/客成/运营等）不可删，可勾选分配给员工 | 优先级: P0 -->
+      <div class="col col-roles" id="req-role-manage">
+        <div class="col-header">
+          <h3 id="role-panel-title">当前员工角色</h3>
+          <!-- REQ: 新建自定义角色 - 超管特权，创建非预置的灵活角色 | 规则: 仅超级管理员可见，可组合可用权限 | 优先级: P1 -->
+          <button id="req-create-role" class="primary" style="display:none" onclick="openRoleModal()">+ 自定义角色</button>
+        </div>
+        <div class="col-body" id="role-list-container">
+          <div class="empty-state">
+            <div class="empty-icon">👤</div>
+            <div>请先在左侧选择一名员工</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第三栏：权限目录预览 -->
+      <!-- REQ: 权限目录与视图 - 查看看选中角色的具体权限项 | 规则: 权限按模块分组，预置角色权限只读，不可修改 | 优先级: P0 -->
+      <div class="col col-perms" id="req-perm-view">
+        <div class="col-header">
+          <h3 id="perm-panel-title">权限明细</h3>
+        </div>
+        <div class="col-body" id="perm-list-container">
+           <div class="empty-state">
+            <div class="empty-icon">🛡️</div>
+            <div>选择一个角色以查看其包含的权限项</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- REQ: 新建自定义角色弹窗 - 超管创建灵活角色并组合权限 | 规则: 角色名必填，至少勾选一项权限 | 优先级: P1 -->
+  <div id="role-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>新建自定义角色</h3>
+        <button onclick="closeRoleModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">角色名称</label>
+          <input type="text" id="new-role-name" placeholder="例如：区域审核员" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">分配权限（可多选）</label>
+          <div class="perm-picker" id="role-perm-picker"><!-- JS 渲染 --></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeRoleModal()">取消</button>
+        <button class="primary" onclick="createRole()">创建角色</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 演示数据标注 -->
+  <div class="demo-badge">🔧 演示数据 / Demo Data</div>
+
+  <!-- 弹窗：Toast 提示 -->
+  <div id="toast" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--color-success);color:#fff;padding:8px 16px;border-radius:4px;display:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+    操作成功
+  </div>
+
+  <script>
+    // ============================
+    // Mock 数据区 (遵循规范：纯前端，无后端)
+    // ============================
+    
+    // 权限字典 (按模块划分)
+    const PERMISSIONS = [
+      {
+        module: '客户管理',
+        items: [
+          { id: 'p1', name: '查看邀请码列表', desc: '查看系统发出的所有邀请码' },
+          { id: 'p2', name: '生成/吊销邀请码', desc: '创建新邀请码或作废已有邀请码' },
+          { id: 'p3', name: '查看客户列表与详情', desc: '查看所有入驻客户及详细信息' },
+          { id: 'p4', name: '调整客户额度', desc: '修改客户的 API 调用或资源配额' },
+          { id: 'p5', name: '停用/恢复客户', desc: '冻结或解冻客户租户' },
+        ]
+      },
+      {
+        module: '知识与运维',
+        items: [
+          { id: 'p6', name: '查看官方知识库', desc: '浏览官方预置的知识与文档' },
+          { id: 'p7', name: '编辑官方知识库', desc: '修改或上传官方知识' },
+          { id: 'p8', name: '客户运维全部', desc: '进入客户运维面板并执行高危操作' },
+          { id: 'p9', name: '维护数据源目录', desc: '管理系统底层数据源连接' },
+        ]
+      },
+      {
+        module: '系统与监控',
+        items: [
+          { id: 'p10', name: '查看定时任务监控', desc: '查看系统后台任务运行状态' },
+          { id: 'p11', name: '查看操作日志', desc: '审计全体人员操作记录' },
+          { id: 'p12', name: '管理角色与权限', desc: '创建角色并分配权限（超管专属）' },
+        ]
+      }
+    ];
+
+    // MVP 预置 5 角色 (出厂自带)
+    const ROLES = [
+      { id: 'r_admin', name: '超级管理员', isPreset: true, desc: '通常 1-2 人，能改角色权限', perms: ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12'] },
+      { id: 'r_csm', name: '客户成功 (BD/CSM)', isPreset: true, desc: '管理客户生命周期与运维服务', perms: ['p1','p2','p3','p8','p10'] },
+      { id: 'r_ops', name: '运营', isPreset: true, desc: '看数据不能改，日常监控', perms: ['p1','p3','p10','p11'] },
+      { id: 'r_content', name: '内容运营', isPreset: true, desc: '维护官方知识库与预置知识', perms: ['p6','p7'] },
+      { id: 'r_tech', name: '技术运维', isPreset: true, desc: '处理客户技术问题，维护数据源', perms: ['p8','p9','p10','p11'] },
+      // 模拟一个自定义角色
+      { id: 'r_custom_1', name: '初级审核员', isPreset: false, desc: '临时建立的审核组', perms: ['p1','p3'] }
+    ];
+
+    // 企微同步的员工列表
+    const USERS = [
+      { id: 'u1', name: '林管理员', py: 'lgl', phone: '13800000001', dept: '总裁办', status: '正常', roles: ['r_admin'] },
+      { id: 'u2', name: '张客成', py: 'zkc', phone: '13800000002', dept: '客户成功部', status: '正常', roles: ['r_csm'] },
+      { id: 'u3', name: '李运营', py: 'lyy', phone: '13800000003', dept: '运营部', status: '正常', roles: ['r_ops'] },
+      { id: 'u4', name: '王内容', py: 'wnr', phone: '13800000004', dept: '知识采编组', status: '冻结', roles: ['r_content'] },
+      { id: 'u5', name: '赵技术', py: 'zjs', phone: '13800000005', dept: '研发中心', status: '正常', roles: ['r_tech', 'r_custom_1'] },
+      { id: 'u6', name: '孙新人', py: 'sxr', phone: '13800000006', dept: '客户成功部', status: '待分配', roles: [] },
+    ];
+
+    // 状态管理
+    let state = {
+      selectedUserId: null,
+      selectedRoleId: null,
+      searchKeyword: ''
+    };
+
+    // ============================
+    // 需求说明注册 (REQ Panel)
+    // ============================
+    const REQ_SPECS = [
+      { id: 'req-sync', name: '企微同步模块', purpose: '保持组织架构一致', rules: '每日 03:00 自动同步，可手动立即同步', pri: 'P0' },
+      { id: 'req-user-list', name: '员工列表', purpose: '配置角色的入口', rules: '企微数据只读，不能在此新增/删除员工；支持按姓名/拼音/手机模糊搜索', pri: 'P0' },
+      { id: 'req-role-manage', name: '员工角色管理', purpose: '分配员工角色', rules: '列出所有可用角色，预置角色(超管/客成等)不可编辑权限；勾选即代表授予', pri: 'P0' },
+      { id: 'req-create-role', name: '自定义角色', purpose: '灵活权限组合', rules: '仅超管可见，可新建非预置角色；删除前需解绑所有员工', pri: 'P1' },
+      { id: 'req-perm-view', name: '权限目录预览', purpose: '透明展示角色能力', rules: '按模块(客户/知识/系统)矩阵分组展示；预置角色仅只读展示', pri: 'P0' },
+      { id: 'req-assign-action', name: '分配角色操作', purpose: '变更员工权限', rules: '勾选 Checkbox 实时生效；后台需记录详细操作日志(操作人/时间/对象)', pri: 'P0' }
+    ];
+
+    // ============================
+    // 渲染逻辑
+    // ============================
+
+    function init() {
+      renderReqPanel();
+      renderUserList();
+    }
+
+    function renderUserList() {
+      const container = document.getElementById('user-list-container');
+      const kw = state.searchKeyword.toLowerCase();
+      
+      const filtered = USERS.filter(u => 
+        u.name.includes(kw) || u.py.includes(kw) || u.phone.includes(kw)
+      );
+
+      let html = '';
+      if(filtered.length === 0) {
+        html = '<div class="empty-state">未找到匹配员工</div>';
+      } else {
+        filtered.forEach(u => {
+          const isActive = u.id === state.selectedUserId;
+          let statusTag = '';
+          if(u.status === '正常') statusTag = '<span class="tag success">正常</span>';
+          else if(u.status === '冻结') statusTag = '<span class="tag danger">已冻结</span>';
+          else statusTag = '<span class="tag warning">待分配</span>';
+
+          html += `
+            <div class="list-item user-item ${isActive ? 'active' : ''}" onclick="selectUser('${u.id}')">
+              <div class="user-info">
+                <div class="user-name">${u.name}</div>
+                <div class="user-dept">${u.dept} | ${u.phone}</div>
+              </div>
+              ${statusTag}
+            </div>
+          `;
+        });
+      }
+      container.innerHTML = html;
+    }
+
+    function selectUser(userId) {
+      state.selectedUserId = userId;
+      state.selectedRoleId = null; // 重置权限预览
+      renderUserList();
+      renderRoleList();
+      renderPermView();
+    }
+
+    // REQ: 分配角色操作
+    function toggleUserRole(roleId, checked) {
+      const user = USERS.find(u => u.id === state.selectedUserId);
+      if(!user) return;
+      
+      if(checked) {
+        if(!user.roles.includes(roleId)) user.roles.push(roleId);
+        showToast(`已授予 [${ROLES.find(r=>r.id===roleId).name}] 角色`);
+      } else {
+        user.roles = user.roles.filter(r => r !== roleId);
+        showToast(`已移除 [${ROLES.find(r=>r.id===roleId).name}] 角色`, 'warning');
+      }
+      
+      // 更新状态标签
+      if(user.roles.length === 0) user.status = '待分配';
+      else if(user.status === '待分配') user.status = '正常';
+      
+      renderUserList();
+      // 重新渲染当前角色列表以更新 checkbox
+      renderRoleList();
+    }
+
+    function renderRoleList() {
+      const container = document.getElementById('role-list-container');
+      const user = USERS.find(u => u.id === state.selectedUserId);
+      document.getElementById('role-panel-title').innerText = `管理 [${user.name}] 的角色`;
+      // 显示超管新建按钮模拟
+      document.getElementById('req-create-role').style.display = 'inline-flex';
+
+      let html = '';
+      
+      // 分类：预置角色 vs 自定义角色
+      const presetRoles = ROLES.filter(r => r.isPreset);
+      const customRoles = ROLES.filter(r => !r.isPreset);
+
+      html += `<div style="font-size:12px;color:var(--color-text-tertiary);margin:8px 0;">系统预置 (MVP 出厂)</div>`;
+      presetRoles.forEach(r => html += buildRoleItem(r, user));
+
+      if(customRoles.length > 0) {
+        html += `<div style="font-size:12px;color:var(--color-text-tertiary);margin:16px 0 8px;">自定义角色</div>`;
+        customRoles.forEach(r => html += buildRoleItem(r, user));
+      }
+
+      container.innerHTML = html;
+    }
+
+    function buildRoleItem(role, user) {
+      const hasRole = user.roles.includes(role.id);
+      const isSelected = state.selectedRoleId === role.id;
+      return `
+        <div class="list-item role-item ${isSelected ? 'active' : ''}" onclick="selectRole('${role.id}')">
+          <div class="role-header">
+            <div class="role-name">${role.name} ${role.isPreset?'<span class="tag" style="background:transparent;margin-left:4px">预置</span>':''}</div>
+            <input type="checkbox" id="req-assign-action" class="checkbox" ${hasRole ? 'checked' : ''} 
+                   onclick="event.stopPropagation(); toggleUserRole('${role.id}', this.checked)">
+          </div>
+          <div class="role-desc">${role.desc}</div>
+        </div>
+      `;
+    }
+
+    function selectRole(roleId) {
+      state.selectedRoleId = roleId;
+      renderRoleList(); // 更新高亮
+      renderPermView();
+    }
+
+    function renderPermView() {
+      const container = document.getElementById('perm-list-container');
+      if(!state.selectedRoleId) {
+        document.getElementById('perm-panel-title').innerText = '权限明细';
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">🛡️</div><div>请在左侧选择一个角色以查看权限</div></div>`;
+        return;
+      }
+
+      const role = ROLES.find(r => r.id === state.selectedRoleId);
+      const editable = !role.isPreset;
+      document.getElementById('perm-panel-title').innerText =
+        editable ? `[${role.name}] 包含的权限 · 可编辑` : `[${role.name}] 包含的权限 · 预置只读`;
+
+      let html = '';
+
+      PERMISSIONS.forEach(mod => {
+        let modHtml = '';
+        let hasAnyPerm = false;
+
+        mod.items.forEach(perm => {
+          const hasPerm = role.perms.includes(perm.id);
+          if(hasPerm) hasAnyPerm = true;
+
+          // 预置角色只读展示；自定义角色可即时勾选修改
+          const dimStyle = (!hasPerm && !editable) ? 'opacity:0.4' : '';
+          const borderStyle = hasPerm ? 'border-color:var(--color-primary)' : '';
+          const cbAttr = editable
+            ? `onclick="togglePerm('${perm.id}', this.checked)"`
+            : 'disabled';
+          modHtml += `
+            <div class="perm-card" style="${borderStyle}${dimStyle ? ';'+dimStyle : ''}">
+              <input type="checkbox" class="checkbox" ${cbAttr} ${hasPerm ? 'checked' : ''}>
+              <div class="perm-info">
+                <div class="perm-name" style="${hasPerm?'color:var(--color-text)':'color:var(--color-text-secondary)'}">${perm.name}</div>
+                <div class="perm-desc">${perm.desc}</div>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+          <div class="perm-module">
+            <div class="perm-module-title">${mod.module}</div>
+            <div class="perm-grid">${modHtml}</div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function filterUsers(val) {
+      state.searchKeyword = val;
+      renderUserList();
+    }
+
+    // ============================
+    // 工具 & 交互函数
+    // ============================
+
+    function showToast(msg, type='success') {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.background = type === 'success' ? 'var(--color-success)' : 'var(--color-warning)';
+      t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 3000);
+    }
+
+    function handleSync() {
+      const btn = document.querySelector('#req-sync button');
+      btn.innerText = '同步中...';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.innerText = '立即同步企微';
+        btn.disabled = false;
+        document.querySelector('#req-sync .time').innerText = `上次同步: ${new Date().toLocaleString()}`;
+        showToast('企微组织架构同步成功');
+      }, 1500);
+    }
+
+    // 侧边导航占位模块
+    function navPlaceholder(name) {
+      showToast(`演示原型：「${name}」模块暂未开放`, 'warning');
+    }
+
+    // ============================
+    // 新建自定义角色
+    // ============================
+    let newRolePerms = new Set();
+
+    function openRoleModal() {
+      newRolePerms = new Set();
+      document.getElementById('new-role-name').value = '';
+      const picker = document.getElementById('role-perm-picker');
+      let html = '';
+      PERMISSIONS.forEach(mod => {
+        html += `<div><div class="perm-module-title">${mod.module}</div>`;
+        mod.items.forEach(p => {
+          html += `
+            <label class="perm-pick-row">
+              <input type="checkbox" class="checkbox" value="${p.id}" onchange="toggleNewRolePerm('${p.id}', this.checked)">
+              <span>${p.name}</span>
+            </label>`;
+        });
+        html += `</div>`;
+      });
+      picker.innerHTML = html;
+      document.getElementById('role-modal').style.display = 'flex';
+    }
+
+    function closeRoleModal() {
+      document.getElementById('role-modal').style.display = 'none';
+    }
+
+    function toggleNewRolePerm(id, checked) {
+      if (checked) newRolePerms.add(id); else newRolePerms.delete(id);
+    }
+
+    function createRole() {
+      const name = document.getElementById('new-role-name').value.trim();
+      if (!name) { showToast('请填写角色名称', 'warning'); return; }
+      if (newRolePerms.size === 0) { showToast('请至少勾选一项权限', 'warning'); return; }
+      ROLES.push({
+        id: 'r_custom_' + Date.now(),
+        name: name,
+        isPreset: false,
+        desc: '自定义角色 · 演示数据',
+        perms: Array.from(newRolePerms)
+      });
+      closeRoleModal();
+      if (state.selectedUserId) renderRoleList();
+      showToast(`已创建自定义角色 [${name}]`);
+    }
+
+    // REQ: 分配角色操作 - 自定义角色权限即时可编辑
+    function togglePerm(permId, checked) {
+      const role = ROLES.find(r => r.id === state.selectedRoleId);
+      if (!role || role.isPreset) return;
+      if (checked) {
+        if (!role.perms.includes(permId)) role.perms.push(permId);
+      } else {
+        role.perms = role.perms.filter(p => p !== permId);
+      }
+      renderPermView();
+      showToast('权限已更新 · 演示');
+    }
+
+    // REQ Panel 相关
+    function renderReqPanel() {
+      const body = document.getElementById('req-panel-body');
+      let h = '';
+      REQ_SPECS.forEach(r => {
+        h += `
+          <div class="req-item" onmouseenter="highlight('${r.id}')" onmouseleave="removeHighlight('${r.id}')">
+            <div class="req-item-head">
+              <span class="req-name">${r.name}</span>
+              <span class="req-pri">${r.pri}</span>
+            </div>
+            <div class="req-desc">${r.purpose}</div>
+            <div class="req-rule">规则: ${r.rules}</div>
+          </div>
+        `;
+      });
+      body.innerHTML = h;
+    }
+    
+    let isReqCollapsed = false;
+    function toggleReqPanel() {
+      isReqCollapsed = !isReqCollapsed;
+      const panel = document.getElementById('req-panel');
+      const toggle = document.getElementById('req-toggle');
+      if(isReqCollapsed) {
+        panel.classList.add('collapsed');
+        toggle.innerText = '◀';
+      } else {
+        panel.classList.remove('collapsed');
+        toggle.innerText = '▶';
+      }
+    }
+
+    function highlight(id) {
+      const el = document.getElementById(id);
+      if(el) el.classList.add('highlight-elem');
+    }
+    function removeHighlight(id) {
+      const el = document.getElementById(id);
+      if(el) el.classList.remove('highlight-elem');
+    }
+
+    // 启动
+    init();
+  </script>
+</body>
+</html>

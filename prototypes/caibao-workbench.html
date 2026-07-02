@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>采购工作台 - 采宝原型</title>
+  <style>
+    :root {
+      --pri: #1A5FA8; --acc: #E87722; --suc: #0B7A4E; --dan: #C0392B;
+      --bg: #F5F6FA; --card: #FFFFFF; --bdr: #E4E7EF;
+      --txt: #0D1117; --txt2: #5A6478; --txt3: #9AA3B2;
+      --radius: 12px; --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--txt); padding: 24px; position: relative; }
+    
+    /* 需求说明面板 */
+    .req-panel { position: fixed; right: 20px; top: 20px; width: 320px; background: white; border: 1px solid var(--bdr); border-radius: var(--radius); box-shadow: var(--shadow); z-index: 1000; font-size: 13px; max-height: 80vh; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+    .req-panel.collapsed { transform: translateX(calc(100% - 30px)); }
+    .req-panel-header { padding: 12px 16px; background: #fafafa; border-bottom: 1px solid var(--bdr); font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; border-radius: var(--radius) var(--radius) 0 0; }
+    .req-panel-body { padding: 12px; overflow-y: auto; flex: 1; }
+    .req-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--bdr); }
+    .req-title { font-weight: bold; color: var(--pri); margin-bottom: 4px; }
+    .req-priority { background: #ffe58f; color: #d46b08; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+    /* 布局与组件 */
+    .page-container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+    
+    .brief-card { background: linear-gradient(135deg, #1A5FA8, #2980B9); color: white; border-radius: var(--radius); padding: 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow); }
+    .brief-card h2 { margin-bottom: 8px; font-size: 20px; font-weight: 600; }
+    .brief-card p { font-size: 15px; opacity: 0.9; }
+    .brief-stats { display: flex; gap: 24px; }
+    .stat-item { text-align: center; }
+    .stat-val { font-size: 28px; font-weight: bold; }
+    .stat-lbl { font-size: 13px; opacity: 0.8; }
+    
+    .card { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+    .card-title { font-size: 16px; font-weight: bold; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    
+    /* 待确认事项列表 */
+    .pending-list { display: flex; flex-direction: column; gap: 12px; }
+    .pending-item { border: 1px solid var(--bdr); border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .pending-info h4 { font-size: 15px; margin-bottom: 4px; }
+    .agent-reason { background: #E8F0F8; color: var(--pri); padding: 8px 12px; border-radius: 6px; font-size: 13px; margin-top: 8px; border-left: 3px solid var(--pri); }
+    .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.8; }
+    .btn-primary { background: var(--pri); color: white; }
+    .btn-success { background: var(--suc); color: white; }
+    
+    /* 表格 */
+    .table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .table th { text-align: left; padding: 12px; color: var(--txt2); border-bottom: 1px solid var(--bdr); }
+    .table td { padding: 12px; border-bottom: 1px solid var(--bdr); }
+    .table tr:last-child td { border-bottom: none; }
+    
+    /* 进度条 */
+    .progress-stages { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--txt3); }
+    .stage { padding: 2px 8px; border-radius: 12px; background: #eee; }
+    .stage.active { background: #E8F0F8; color: var(--pri); font-weight: bold; }
+    .stage.done { background: #E8F5E9; color: var(--suc); }
+    
+    /* 弹窗 */
+    .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000; }
+    .modal { background: var(--card); border-radius: var(--radius); width: 400px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .modal-title { font-size: 18px; font-weight: bold; margin-bottom: 16px; }
+    .modal-body { font-size: 14px; color: var(--txt2); margin-bottom: 24px; line-height: 1.6; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; }
+    .btn-default { background: #f0f0f0; color: var(--txt); }
+
+    .tag-danger { background: #fee2e2; color: var(--dan); padding: 2px 6px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+    
+    /* Confetti */
+    .confetti { position: fixed; width: 10px; height: 10px; background-color: #f00; z-index: 9999; animation: fall 3s linear forwards; }
+    @keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+    /* Toast */
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--suc); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 9999; max-width: 80vw; }
+    .toast.show { opacity: 1; visibility: visible; top: 40px; }
+
+    /* 演示数据标注 */
+    .demo-badge { position: fixed; left: 16px; bottom: 16px; background: rgba(13,17,23,0.82); color: #fff; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; z-index: 3000; box-shadow: 0 2px 8px rgba(0,0,0,0.2); letter-spacing: 0.3px; }
+
+    .link-action { color: var(--pri); text-decoration: none; cursor: pointer; }
+    .link-action:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- REQ: 需求说明面板 - 展示当前页面所有功能点的需求说明 | 规则: 默认展开，可点击折叠；仅原型环境显示 | 优先级: P2 -->
+  <div id="req-panel" class="req-panel">
+    <div class="req-panel-header" onclick="toggleReqPanel()">
+      📋 需求说明 <span id="req-toggle">▶</span>
+    </div>
+    <div id="req-panel-body" class="req-panel-body">
+      <!-- 动态注入各功能点的需求说明 -->
+    </div>
+  </div>
+
+  <div class="toast" id="toast">✅ 操作成功</div>
+  <div class="demo-badge">🔧 演示数据 / Demo Data</div>
+
+  <div class="page-container">
+
+    <!-- REQ: 采宝简报 - 第一人称总结当日进展 | 规则: 动态显示节省金额与处理数量 | 优先级: P1 -->
+    <div class="brief-card" id="brief-card">
+      <div>
+        <h2>🤖 采宝今天又干了不少活！</h2>
+        <p>今天我处理了10个品类，帮你省了 <strong>¥2,560</strong>，有3件事需要你最终拍板，我等着你呢。</p>
+      </div>
+      <div class="brief-stats">
+        <div class="stat-item">
+          <div class="stat-val">10</div>
+          <div class="stat-lbl">今日处理品类</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">¥2,560</div>
+          <div class="stat-lbl">预估节省</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">待确认事项 (T3阶段)</div>
+      <div class="pending-list" id="pending-list">
+        <!-- JS 动态渲染 -->
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        全量采购任务 (10)
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>品类</th>
+            <th>数量</th>
+            <th>进度阶段</th>
+            <th>预期/实际损耗</th>
+            <th>中标/当前价</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="task-list">
+          <!-- JS 动态渲染 -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- 损耗补采弹窗 -->
+  <!-- REQ: 损耗补采弹窗 - 自动计算补采量 | 规则: 实际损耗 > 预期损耗时点击触发 | 优先级: P0 -->
+  <div class="modal-overlay" id="waste-modal">
+    <div class="modal">
+      <div class="modal-title">⚠️ 损耗超标预警</div>
+      <div class="modal-body">
+        <p>采宝发现 <strong><span id="wm-sku"></span></strong> 的实际损耗（<span id="wm-act"></span>%）高于预期（<span id="wm-exp"></span>%）。</p>
+        <div class="agent-reason" style="margin-top: 12px;">
+          "为了不影响明天的出菜量，我建议立刻补采 <strong style="font-size: 16px;"><span id="wm-suggest"></span> 斤</strong>。要我这就去安排吗？"
+        </div>
+      </div>
+      <div class="modal-footer">
+        <!-- REQ: 暂不补采按钮 - 关闭弹窗 | 规则: 关闭即可 | 优先级: P2 -->
+        <button class="btn btn-default" onclick="closeModal()">暂不补采</button>
+        <!-- REQ: 同意补采按钮 - 创建补采任务 | 规则: 提示成功并关闭弹窗 | 优先级: P0 -->
+        <button class="btn btn-primary" id="btn-confirm-waste" onclick="confirmWaste()">交给你了，采宝</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MOCK_DATA = {
+      brief: { totalItems: 10, saved: 2560, pendingCount: 3 },
+      tasks: [
+        { id: 'T001', sku: '西红柿', qty: 500, expectedWaste: 5, actualWaste: 5, supplier: '华鲜农贸', price: 3.2, saving: 350, phase: 't3', agentReason: '华鲜农贸虽然比鑫农批发贵0.1元，但他家近一周履约准时率100%，西红柿这种易损耗品建议稳妥优先。' },
+        { id: 'T002', sku: '青椒', qty: 300, expectedWaste: 4, actualWaste: 8, supplier: '绿源蔬菜', price: 2.8, saving: 120, phase: 't2', agentReason: '绿源还有降价空间，我正在努力压价。' },
+        { id: 'T003', sku: '白菜', qty: 1000, expectedWaste: 8, actualWaste: 7, supplier: '冷链直供', price: 0.9, saving: 800, phase: 't3', agentReason: '已经达到历史最低价0.9元，且让利空间耗尽，建议直接锁定。' },
+        { id: 'T004', sku: '土豆', qty: 2000, expectedWaste: 3, actualWaste: 3, supplier: '东方果蔬', price: 1.5, saving: 400, phase: 't3', agentReason: '东方果蔬给出了全网最低价，且资质完整，强烈建议下单。' },
+        { id: 'T005', sku: '黄瓜', qty: 400, expectedWaste: 6, actualWaste: 6, supplier: '万家鲜配', price: 2.1, saving: 150, phase: 't1', agentReason: '正在生成初步策略中...' },
+        { id: 'T006', sku: '冬瓜', qty: 600, expectedWaste: 5, actualWaste: 5, supplier: '--', price: '--', saving: 0, phase: 't1', agentReason: '--' },
+        { id: 'T007', sku: '芹菜', qty: 200, expectedWaste: 10, actualWaste: 10, supplier: '--', price: '--', saving: 0, phase: 't1', agentReason: '--' },
+        { id: 'T008', sku: '胡萝卜', qty: 800, expectedWaste: 4, actualWaste: 4, supplier: '--', price: '--', saving: 0, phase: 't1', agentReason: '--' },
+        { id: 'T009', sku: '菠菜', qty: 150, expectedWaste: 15, actualWaste: 15, supplier: '--', price: '--', saving: 0, phase: 't1', agentReason: '--' },
+        { id: 'T010', sku: '大葱', qty: 300, expectedWaste: 3, actualWaste: 3, supplier: '--', price: '--', saving: 0, phase: 't1', agentReason: '--' },
+      ]
+    };
+
+    const REQ_SPECS = [
+      { id: "brief-card", name: "采宝简报", purpose: "直观展示Agent的工作成果", rules: "动态显示节省金额与处理数量", priority: "P1" },
+      { id: "pending-list", name: "待确认事项卡片", purpose: "聚焦需要人工干预的任务", rules: "仅展示 phase=t3 的任务", priority: "P0" },
+      { id: "btn-approve", name: "最终确认按钮", purpose: "人工审批通过采购方案", rules: "点击后状态变为完成，全部确认后触发撒花", priority: "P0" },
+      { id: "waste-modal", name: "损耗补采弹窗", purpose: "针对高损耗给出补采建议", rules: "补采量 = qty × (actualWaste - expectedWaste) / 100", priority: "P0" }
+    ];
+
+    let pendingCount = MOCK_DATA.brief.pendingCount;
+
+    function renderReqPanel() {
+      const body = document.getElementById('req-panel-body');
+      body.innerHTML = REQ_SPECS.map(req => `
+        <div class="req-item" onmouseenter="highlightElem('${req.id}')" onmouseleave="unhighlightElem('${req.id}')">
+          <div class="req-title">${req.name}</div>
+          <div class="req-meta"><span class="req-priority">${req.priority}</span></div>
+          <div style="margin-bottom: 4px;"><strong>目的：</strong>${req.purpose}</div>
+          <div><strong>规则：</strong>${req.rules}</div>
+        </div>
+      `).join('');
+    }
+
+    function toggleReqPanel() {
+      const panel = document.getElementById('req-panel');
+      const toggle = document.getElementById('req-toggle');
+      panel.classList.toggle('collapsed');
+      toggle.innerText = panel.classList.contains('collapsed') ? '◀' : '▶';
+    }
+
+    let currentHighlight = null;
+    function highlightElem(id) {
+      const el = document.getElementById(id);
+      if(el) { currentHighlight = el.style.outline; el.style.outline = '3px solid var(--pri)'; el.style.outlineOffset = '-3px'; }
+    }
+    function unhighlightElem(id) {
+      const el = document.getElementById(id);
+      if(el) { el.style.outline = currentHighlight || ''; }
+    }
+
+    function renderPending() {
+      const list = document.getElementById('pending-list');
+      const t3Tasks = MOCK_DATA.tasks.filter(t => t.phase === 't3');
+      if (t3Tasks.length === 0) {
+        list.innerHTML = '<div style="color:var(--txt3); padding:20px; text-align:center;">暂无待确认事项，采宝正在努力工作中...</div>';
+        return;
+      }
+      list.innerHTML = t3Tasks.map(t => `
+        <div class="pending-item" id="pending-${t.id}">
+          <div class="pending-info">
+            <h4>${t.sku} - ${t.qty}斤 | 中标：${t.supplier} (¥${t.price})</h4>
+            <div class="agent-reason">🗣️ "${t.agentReason}"</div>
+          </div>
+          <!-- REQ: 最终确认按钮 - 审批采购方案 | 规则: 全部确认后触发撒花 | 优先级: P0 -->
+          <button class="btn btn-success" id="btn-approve" onclick="approveTask('${t.id}')">好的，听你的</button>
+        </div>
+      `).join('');
+    }
+
+    function renderTable() {
+      const list = document.getElementById('task-list');
+      list.innerHTML = MOCK_DATA.tasks.map(t => {
+        const wasteHtml = t.actualWaste > t.expectedWaste 
+          ? `<span class="tag-danger" onclick="openWasteModal('${t.id}')">${t.expectedWaste}% / ${t.actualWaste}% (超标)</span>`
+          : `${t.expectedWaste}% / ${t.actualWaste}%`;
+        
+        return `
+          <tr>
+            <td><strong>${t.sku}</strong></td>
+            <td>${t.qty} 斤</td>
+            <td>
+              <div class="progress-stages">
+                <span class="stage ${t.phase === 't1' ? 'active' : 'done'}">T1 方案</span> › 
+                <span class="stage ${t.phase === 't2' ? 'active' : (t.phase==='t3'?'done':'')}">T2 议价</span> › 
+                <span class="stage ${t.phase === 't3' ? 'active' : ''}">T3 确认</span>
+              </div>
+            </td>
+            <td>${wasteHtml}</td>
+            <td>${t.price !== '--' ? `¥${t.price}` : '--'}</td>
+            <td><a href="#" class="link-action" onclick="viewDetail('${t.id}'); return false;">查看详情</a></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function approveTask(id) {
+      const btn = document.querySelector(`#pending-${id} button`);
+      btn.innerHTML = '已确认 ✓';
+      btn.classList.replace('btn-success', 'btn-default');
+      btn.disabled = true;
+      
+      pendingCount--;
+      if(pendingCount === 0) {
+        triggerConfetti();
+        document.querySelector('.brief-card p').innerHTML = `今天我处理了10个品类，帮你省了 <strong>¥2,560</strong>，所有待办都处理完啦！🎉`;
+      }
+    }
+
+    function openWasteModal(id) {
+      const task = MOCK_DATA.tasks.find(t => t.id === id);
+      const suggestQty = Math.ceil(task.qty * (task.actualWaste - task.expectedWaste) / 100);
+      document.getElementById('wm-sku').innerText = task.sku;
+      document.getElementById('wm-act').innerText = task.actualWaste;
+      document.getElementById('wm-exp').innerText = task.expectedWaste;
+      document.getElementById('wm-suggest').innerText = suggestQty;
+      document.getElementById('waste-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('waste-modal').style.display = 'none';
+    }
+
+    function confirmWaste() {
+      closeModal();
+      showToast('✅ 已让采宝去创建补采任务 · 演示数据');
+    }
+
+    function viewDetail(id) {
+      const task = MOCK_DATA.tasks.find(t => t.id === id);
+      showToast(`📋 演示原型：此处将展开「${task.sku}」的采购详情`);
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg || '操作成功';
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    function triggerConfetti() {
+      const colors = ['#1A5FA8', '#E87722', '#0B7A4E', '#C0392B', '#F1C40F'];
+      for(let i=0; i<100; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDuration = (Math.random() * 2 + 1) + 's';
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 3000);
+      }
+    }
+
+    function init() {
+      renderReqPanel();
+      renderPending();
+      renderTable();
+    }
+    init();
+  </script>
+</body>
+</html>

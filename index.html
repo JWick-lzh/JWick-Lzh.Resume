@@ -144,6 +144,21 @@
       </div>
     </section>
 
+    <!-- Portfolio 作品集 -->
+    <section class="section" id="portfolio" aria-labelledby="t-portfolio">
+      <div class="container">
+        <header class="section-head">
+          <span class="section-index" aria-hidden="true">05</span>
+          <h2 id="t-portfolio">作品集</h2>
+        </header>
+        <p class="pf-lead" id="pf-lead">
+          点击任意<b>能力</b>标签 → 下方作品自动高亮匹配、淡化无关；点<b>作品</b>卡片 → 打开详情，交互原型直接内嵌可玩。
+        </p>
+        <div class="pf-matrix" id="pf-matrix" aria-label="能力矩阵"></div>
+        <div class="pf-tiers" id="pf-tiers"></div>
+      </div>
+    </section>
+
     <!-- Contact -->
     <section class="section" id="contact" aria-labelledby="t-contact">
       <div class="container">
@@ -175,7 +190,21 @@
     </div>
   </footer>
 
+  <!-- 作品集抽屉 -->
+  <div class="pf-scrim" id="pf-scrim" hidden></div>
+  <aside class="pf-drawer" id="pf-drawer" aria-hidden="true" aria-label="作品详情">
+    <div class="pf-drawer-head">
+      <div>
+        <h3 class="pf-drawer-title" id="pf-drawer-title"></h3>
+        <div class="pf-drawer-sub" id="pf-drawer-sub"></div>
+      </div>
+      <button type="button" class="pf-close" id="pf-close" aria-label="关闭">✕</button>
+    </div>
+    <div class="pf-drawer-body" id="pf-drawer-body"></div>
+  </aside>
+
   <script src="./assets/js/data.js"></script>
+  <script src="./assets/js/portfolio-data.js"></script>
   <script src="./assets/js/main.js"></script>
 </body>
 </html>

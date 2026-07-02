@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>老板助手 · 一期交互原型</title>
+<style>
+:root{
+  --blue:#1D8EFB; --blue-deep:#0B6FE0; --blue-dark:#0A4FA8;
+  --ink:#1C2329; --gray:#666; --gray2:#999; --line:#EEF2F7;
+  --bg:#F4F7FB; --card:#FFFFFF;
+  --up:#F5483B; --down:#0FBE7C; --warn:#FF9F23;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif;background:#E7ECF3;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:28px 12px;color:var(--ink)}
+.stage{display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap;justify-content:center}
+.side{width:240px;padding-top:8px}
+.side h1{font-size:20px;margin-bottom:6px}
+.side .tag{display:inline-block;background:var(--blue);color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;margin-bottom:14px}
+.side p{font-size:12px;color:var(--gray);line-height:1.8;margin-bottom:10px}
+.side b{color:var(--ink)}
+/* phone */
+.phone{width:390px;height:802px;background:#0d1117;border-radius:46px;padding:10px;box-shadow:0 30px 60px rgba(10,40,90,.25)}
+.screen{position:relative;width:100%;height:100%;background:var(--bg);border-radius:38px;overflow:hidden;display:flex;flex-direction:column}
+.status{height:34px;flex:none;display:flex;justify-content:space-between;align-items:flex-end;padding:0 22px 4px;font-size:12px;font-weight:600;color:#fff;position:relative;z-index:5}
+.status.dark{color:var(--ink)}
+.notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:110px;height:22px;background:#0d1117;border-radius:12px;z-index:9}
+.pages{flex:1;position:relative;overflow:hidden}
+.page{position:absolute;inset:0;overflow-y:auto;display:none;padding-bottom:76px;scrollbar-width:none}
+.page::-webkit-scrollbar{display:none}
+.page.active{display:block}
+/* tabbar */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:64px;background:#fff;border-top:1px solid var(--line);display:flex;z-index:20;border-radius:0 0 38px 38px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:var(--gray2);cursor:pointer;position:relative}
+.tab .ico{font-size:19px;line-height:1}
+.tab.on{color:var(--blue);font-weight:600}
+.tab .dot{position:absolute;top:9px;right:26px;width:8px;height:8px;border-radius:50%;background:var(--up)}
+/* hero */
+.hero{background:linear-gradient(150deg,#2BA0FF 0%,#1D8EFB 45%,#0B5FD6 100%);padding:6px 18px 64px;color:#fff;position:relative}
+.hero::after{content:"";position:absolute;right:-30px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.hero .hello{font-size:16px;font-weight:600}
+.hero .sub{font-size:11px;opacity:.85;margin-top:2px}
+.hero .big{margin-top:18px}
+.hero .big .lab{font-size:12px;opacity:.85}
+.hero .big .num{font-size:34px;font-weight:700;font-family:Arial;letter-spacing:.5px;margin-top:4px}
+.hero .cmp{font-size:11px;opacity:.9;margin-top:6px}
+.hero .trio{display:flex;margin-top:16px}
+.hero .trio div{flex:1}
+.hero .trio .l{font-size:11px;opacity:.8}
+.hero .trio .v{font-size:16px;font-weight:600;font-family:Arial;margin-top:3px}
+/* cards */
+.card{background:var(--card);border-radius:14px;margin:12px 14px 0;padding:14px 14px 16px;box-shadow:0 4px 16px rgba(29,80,160,.06)}
+.card.first{margin-top:-44px;position:relative;z-index:3}
+.cd-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cd-title{font-size:15px;font-weight:600}
+.cd-title::before{content:"";display:inline-block;width:4px;height:13px;background:var(--blue);border-radius:2px;margin-right:7px;vertical-align:-1px}
+.seg{display:flex;background:#F0F4F9;border-radius:8px;padding:2px}
+.seg span{padding:4px 10px;font-size:11px;border-radius:6px;color:var(--gray);cursor:pointer;white-space:nowrap}
+.seg span.on{background:#fff;color:var(--blue);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 6px}
+.gi .l{font-size:11px;color:var(--gray2)}
+.gi .v{font-size:17px;font-weight:600;font-family:Arial;margin:3px 0 2px}
+.gi .c{font-size:10px}
+.upc{color:var(--up)} .dnc{color:var(--down)}
+/* chart */
+.chart-wrap{position:relative}
+svg{display:block;width:100%}
+.tip{position:absolute;background:rgba(20,35,60,.92);color:#fff;border-radius:8px;padding:8px 10px;font-size:10px;line-height:1.7;pointer-events:none;display:none;z-index:5;white-space:nowrap}
+.tip b{font-family:Arial}
+/* rank */
+.rank-tabs{display:flex;gap:16px;margin-bottom:4px}
+.rank-tabs span{font-size:13px;color:var(--gray);padding-bottom:6px;cursor:pointer}
+.rank-tabs span.on{color:var(--blue);font-weight:600;border-bottom:2px solid var(--blue)}
+.rk{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:12px}
+.rk:last-child{border-bottom:none}
+.rk .no{width:20px;height:20px;border-radius:6px;background:#F0F4F9;color:var(--gray2);font-size:11px;display:flex;align-items:center;justify-content:center;margin-right:10px;font-family:Arial;font-weight:700}
+.rk:nth-child(2) .no{background:#FFE9E6;color:#F5483B}
+.rk:nth-child(3) .no{background:#FFF3E0;color:#FF9F23}
+.rk:nth-child(4) .no{background:#E6F2FF;color:var(--blue)}
+.rk .nm{flex:1}
+.rk .m{width:70px;text-align:right;font-family:Arial;font-weight:600}
+.rk .pr{width:58px;text-align:right;color:var(--gray);font-family:Arial;font-size:11px}
+.rk .pp{width:48px;text-align:right;font-family:Arial;font-size:11px}
+/* page header (light) */
+.ph{padding:10px 18px 12px;background:#fff}
+.ph h2{font-size:19px;font-weight:700}
+.ph p{font-size:11px;color:var(--gray2);margin-top:3px}
+/* message */
+.msg{display:flex;align-items:flex-start;gap:11px;background:#fff;margin:10px 14px 0;border-radius:13px;padding:13px;box-shadow:0 4px 14px rgba(29,80,160,.05);cursor:pointer}
+.msg .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.msg .bd{flex:1;min-width:0}
+.msg .t1{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.msg .t1 .nd{width:7px;height:7px;border-radius:50%;background:var(--up)}
+.msg .t2{font-size:11px;color:var(--gray);margin-top:4px;line-height:1.6}
+.msg .dt{font-size:10px;color:#bbb;flex:none}
+.badge{font-size:9px;padding:1px 6px;border-radius:8px;font-weight:600}
+/* biz */
+.bz{background:#fff;margin:12px 14px 0;border-radius:14px;padding:14px;box-shadow:0 4px 14px rgba(29,80,160,.05);cursor:pointer}
+.bz .hd{display:flex;justify-content:space-between;align-items:center}
+.bz .hd .l{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600}
+.bz .hd .em{width:32px;height:32px;border-radius:9px;background:#E8F3FF;display:flex;align-items:center;justify-content:center;font-size:16px}
+.bz .hd .go{font-size:11px;color:var(--gray2)}
+.bz .ms{display:flex;margin-top:12px}
+.bz .ms div{flex:1}
+.bz .ms .l2{font-size:10px;color:var(--gray2)}
+.bz .ms .v2{font-size:16px;font-weight:600;font-family:Arial;margin-top:3px}
+.bz .ms .u{font-size:10px;color:var(--gray2);font-weight:400}
+/* overlay detail */
+.ovl{position:absolute;inset:0;background:var(--bg);z-index:30;display:none;flex-direction:column;border-radius:38px;overflow:hidden}
+.ovl.show{display:flex}
+.ovl .obar{flex:none;background:linear-gradient(135deg,#2BA0FF,#0B5FD6);color:#fff;padding:40px 16px 14px;display:flex;align-items:center;gap:10px}
+.ovl .back{font-size:18px;cursor:pointer;width:28px}
+.ovl .ot{font-size:16px;font-weight:600;flex:1}
+.ovl .share{font-size:11px;background:rgba(255,255,255,.18);padding:4px 11px;border-radius:12px;cursor:pointer}
+.ovl .obody{flex:1;overflow-y:auto;padding-bottom:30px;scrollbar-width:none}
+.ovl .obody::-webkit-scrollbar{display:none}
+.lrow{display:flex;justify-content:space-between;align-items:center;padding:12px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.lrow:last-child{border-bottom:none}
+.lrow .r{font-family:Arial;font-weight:600}
+.lrow .sub2{font-size:10px;color:var(--gray2);margin-top:2px;font-weight:400;font-family:"PingFang SC"}
+.sol{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;display:flex;gap:10px;align-items:flex-start}
+.sol .em2{font-size:20px;flex:none}
+.sol .t{font-size:13px;font-weight:600}
+.sol .d{font-size:11px;color:var(--gray);margin-top:3px;line-height:1.6}
+.sol .st{margin-left:auto;flex:none}
+.st-on{color:var(--down);background:#E7F9F1}
+.st-off{color:var(--warn);background:#FFF3E0;cursor:pointer}
+.st-on,.st-off{font-size:10px;padding:3px 9px;border-radius:10px;font-weight:600;white-space:nowrap}
+/* report */
+.rep-hero{background:linear-gradient(150deg,#2BA0FF,#0B5FD6);margin:14px;border-radius:16px;color:#fff;padding:18px}
+.rep-hero .w{font-size:11px;opacity:.85}
+.rep-hero .t{font-size:18px;font-weight:700;margin-top:4px}
+.rep-hero .row3{display:flex;margin-top:14px}
+.rep-hero .row3 div{flex:1}
+.rep-hero .row3 .l{font-size:10px;opacity:.8}
+.rep-hero .row3 .v{font-size:17px;font-weight:700;font-family:Arial;margin-top:3px}
+.rline{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
+.rline:last-child{border:none}
+.rline .rv{font-family:Arial;font-weight:600}
+.advice{background:#F2F8FF;border-radius:10px;padding:11px 12px;font-size:11.5px;color:#1A5FB4;line-height:1.7;margin-top:10px}
+/* settings */
+.health{display:flex;align-items:center;gap:16px}
+.ring{width:84px;height:84px;flex:none}
+.hl .s{font-size:12px;color:var(--gray);line-height:1.7}
+.set-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
+.set-row:last-child{border:none}
+.set-row select,.set-row input{border:1px solid #DCE5F0;border-radius:8px;padding:5px 8px;font-size:12px;color:var(--ink);background:#fff;font-family:inherit;width:128px}
+.set-row .pair{display:flex;gap:6px}
+.set-row .pair select{width:76px}
+.savebtn{margin:16px 14px 0;background:var(--blue);color:#fff;border:none;width:calc(100% - 28px);padding:12px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
+/* toast */
+.toast{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);background:rgba(20,35,60,.9);color:#fff;font-size:12px;padding:9px 18px;border-radius:20px;opacity:0;transition:.3s;z-index:50;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.note{font-size:10px;color:#A9B6C6;text-align:center;margin:14px 0 4px}
+@media (max-width:760px){.side{display:none}.phone{transform:scale(.92);transform-origin:top center}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="side">
+    <h1>老板助手</h1>
+    <div class="tag">一期 · 交互原型 v1.0</div>
+    <p><b>定位</b>：让老板感到对企业的掌控力 —— 数据呈现 → 异常预警 → 定位问题 → 引导使用系统能力。</p>
+    <p><b>可体验交互</b>：</p>
+    <p>① 经营页：数据面板「昨日/本周/本月」切换；趋势图「金额/利润」切换、点击折线看当日明细；排行「今日/近7日/近30日」切换、客户/商品切换。</p>
+    <p>② 消息页：点击四类预警进详情，详情页可「分享」。</p>
+    <p>③ 业务页：点采购/分拣/仓储进详情，查看走势与解决方案引导（使用中/未启用）。</p>
+    <p>④ 我的页：预警阈值与业务指标设置、使用健康度。</p>
+    <p style="color:#A9B6C6">演示数据均为模拟值，口径以 PRD 为准。</p>
+  </div>
+
+  <div class="phone"><div class="screen">
+    <div class="notch"></div>
+    <div class="status" id="statusbar"><span>9:41</span><span>📶 ⚡ 100%</span></div>
+
+    <div class="pages">
+      <!-- ============ 经营 ============ -->
+      <div class="page active" id="pg-home">
+        <div class="hero">
+          <div class="row">
+            <div><div class="hello">张老板，下午好</div><div class="sub">鲜达配送 · 06月12日 周五</div></div>
+            <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center">👤</div>
+          </div>
+          <div class="big">
+            <div class="lab">今日下单金额（元）</div>
+            <div class="num">128,632.50</div>
+            <div class="cmp">较昨日 <b style="font-family:Arial">+8.2%</b> ↑ · 数据更新于 14:32</div>
+          </div>
+          <div class="trio">
+            <div><div class="l">参考成本</div><div class="v">96,420</div></div>
+            <div><div class="l">参考利润</div><div class="v">32,212</div></div>
+            <div><div class="l">参考利润率</div><div class="v">33.4%</div></div>
+          </div>
+        </div>
+
+        <div class="card first">
+          <div class="cd-head">
+            <div class="cd-title">数据面板</div>
+            <div class="seg" id="seg-period">
+              <span class="on" data-p="0">昨日</span><span data-p="1">本周</span><span data-p="2">本月</span>
+            </div>
+          </div>
+          <div class="grid" id="panel-grid"></div>
+          <div style="font-size:10px;color:#A9B6C6;margin-top:10px" id="panel-note"></div>
+        </div>
+
+        <div class="card">
+          <div class="cd-head">
+            <div class="cd-title">经营数据追踪 · 近30天</div>
+            <div class="seg" id="seg-metric"><span class="on" data-m="amt">销售金额</span><span data-m="pft">销售利润</span></div>
+          </div>
+          <div class="chart-wrap">
+            <svg id="trend" viewBox="0 0 330 150" height="150"></svg>
+            <div class="tip" id="tip"></div>
+          </div>
+          <div style="font-size:10px;color:#A9B6C6;margin-top:6px">点击折线可查看当日 销售金额 / 出库成本 / 销售利润 / 毛利率</div>
+        </div>
+
+        <div class="card">
+          <div class="cd-head">
+            <div class="rank-tabs" id="rank-type"><span class="on" data-t="cus">客户排行</span><span data-t="goods">商品排行</span></div>
+            <div class="seg" id="seg-rank"><span class="on" data-r="0">今日</span><span data-r="1">近7日</span><span data-r="2">近30日</span></div>
+          </div>
+          <div style="display:flex;font-size:10px;color:#A9B6C6;padding:0 0 4px"><span style="flex:1;margin-left:30px">名称</span><span style="width:70px;text-align:right">销售金额</span><span style="width:58px;text-align:right">利润</span><span style="width:48px;text-align:right">利润率</span></div>
+          <div id="rank-list"></div>
+        </div>
+        <div class="note">— 数据口径与系统报表保持一致 —</div>
+      </div>
+
+      <!-- ============ 消息 ============ -->
+      <div class="page" id="pg-msg">
+        <div class="ph"><h2>消息提醒</h2><p>每日 10:00 自动检查，命中预警区间才会提醒</p></div>
+        <div id="msg-list"></div>
+        <div class="note">提醒阈值可在「我的 → 预警设置」中调整</div>
+      </div>
+
+      <!-- ============ 业务 ============ -->
+      <div class="page" id="pg-biz">
+        <div class="ph"><h2>业务效率</h2><p>按上一自然周（06.01–06.07）统计</p></div>
+        <div id="biz-list"></div>
+        <div class="note">点击模块查看走势与提效方案</div>
+      </div>
+
+      <!-- ============ 周报 ============ -->
+      <div class="page" id="pg-rep">
+        <div class="ph"><h2>企业周报</h2><p>每周一 9:00 自动推送</p></div>
+        <div class="rep-hero">
+          <div class="w">第 23 周 · 06.01 – 06.07</div>
+          <div class="t">本周经营摘要</div>
+          <div class="row3">
+            <div><div class="l">销售金额</div><div class="v">86.4万</div></div>
+            <div><div class="l">参考利润</div><div class="v">21.3万</div></div>
+            <div><div class="l">利润率</div><div class="v">32.7%</div></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:0">
+          <div class="cd-title" style="margin-bottom:6px">本周关键变化</div>
+          <div class="rline"><span>下单客户数</span><span class="rv">312 家 <span class="dnc" style="font-size:11px">+12</span></span></div>
+          <div class="rline"><span>异常提醒</span><span class="rv">9 条 <span class="upc" style="font-size:11px">成本波动 ×4</span></span></div>
+          <div class="rline"><span>分拣人效</span><span class="rv">412 单/人日 <span class="dnc" style="font-size:11px">+6.5%</span></span></div>
+          <div class="rline"><span>滞销货值占比</span><span class="rv">8.9% <span class="upc" style="font-size:11px">+1.2pt</span></span></div>
+          <div class="advice">💡 本周建议：滞销货值占比连续两周上升，建议开启「保质期预警」并复核安全库存设置；4 条成本波动集中在叶菜类，可关注供应商比价。</div>
+        </div>
+        <div class="note">周报口径与经营面板一致</div>
+      </div>
+
+      <!-- ============ 我的 ============ -->
+      <div class="page" id="pg-me">
+        <div class="ph"><h2>我的</h2><p>鲜达配送 · 张老板</p></div>
+        <div class="card" style="margin-top:12px">
+          <div class="cd-title" style="margin-bottom:12px">系统使用健康度</div>
+          <div class="health">
+            <svg class="ring" viewBox="0 0 84 84">
+              <circle cx="42" cy="42" r="35" fill="none" stroke="#EEF2F7" stroke-width="9"/>
+              <circle cx="42" cy="42" r="35" fill="none" stroke="#1D8EFB" stroke-width="9" stroke-linecap="round"
+                stroke-dasharray="219.9" stroke-dashoffset="61.6" transform="rotate(-90 42 42)"/>
+              <text x="42" y="40" text-anchor="middle" font-size="19" font-weight="700" fill="#1C2329" font-family="Arial">72</text>
+              <text x="42" y="55" text-anchor="middle" font-size="9" fill="#999">健康度</text>
+            </svg>
+            <div class="hl"><div class="s">已启用 <b>9/12</b> 项核心能力<br>建议开启：<b style="color:#FF9F23">保质期预警、供应商代分拣、安全库存</b><br>开启后预计分拣提效最高 70%</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="cd-title" style="margin-bottom:4px">预警设置</div>
+          <div class="set-row"><span>滞销商品提醒（天）</span>
+            <div class="pair"><select><option>3</option><option selected>5</option><option>7</option></select><select><option>10</option><option selected>15</option></select></div></div>
+          <div class="set-row"><span>未下单客户提醒（天）</span>
+            <div class="pair"><select><option selected>3</option><option>5</option><option>7</option></select><select><option selected>10</option><option>15</option></select></div></div>
+          <div class="set-row"><span>入库价波动提醒</span>
+            <div class="pair"><select><option selected>-15%</option><option>-20%</option></select><select><option selected>+15%</option><option>+20%</option></select></div></div>
+          <div class="set-row"><span>利润波动提醒</span>
+            <div class="pair"><select><option selected>-10%</option><option>-15%</option></select><select><option selected>+20%</option><option>+25%</option></select></div></div>
+        </div>
+
+        <div class="card">
+          <div class="cd-title" style="margin-bottom:4px">业务指标设置</div>
+          <div class="set-row"><span>采购人数</span><input type="number" value="6"></div>
+          <div class="set-row"><span>分拣人数</span><input type="number" value="18"></div>
+          <div class="set-row"><span>分拣人效口径</span><select><option selected>标签数</option><option>出库金额</option><option>下单数</option></select></div>
+          <div class="set-row"><span>仓储滞销商品定义</span><select><option>超过5天</option><option selected>超过10天</option><option>超过15天</option><option>超过20天</option><option>超过30天</option></select></div>
+          <div class="set-row"><span>参考成本取值</span><select><option selected>最近入库价</option><option>库存均价</option></select></div>
+        </div>
+        <button class="savebtn" onclick="toast('设置已保存，次日提醒生效')">保存设置</button>
+        <div class="note">阈值调整后于次日 10:00 提醒生效</div>
+      </div>
+    </div>
+
+    <!-- 预警详情 -->
+    <div class="ovl" id="ovl-msg">
+      <div class="obar"><div class="back" onclick="closeOvl('ovl-msg')">‹</div><div class="ot" id="om-title">提醒详情</div><div class="share" onclick="toast('已生成分享卡片：张老板提醒你关注经营异常情况')">分享</div></div>
+      <div class="obody"><div class="card" style="margin-top:14px" id="om-body"></div><div class="note" id="om-note"></div></div>
+    </div>
+
+    <!-- 业务详情 -->
+    <div class="ovl" id="ovl-biz">
+      <div class="obar"><div class="back" onclick="closeOvl('ovl-biz')">‹</div><div class="ot" id="ob-title">业务详情</div></div>
+      <div class="obody">
+        <div class="card" style="margin-top:14px">
+          <div class="cd-title" style="margin-bottom:10px" id="ob-chart-t">近30天走势</div>
+          <svg id="biz-trend" viewBox="0 0 330 130" height="130"></svg>
+        </div>
+        <div class="card"><div class="cd-title" style="margin-bottom:2px">提效方案</div><div id="ob-sols"></div></div>
+        <div class="note">「使用中」按上一自然周实际使用行为判定</div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="tabbar">
+      <div class="tab on" data-pg="pg-home"><span class="ico">📊</span>经营</div>
+      <div class="tab" data-pg="pg-msg"><span class="ico">🔔</span>消息<span class="dot"></span></div>
+      <div class="tab" data-pg="pg-biz"><span class="ico">⚙️</span>业务</div>
+      <div class="tab" data-pg="pg-rep"><span class="ico">📄</span>周报</div>
+      <div class="tab" data-pg="pg-me"><span class="ico">👤</span>我的</div>
+    </div>
+  </div></div>
+</div>
+
+<script>
+/* ---------- tab ---------- */
+const tabs=document.querySelectorAll('.tab');
+tabs.forEach(t=>t.onclick=()=>{
+  tabs.forEach(x=>x.classList.remove('on'));t.classList.add('on');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(t.dataset.pg).classList.add('active');
+  const dark = t.dataset.pg!=='pg-home';
+  document.getElementById('statusbar').classList.toggle('dark',dark);
+  if(t.dataset.pg==='pg-msg'){t.querySelector('.dot')&&t.querySelector('.dot').remove();}
+});
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.classList.add('show');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('show'),2200)}
+function closeOvl(id){document.getElementById(id).classList.remove('show')}
+
+/* ---------- 数据面板 ---------- */
+const panelData=[
+ {note:'对比口径：日环比（较前一日）/ 周同比（较上周同日）',items:[
+  ['下单金额','118,920',['日环比 +8.2%',1],['周同比 +12.5%',1]],
+  ['订单数','326',['日环比 +5.1%',1],['周同比 +9.0%',1]],
+  ['客单价','364.8',['日环比 +2.9%',1],['周同比 +3.2%',1]],
+  ['利润','29,840',['日环比 -3.4%',0],['周同比 +6.8%',1]],
+  ['利润率','25.1%',['日环比 -2.1pt',0],['周同比 -0.4pt',0]],
+  ['采购成本','89,080',['日环比 +11.6%',1],['周同比 +14.2%',1]]]},
+ {note:'对比口径：上周同期（同时间段累计）',items:[
+  ['下单金额','86.4万',['上周同期 +9.8%',1]],
+  ['订单数','2,180',['上周同期 +6.3%',1]],
+  ['客单价','396.3',['上周同期 +3.3%',1]],
+  ['利润','21.3万',['上周同期 +4.1%',1]],
+  ['利润率','32.7%',['上周同期 -1.8pt',0]],
+  ['采购成本','65.1万',['上周同期 +12.0%',1]]]},
+ {note:'对比口径：5月同期 / 4月同期（同时间段累计）',items:[
+  ['下单金额','148.6万',['5月同期 +11.2%',1],['4月同期 +18.4%',1]],
+  ['订单数','3,920',['5月同期 +7.5%',1],['4月同期 +13.1%',1]],
+  ['客单价','379.1',['5月同期 +3.4%',1],['4月同期 +4.7%',1]],
+  ['利润','38.2万',['5月同期 +5.9%',1],['4月同期 +9.3%',1]],
+  ['利润率','34.6%',['5月同期 -1.7pt',0],['4月同期 -2.9pt',0]],
+  ['采购成本','110.4万',['5月同期 +13.5%',1],['4月同期 +21.0%',1]]]}];
+function renderPanel(i){
+  const g=document.getElementById('panel-grid');g.innerHTML='';
+  panelData[i].items.forEach(it=>{
+    const cmp=it.slice(2).map(c=>`<span class="${c[1]?'upc':'dnc'}">${c[0]}</span>`).join('<br>');
+    g.innerHTML+=`<div class="gi"><div class="l">${it[0]}</div><div class="v">${it[1]}</div><div class="c">${cmp}</div></div>`;
+  });
+  document.getElementById('panel-note').textContent=panelData[i].note;
+}
+renderPanel(0);
+document.getElementById('seg-period').onclick=e=>{if(!e.target.dataset.p)return;
+  [...e.currentTarget.children].forEach(s=>s.classList.remove('on'));e.target.classList.add('on');renderPanel(+e.target.dataset.p)};
+
+/* ---------- 趋势图 ---------- */
+function genSeries(base,vol,n=30){let a=[],v=base;for(let i=0;i<n;i++){v=Math.max(base*.55,v+(Math.random()-.46)*vol);a.push(Math.round(v))}return a}
+const amt=genSeries(110000,16000), cost=amt.map(v=>Math.round(v*(0.7+Math.random()*0.06))), pft=amt.map((v,i)=>v-cost[i]);
+let curMetric='amt';
+function drawTrend(){
+  const svg=document.getElementById('trend');const data=curMetric==='amt'?amt:pft;
+  const W=330,H=150,pl=8,pr=8,pt=14,pb=20;
+  const mx=Math.max(...data),mn=Math.min(...data);
+  const X=i=>pl+i*(W-pl-pr)/(data.length-1), Y=v=>pt+(1-(v-mn)/(mx-mn||1))*(H-pt-pb);
+  let path='',area='';
+  data.forEach((v,i)=>{const x=X(i),y=Y(v);path+=(i?'L':'M')+x+','+y;});
+  area=path+`L${X(data.length-1)},${H-pb}L${pl},${H-pb}Z`;
+  let gl='';for(let k=0;k<4;k++){const y=pt+k*(H-pt-pb)/3;gl+=`<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="#EEF2F7"/>`}
+  let lbl='';[0,9,19,29].forEach(i=>{const d=new Date(2026,4,14+i);lbl+=`<text x="${X(i)}" y="${H-5}" font-size="9" fill="#A9B6C6" text-anchor="middle">${(d.getMonth()+1)}.${d.getDate()}</text>`});
+  svg.innerHTML=`<defs><linearGradient id="gA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1D8EFB" stop-opacity=".22"/><stop offset="1" stop-color="#1D8EFB" stop-opacity="0"/></linearGradient></defs>
+   ${gl}<path d="${area}" fill="url(#gA)"/><path d="${path}" fill="none" stroke="#1D8EFB" stroke-width="2.2" stroke-linejoin="round"/>
+   <g id="pts">${data.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="9" fill="transparent" data-i="${i}" style="cursor:pointer"/>`).join('')}</g>
+   <circle id="hl" r="4" fill="#fff" stroke="#1D8EFB" stroke-width="2.5" style="display:none"/>${lbl}`;
+  svg.onclick=e=>{
+    const i=e.target.dataset.i;if(i===undefined)return;
+    const x=X(+i),y=Y(data[+i]);const hl=svg.querySelector('#hl');hl.setAttribute('cx',x);hl.setAttribute('cy',y);hl.style.display='block';
+    const d=new Date(2026,4,14+ +i);
+    const tip=document.getElementById('tip');
+    tip.innerHTML=`<div style="opacity:.7">${d.getMonth()+1}月${d.getDate()}日</div>销售金额 <b>${amt[i].toLocaleString()}</b><br>出库成本 <b>${cost[i].toLocaleString()}</b><br>销售利润 <b>${pft[i].toLocaleString()}</b><br>销售毛利率 <b>${(pft[i]/amt[i]*100).toFixed(1)}%</b>`;
+    const wrap=svg.parentElement,r=wrap.getBoundingClientRect();
+    tip.style.display='block';
+    let lx=x/W*r.width; if(lx>r.width-130)lx-=125; else lx+=8;
+    tip.style.left=lx+'px'; tip.style.top=Math.max(0,y/150*r.height-60)+'px';
+  };
+}
+drawTrend();
+document.getElementById('seg-metric').onclick=e=>{if(!e.target.dataset.m)return;
+  [...e.currentTarget.children].forEach(s=>s.classList.remove('on'));e.target.classList.add('on');
+  curMetric=e.target.dataset.m;document.getElementById('tip').style.display='none';drawTrend()};
+
+/* ---------- 排行 ---------- */
+const cusNames=['海底捞中央厨房','蜀香冒菜火锅','聚鑫园酒楼','客如云团餐','悦丰食堂'];
+const goodsNames=['精品五花肉','本地小白菜','土豆（黄心）','鲜鸡蛋','西红柿'];
+const rankData={};
+['cus','goods'].forEach(t=>{rankData[t]=[0,1,2].map(r=>{
+  const base=t==='cus'?[18600,12400,9800,7600,6200]:[9200,7800,6400,5100,4300];
+  const mul=[1,6.4,26][r];
+  return base.map((b,i)=>{const m=Math.round(b*mul*(0.92+Math.random()*0.16));const pr=Math.round(m*(0.22+Math.random()*0.14));return [t==='cus'?cusNames[i]:goodsNames[i],m,pr,(pr/m*100).toFixed(1)]})})});
+let rt='cus',rp=0;
+function renderRank(){
+  const list=document.getElementById('rank-list');list.innerHTML='';
+  rankData[rt][rp].sort((a,b)=>b[1]-a[1]).forEach((r,i)=>{
+    list.innerHTML+=`<div class="rk"><div class="no">${i+1}</div><div class="nm">${r[0]}</div><div class="m">${r[1].toLocaleString()}</div><div class="pr">${r[2].toLocaleString()}</div><div class="pp ${r[3]>30?'dnc':''}">${r[3]}%</div></div>`});
+}
+renderRank();
+document.getElementById('rank-type').onclick=e=>{if(!e.target.dataset.t)return;
+  [...e.currentTarget.children].forEach(s=>s.classList.remove('on'));e.target.classList.add('on');rt=e.target.dataset.t;renderRank()};
+document.getElementById('seg-rank').onclick=e=>{if(!e.target.dataset.r)return;
+  [...e.currentTarget.children].forEach(s=>s.classList.remove('on'));e.target.classList.add('on');rp=+e.target.dataset.r;renderRank()};
+
+/* ---------- 消息 ---------- */
+const msgs=[
+ {ic:'🛒',bg:'#FFF1EF',title:'未下单客户提醒',unread:1,date:'今日 10:00',
+  text:'海底捞中央厨房、蜀香冒菜火锅 等 5 个客户长时间未下单，请注意跟进',
+  cols:['客户名','未下单天数'],note:'按未下单天数从多到少排列',
+  rows:[['悦丰食堂','9 天'],['客如云团餐','8 天'],['蜀香冒菜火锅','6 天'],['聚鑫园酒楼','5 天'],['海底捞中央厨房','4 天']]},
+ {ic:'📦',bg:'#FFF6E8',title:'滞销商品提醒',unread:1,date:'今日 10:00',
+  text:'紫甘蓝、秋葵 长时间未被销售，请注意跟进',
+  cols:['商品名','滞销天数'],note:'按滞销天数排列',
+  rows:[['紫甘蓝','13 天'],['秋葵','11 天']]},
+ {ic:'💰',bg:'#EFF6FF',title:'采购成本波动提醒',unread:0,date:'昨日 10:00',
+  text:'本地小白菜、鲜鸡蛋 等 4 个商品采购成本波动较大，请注意跟进',
+  cols:['商品名','昨日入库价 / 近7日均价'],note:'按商品名首拼排序',
+  rows:[['本地小白菜','3.80 / 2.95 元'],['精品五花肉','24.6 / 21.8 元'],['土豆（黄心）','2.10 / 1.76 元'],['鲜鸡蛋','11.2 / 9.8 元']]},
+ {ic:'📉',bg:'#F1F0FF',title:'利润率波动提醒',unread:0,date:'06.10 10:00',
+  text:'西红柿、鲜鸡蛋 销售利润波动较大，请注意跟进',
+  cols:['商品名','昨日毛利 / 近7日毛利'],note:'按商品名首拼排序',
+  rows:[['西红柿','0.42 / 0.95 元'],['鲜鸡蛋','0.31 / 0.88 元']]}];
+const ml=document.getElementById('msg-list');
+msgs.forEach((m,i)=>{
+  const d=document.createElement('div');d.className='msg';
+  d.innerHTML=`<div class="ic" style="background:${m.bg}">${m.ic}</div>
+   <div class="bd"><div class="t1">${m.title}${m.unread?'<span class="nd"></span>':''}</div><div class="t2">${m.text}</div></div>
+   <div class="dt">${m.date}</div>`;
+  d.onclick=()=>{
+    document.getElementById('om-title').textContent=m.title;
+    document.getElementById('om-body').innerHTML=
+      `<div style="font-size:11px;color:#A9B6C6;display:flex;justify-content:space-between;padding-bottom:4px"><span>${m.cols[0]}</span><span>${m.cols[1]}</span></div>`+
+      m.rows.map(r=>`<div class="lrow"><span>${r[0]}</span><span class="r">${r[1]}</span></div>`).join('');
+    document.getElementById('om-note').textContent=m.note;
+    document.getElementById('ovl-msg').classList.add('show');
+    d.querySelector('.nd')&&d.querySelector('.nd').remove();
+  };
+  ml.appendChild(d);
+});
+
+/* ---------- 业务 ---------- */
+const biz=[
+ {em:'🛍️',name:'采购效率',chart:'近30天采购入库金额走势',base:[88000,12000],
+  ms:[['采购人效（金额）','13,142','元/人日'],['采购人效（品类）','38.6','SKU/人日'],['采购人数','6','人（设置）']],
+  sols:[
+   {t:'采购小程序 · 提效55%',d:'采购小程序实现无纸化采购',on:1},
+   {t:'缺货及时上报 · 满足率+35%',d:'分拣缺货后及时触达采购员完成补采',on:1}]},
+ {em:'📋',name:'分拣效率',chart:'近30天分拣人效走势',base:[400,60],
+  ms:[['分拣人效（标签数）','412','单/人日'],['分拣差异率','1.4','%'],['分拣人数','18','人（设置）']],
+  sols:[
+   {t:'重量匹配 · 最高提效40%',d:'相似重量匹配，减少找任务时间',on:1},
+   {t:'供应商代分拣 · 最高提效70%',d:'供应商完成打包操作，减少分拣人力',on:0}]},
+ {em:'🏬',name:'仓储效率',chart:'近30天每日剩余货值走势',base:[420000,40000],
+  ms:[['滞销货值占比','8.9','%'],['报损率','1.8','%'],['滞销定义','>10','天（设置）']],
+  sols:[
+   {t:'仓储管家 · 货值更准确',d:'实时操作出入库，减少延迟风险',on:1},
+   {t:'保质期预警 · 风险降40%',d:'设置保质期提醒，提前做好库存预警',on:0},
+   {t:'安全库存 · 囤货风险降30%',d:'开启库存上下限预警，合理制定采购计划',on:0}]}];
+const bl=document.getElementById('biz-list');
+biz.forEach(b=>{
+  const d=document.createElement('div');d.className='bz';
+  d.innerHTML=`<div class="hd"><div class="l"><div class="em">${b.em}</div>${b.name}</div><div class="go">详情 ›</div></div>
+   <div class="ms">${b.ms.map(m=>`<div><div class="l2">${m[0]}</div><div class="v2">${m[1]}<span class="u"> ${m[2]}</span></div></div>`).join('')}</div>`;
+  d.onclick=()=>{
+    document.getElementById('ob-title').textContent=b.name;
+    document.getElementById('ob-chart-t').textContent=b.chart;
+    drawBiz(b.base);
+    document.getElementById('ob-sols').innerHTML=b.sols.map(s=>
+      `<div class="sol"><div class="em2">${s.on?'✅':'💡'}</div><div><div class="t">${s.t}</div><div class="d">${s.d}</div></div>
+       <div class="st ${s.on?'st-on':'st-off'}" ${s.on?'':'onclick="toast(\'已通知客户成功顾问为您开通\');event.stopPropagation()'}">${s.on?'使用中':'去开通'}</div></div>`).join('');
+    document.getElementById('ovl-biz').classList.add('show');
+  };
+  bl.appendChild(d);
+});
+function drawBiz(base){
+  const data=genSeries(base[0],base[1]);
+  const svg=document.getElementById('biz-trend');
+  const W=330,H=130,pl=8,pr=8,pt=12,pb=18;
+  const mx=Math.max(...data),mn=Math.min(...data);
+  const X=i=>pl+i*(W-pl-pr)/(data.length-1),Y=v=>pt+(1-(v-mn)/(mx-mn||1))*(H-pt-pb);
+  let path='';data.forEach((v,i)=>{path+=(i?'L':'M')+X(i)+','+Y(v)});
+  let gl='';for(let k=0;k<3;k++){const y=pt+k*(H-pt-pb)/2;gl+=`<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="#EEF2F7"/>`}
+  svg.innerHTML=`${gl}<path d="${path}L${X(data.length-1)},${H-pb}L${pl},${H-pb}Z" fill="rgba(29,142,251,.12)"/><path d="${path}" fill="none" stroke="#1D8EFB" stroke-width="2.2"/>`;
+}
+</script>
+</body>
+</html>

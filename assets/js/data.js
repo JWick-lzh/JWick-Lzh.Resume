@@ -10,6 +10,7 @@ window.RESUME = {
       experience: "工作经历",
       projects: "项目经历",
       skills: "技能",
+      portfolio: "作品集",
       contact: "联系"
     },
     ui: {
@@ -366,6 +367,7 @@ window.RESUME = {
       experience: "Experience",
       projects: "Projects",
       skills: "Skills",
+      portfolio: "Portfolio",
       contact: "Contact"
     },
     ui: {

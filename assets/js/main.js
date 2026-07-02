@@ -143,6 +143,7 @@
     renderExperience(d);
     renderProjects(d);
     renderSkills(d);
+    renderPortfolio();
     renderContact(d);
     renderFooter(d);
 
@@ -173,6 +174,7 @@
       ["experience", d.nav.experience],
       ["projects", d.nav.projects],
       ["skills", d.nav.skills],
+      ["portfolio", (d.nav.portfolio || "作品集")],
       ["contact", d.nav.contact]
     ];
     var ul = $("nav-links");
@@ -506,6 +508,256 @@
     });
   }
 
+  /* ==================== 作品集 Portfolio ==================== */
+  var PF = window.PORTFOLIO || null;
+  var pfState = { cap: null, work: null };
+  var capCn = {};
+  if (PF) { PF.caps.forEach(function (c) { capCn[c.id] = c.cn; }); }
+
+  function capWorkCount(id) {
+    var n = 0;
+    PF.works.forEach(function (w) { if (w.tags.indexOf(id) !== -1) { n++; } });
+    return n;
+  }
+  function statusPillClass(label) {
+    if (label.indexOf("线上") !== -1) return "pf-pill pf-pill-live";
+    if (label.indexOf("可运行") !== -1) return "pf-pill pf-pill-run";
+    if (label.indexOf("原型") !== -1) return "pf-pill pf-pill-proto";
+    return "pf-pill";
+  }
+
+  function renderPortfolio() {
+    if (!PF) { return; }
+    $("t-portfolio").textContent = (R[state.lang].nav.portfolio || "作品集");
+
+    // 能力矩阵
+    var matrix = $("pf-matrix");
+    clear(matrix);
+    [1, 2, 3].forEach(function (g) {
+      var groupWrap = h("div", { class: "pf-cap-group" }, [
+        h("h3", { class: "pf-cap-gname", text: PF.groupNames[g] })
+      ]);
+      var chips = h("div", { class: "pf-caps" });
+      PF.caps.filter(function (c) { return c.group === g; }).forEach(function (cap) {
+        var active = pfState.cap === cap.id;
+        var btn = h("button", {
+          type: "button",
+          class: "pf-cap" + (active ? " active" : ""),
+          "data-cap": cap.id,
+          "aria-pressed": active ? "true" : "false"
+        }, [
+          h("span", { class: "pf-cap-cn", text: cap.cn }),
+          h("span", { class: "pf-cap-n", text: capWorkCount(cap.id) + " 个作品" })
+        ]);
+        btn.addEventListener("click", function () { toggleCap(cap.id); });
+        chips.appendChild(btn);
+      });
+      groupWrap.appendChild(chips);
+      matrix.appendChild(groupWrap);
+    });
+
+    // 作品分档
+    var tiersWrap = $("pf-tiers");
+    clear(tiersWrap);
+    PF.tiers.forEach(function (tr) {
+      var bar = h("div", { class: "pf-tierbar" }, [
+        h("span", { class: "pf-tierdot pf-tier-" + tr.tier }),
+        h("span", { class: "pf-tiername", text: tr.name }),
+        h("span", { class: "pf-tierdesc", text: tr.desc }),
+        h("span", { class: "pf-tierline" })
+      ]);
+      tiersWrap.appendChild(bar);
+      var grid = h("div", { class: "pf-grid" });
+      PF.works.filter(function (w) { return w.tier === tr.tier; }).forEach(function (w) {
+        grid.appendChild(workCard(w));
+      });
+      tiersWrap.appendChild(grid);
+    });
+    applyCapFilter();
+  }
+
+  function workCard(w) {
+    var metrics = h("div", { class: "pf-metrics" });
+    w.metrics.forEach(function (m) {
+      metrics.appendChild(h("span", { class: "pf-metric" }, [
+        doc.createTextNode(m[0] + " "),
+        h("b", { text: m[1] })
+      ]));
+    });
+    var tags = h("div", { class: "pf-tags" });
+    w.tags.forEach(function (t) {
+      tags.appendChild(h("span", { class: "pf-tag", "data-tag": t, text: capCn[t] }));
+    });
+    var card = h("button", { type: "button", class: "pf-card", "data-id": w.id, "data-tags": w.tags.join(",") }, [
+      h("div", { class: "pf-card-top" }, [
+        h("span", { class: statusPillClass(w.statusLabel), text: w.statusLabel })
+      ]),
+      h("h3", { class: "pf-card-title", text: w.title }),
+      h("div", { class: "pf-card-sub", text: w.subtitle }),
+      h("p", { class: "pf-card-desc", text: w.desc }),
+      metrics,
+      tags,
+      h("div", { class: "pf-card-cta", text: "查看详情 →" })
+    ]);
+    card.addEventListener("click", function () { openWork(w.id); });
+    return card;
+  }
+
+  function toggleCap(id) {
+    pfState.cap = (pfState.cap === id) ? null : id;
+    // 更新 hash（非作品态时）
+    if (!pfState.work) {
+      pfWritingHash = true;
+      location.hash = pfState.cap ? ("cap/" + pfState.cap) : "portfolio";
+    }
+    refreshCapUI();
+    applyCapFilter();
+    if (pfState.cap) {
+      var sec = $("portfolio");
+      if (sec) { setTimeout(function () { sec.scrollIntoView({ behavior: "smooth" }); }, 40); }
+    }
+  }
+  function refreshCapUI() {
+    var caps = doc.querySelectorAll(".pf-cap");
+    for (var i = 0; i < caps.length; i++) {
+      var on = caps[i].getAttribute("data-cap") === pfState.cap;
+      caps[i].classList.toggle("active", on);
+      caps[i].setAttribute("aria-pressed", on ? "true" : "false");
+    }
+  }
+  function applyCapFilter() {
+    var cards = doc.querySelectorAll(".pf-card");
+    for (var i = 0; i < cards.length; i++) {
+      var tags = cards[i].getAttribute("data-tags").split(",");
+      var match = pfState.cap && tags.indexOf(pfState.cap) !== -1;
+      cards[i].classList.toggle("match", !!match);
+      cards[i].classList.toggle("dim", !!pfState.cap && !match);
+      var tagEls = cards[i].querySelectorAll(".pf-tag");
+      for (var j = 0; j < tagEls.length; j++) {
+        tagEls[j].classList.toggle("on", pfState.cap && tagEls[j].getAttribute("data-tag") === pfState.cap);
+      }
+    }
+  }
+
+  function mediaNode(w) {
+    var m = w.media;
+    var wrap = h("div", null, []);
+    if (m.type === "iframe" && m.src) {
+      var frame = h("div", { class: "pf-frame" + (m.mobile ? " mobile" : "") }, [
+        h("div", { class: "pf-frame-bar" }, [
+          h("span", { class: "pf-dot", style: "background:#ff5f56" }),
+          h("span", { class: "pf-dot", style: "background:#ffbd2e" }),
+          h("span", { class: "pf-dot", style: "background:#27c93f" }),
+          h("span", { class: "pf-frame-url", text: m.url || "" })
+        ]),
+        h("iframe", { src: m.src, loading: "lazy", title: w.title })
+      ]);
+      wrap.appendChild(frame);
+    } else if ((m.type === "shot" || m.type === "arch") && m.src) {
+      wrap.appendChild(h("img", { class: "pf-shot", src: m.src, alt: w.title, loading: "lazy" }));
+    } else if (m.type === "run") {
+      wrap.appendChild(h("pre", { class: "pf-code", text: "$ " + m.cmd }));
+      if (m.arch) { wrap.appendChild(h("pre", { class: "pf-arch", text: m.arch })); }
+    } else if (m.type === "plan" && m.arch) {
+      wrap.appendChild(h("pre", { class: "pf-arch", text: m.arch }));
+    }
+    if (m.caption) { wrap.appendChild(h("p", { class: "pf-caption", text: (m.type === "iframe" || m.type === "shot" || m.type === "arch" ? "↑ " : "") + m.caption })); }
+    return wrap;
+  }
+
+  function openWork(id) {
+    var w = null;
+    PF.works.forEach(function (x) { if (x.id === id) { w = x; } });
+    if (!w) { return; }
+    pfState.work = id;
+    $("pf-drawer-title").textContent = w.title;
+    $("pf-drawer-sub").textContent = w.subtitle;
+    var body = $("pf-drawer-body");
+    clear(body);
+
+    // metrics
+    var mrow = h("div", { class: "pf-metrics" });
+    w.metrics.forEach(function (m) { mrow.appendChild(h("span", { class: "pf-metric" }, [doc.createTextNode(m[0] + " "), h("b", { text: m[1] })])); });
+    body.appendChild(mrow);
+
+    // media
+    body.appendChild(mediaNode(w));
+
+    // 关键成果
+    var achWrap = h("div", { class: "pf-block" }, [h("h4", { text: "关键成果" })]);
+    var ul = h("ul", { class: "pf-ach" });
+    w.achievements.forEach(function (a) { ul.appendChild(h("li", { text: a })); });
+    achWrap.appendChild(ul);
+    body.appendChild(achWrap);
+
+    // 体现的能力
+    var capWrap = h("div", { class: "pf-block" }, [h("h4", { text: "体现的能力" })]);
+    var ctags = h("div", { class: "pf-tags" });
+    w.tags.forEach(function (t) { ctags.appendChild(h("span", { class: "pf-tag on", text: capCn[t] })); });
+    capWrap.appendChild(ctags);
+    body.appendChild(capWrap);
+
+    if (w.note) { body.appendChild(h("p", { class: "pf-note", text: w.note })); }
+
+    // 入口
+    var allLinks = (w.links || []).concat(w.protoLinks || []);
+    if (allLinks.length) {
+      var linkWrap = h("div", { class: "pf-block" }, [h("h4", { text: "入口 / 原型" })]);
+      var linkRow = h("div", { class: "pf-links" });
+      allLinks.forEach(function (l) {
+        var external = l.href.indexOf("http") === 0 || l.href.indexOf(".html") !== -1;
+        var a = h("a", { class: "pf-btn" + (l.primary ? " primary" : ""), href: l.href, text: l.label });
+        if (external) { a.setAttribute("target", "_blank"); a.setAttribute("rel", "noopener noreferrer"); }
+        linkRow.appendChild(a);
+      });
+      linkWrap.appendChild(linkRow);
+      body.appendChild(linkWrap);
+    }
+
+    $("pf-scrim").hidden = false;
+    doc.getElementById("pf-drawer").classList.add("open");
+    doc.getElementById("pf-drawer").setAttribute("aria-hidden", "false");
+    doc.body.style.overflow = "hidden";
+    pfWritingHash = true;
+    location.hash = "work/" + id;
+  }
+  function closeWork() {
+    pfState.work = null;
+    doc.getElementById("pf-drawer").classList.remove("open");
+    doc.getElementById("pf-drawer").setAttribute("aria-hidden", "true");
+    $("pf-scrim").hidden = true;
+    doc.body.style.overflow = "";
+    if (location.hash.indexOf("#work/") === 0) {
+      pfWritingHash = true;
+      location.hash = pfState.cap ? ("cap/" + pfState.cap) : "portfolio";
+    }
+  }
+
+  /* hash 深链：#work/<id>、#cap/<id> */
+  var pfWritingHash = false;
+  function applyPfHash() {
+    if (!PF) { return; }
+    var hsh = location.hash;
+    if (hsh.indexOf("#work/") === 0) {
+      var wid = hsh.slice(6);
+      if (PF.works.some ? PF.works.some(function (w) { return w.id === wid; }) : true) { openWork(wid); }
+    } else if (hsh.indexOf("#cap/") === 0) {
+      var cid = hsh.slice(5);
+      if (capCn[cid] && pfState.cap !== cid) { toggleCap(cid); }
+    }
+  }
+  if (PF) {
+    window.addEventListener("hashchange", function () {
+      if (pfWritingHash) { pfWritingHash = false; return; }
+      applyPfHash();
+    });
+    $("pf-close").addEventListener("click", closeWork);
+    $("pf-scrim").addEventListener("click", closeWork);
+    doc.addEventListener("keydown", function (e) {
+      if ((e.key === "Escape" || e.key === "Esc") && pfState.work) { closeWork(); }
+    });
+  }
+
   /* ---------- 事件绑定 ---------- */
   $("theme-toggle").addEventListener("click", toggleTheme);
 
@@ -529,4 +781,5 @@
   setupMenu();
   setupNavSpy();
   onScroll();
+  applyPfHash();
 })();
