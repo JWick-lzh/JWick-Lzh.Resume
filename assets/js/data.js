@@ -221,18 +221,17 @@ window.RESUME = {
         role: "产品负责人",
         period: "2024.01 — 2026.03",
         category: "AI",
-        background: "2024 年初，AI Agent 产品两头分化：要么面向开发者的技术框架，要么面向普通用户的聊天工具，缺少能承接企业业务流程的产品。公司决定从「企业级 AI 自动化协同」切入，我担任产品负责人，带 20+ 人团队从立项做到商业化。（体验地址：国内 https://www.letsmagic.cn/，国外 https://www.letsmagic.ai/）",
+        background: "2024 年初，AI Agent 产品两头分化，要么是给开发者的技术框架，要么是给普通人的聊天工具，中间缺一个能接住企业业务流程的。公司决定从「企业级 AI 自动化协同」切入，从 0 到 1 开始商业化。（体验地址：国内 https://www.letsmagic.cn/ ，国际版 https://www.magicrew.ai/ ）",
         duties: [
-          "阶段一（赛道调研与 MVP 落地，2024.01 — 2024.06）：对标 Manus、扣子空间、Dify、n8n 等 10+ 产品完成竞品分析，确定「开源全栈 + 企业 OA 整合」差异化方向；访谈 20+ 家中小企业，总结核心诉求「想用 AI 替代重复工作，但不想被 SaaS 绑定，也不放心数据放到外面」；",
-          "定义四层产品架构「超级麦吉（Agent）+ 神奇流程（Flow）+ 麦吉聊天（IM）+ 天书协同（OS）」，组建 20+ 人跨职能团队以 2 周一 Sprint 推进，完成自然语言任务理解、联网检索、文件操作、代码执行等 20+ 工具能力研发；",
-          "阶段二（内测与企业级能力完善，2024.06 — 2024.09）：筛选 50+ 家种子用户分批内测、收集 300+ 条有效反馈，解决冷启动门槛高（任务模板库）、多轮对话丢上下文（长期记忆模块）、数据安全顾虑（提前完成多组织架构与数据隔离）三类痛点；完成 MCP 插件机制（@ 触发式接入）与企业微信/钉钉/飞书对接，落地知识库 RAG；",
-          "阶段三（商业化上线与开源运营，2024.09 — 2026.03）：SaaS 云服务 / Docker 社区版 / 企业私有化版三条路径同步上线；推动 Agentlang 框架以 Apache-2.0 协议在 GitHub / Gitee 双平台开源；面向多个行业输出解决方案，配合售前完成 10+ 次企业客户演示，上线当月签约 2 家付费客户。"
+          "对标 Manus、Dify、Coze 等多个 AI 产品完成竞品分析，深入调研零售、电商、制造等多个行业企业，总结企业 AI 落地的共性需求：既希望 AI 提升生产效率，又希望数据自主可控、避免 SaaS 锁定，据此确立「开源全栈 + 企业办公整合」的产品方向；",
+          "定义四层产品架构（Agent + 流程编排 + IM + 协同 OS），带团队以两周一 Sprint 推进，做出任务理解、联网检索、文件操作、代码执行等 20 多个工具能力；",
+          "组织多轮种子用户测试与企业客户共创，累计收集数千条用户反馈，围绕产品易用性、长上下文、多轮协同及企业数据安全等核心问题持续迭代，完成产品首轮体验闭环；",
+          "推动 SaaS、社区版及私有化三条商业化路径同步落地，配合销售完成多轮客户方案演示及 PoC 验证，沉淀企业级 AI 产品标准化交付方案。"
         ],
         results: [
-          "8 个月完成产品全功能闭环，上线当月实现商业化首单，获得 5000+ 海内外注册用户；",
-          "客户实测：投资分析报告生成从 2 天降到半天出初稿；音频会议转录时间压缩到原来的 1/5；",
-          "落地内部智能审批自动化：审批流程从 1 天压缩到 1 小时内完成；",
-          "开源首月 4000+ 开发者，Agentlang 成为 GitHub 增速较快的国产 AI Agent 框架之一。"
+          "完成企业级 AI Agent 平台从 0 到 1 建设，实现产品商业化上线，快速积累数万注册用户，建立 C 端获客、B 端转化的商业模式，通过持续沉淀销售线索推动企业客户转化，支撑产品实现近千万级年化收入；",
+          "客户实测中，投资分析报告生成时间由 2 天缩短至数十分钟，会议纪要整理效率提升至原来的 5 倍，内部审批时长由 1 天缩短至 1 小时；",
+          "推动 Agentlang 框架开源，首月登上 GitHub Trending 全球趋势榜前四，全网获得数百万用户关注。"
         ]
       },
       {
@@ -578,18 +577,17 @@ window.RESUME = {
         role: "Product Lead",
         period: "2024.01 — 2026.03",
         category: "AI",
-        background: "In early 2024, AI Agent products were split into two camps — developer-facing technical frameworks or consumer-facing chat tools — with nothing to carry enterprise business processes. The company decided to enter via 'enterprise-grade AI automation collaboration,' and I served as product lead, taking a 20+ person team from project kickoff to commercialization. (Live demo: letsmagic.cn in China / letsmagic.ai overseas)",
+        background: "In early 2024, AI Agent products were split into two camps — developer-facing technical frameworks or consumer-facing chat tools — with nothing in between to carry enterprise business processes. The company decided to enter via 'enterprise-grade AI automation collaboration' and commercialize from zero to one. (Live demo: letsmagic.cn in China / magicrew.ai internationally)",
         duties: [
-          "Phase 1 (track research & MVP, 2024.01 — 2024.06): benchmarked 10+ products such as Manus, Coze Space, Dify, and n8n to complete competitive analysis and set an 'open-source full-stack + enterprise OA integration' differentiation; interviewed 20+ SMEs and summarized the core need: 'want AI to replace repetitive work, but don't want SaaS lock-in and aren't comfortable putting data outside';",
-          "Defined a four-layer product architecture — 'Super Magic (Agent) + Magic Flow (Flow) + Magic Chat (IM) + Tianshu Collaboration (OS)'; built a 20+ person cross-functional team running on 2-week Sprints and developed 20+ tool capabilities including natural-language task understanding, web search, file operations, and code execution;",
-          "Phase 2 (internal beta & enterprise capabilities, 2024.06 — 2024.09): selected 50+ seed users for staged beta and collected 300+ valid feedback items, solving three key pain points — high cold-start barrier (task template library), context loss in multi-turn dialogue (long-term memory module), and data-security concerns (multi-org structure and data isolation done early); completed the MCP plugin mechanism (@-triggered access) and WeCom/DingTalk/Feishu integration, and landed knowledge-base RAG;",
-          "Phase 3 (commercialization & open-source ops, 2024.09 — 2026.03): launched SaaS cloud service / Docker community edition / enterprise on-premise edition simultaneously; drove the Agentlang framework open-source under Apache-2.0 on both GitHub and Gitee; delivered solutions across multiple industries, supported pre-sales in 10+ enterprise client demos, and signed 2 paying clients in the launch month."
+          "Completed competitive analysis benchmarking multiple AI products such as Manus, Dify, and Coze, and researched enterprises across retail, e-commerce, manufacturing and more, distilling the common need for enterprise AI: to boost productivity while keeping data self-controlled and avoiding SaaS lock-in — accordingly setting the 'open-source full-stack + enterprise office integration' product direction;",
+          "Defined a four-layer product architecture (Agent + flow orchestration + IM + collaboration OS), drove the team on 2-week Sprints, and built 20+ tool capabilities including task understanding, web search, file operations, and code execution;",
+          "Organized multiple rounds of seed-user testing and enterprise-client co-creation, collecting thousands of feedback items, and iterated continuously around usability, long context, multi-turn collaboration, and enterprise data security to close the first product experience loop;",
+          "Drove three commercialization paths — SaaS, community edition, and on-premise — in parallel, supported sales in multiple client solution demos and PoC validations, and distilled a standardized enterprise AI delivery playbook."
         ],
         results: [
-          "Closed the full product feature loop in 8 months, achieved the first commercial deal in the launch month, and gained 5,000+ registered users at home and abroad;",
-          "Client-measured: investment-analysis report generation cut from 2 days to a half-day first draft; audio meeting transcription time compressed to one-fifth of the original;",
-          "Landed internal smart-approval automation: the approval process compressed from 1 day to under 1 hour;",
-          "4,000+ developers in the first open-source month, with Agentlang becoming one of the faster-growing homegrown AI Agent frameworks on GitHub."
+          "Built the enterprise-grade AI Agent platform from zero to one and launched commercially, rapidly accumulating tens of thousands of registered users; established a C-end acquisition, B-end conversion business model, and drove enterprise-client conversion via continuously accumulated sales leads, supporting nearly ten-million-level annualized revenue;",
+          "Client-measured: investment-analysis report generation cut from 2 days to tens of minutes, meeting-minutes efficiency improved 5×, and internal approval time cut from 1 day to 1 hour;",
+          "Drove the Agentlang framework open-source, reaching the global GitHub Trending top 4 in its first month and gaining millions of views across the web."
         ]
       },
       {
