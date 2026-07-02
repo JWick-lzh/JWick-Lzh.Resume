@@ -607,8 +607,7 @@
     pfState.cap = (pfState.cap === id) ? null : id;
     // 更新 hash（非作品态时）
     if (!pfState.work) {
-      pfWritingHash = true;
-      location.hash = pfState.cap ? ("cap/" + pfState.cap) : "portfolio";
+      pfSetHash(pfState.cap ? ("#cap/" + pfState.cap) : "#portfolio");
     }
     refreshCapUI();
     applyCapFilter();
@@ -718,37 +717,54 @@
     doc.getElementById("pf-drawer").classList.add("open");
     doc.getElementById("pf-drawer").setAttribute("aria-hidden", "false");
     doc.body.style.overflow = "hidden";
-    pfWritingHash = true;
-    location.hash = "work/" + id;
+    pfSetHash("#work/" + id);
   }
-  function closeWork() {
+  // 仅关闭抽屉 UI，不写 hash（供 Back 键/深链解析调用）
+  function closeWorkSilent() {
     pfState.work = null;
     doc.getElementById("pf-drawer").classList.remove("open");
     doc.getElementById("pf-drawer").setAttribute("aria-hidden", "true");
     $("pf-scrim").hidden = true;
     doc.body.style.overflow = "";
-    if (location.hash.indexOf("#work/") === 0) {
-      pfWritingHash = true;
-      location.hash = pfState.cap ? ("cap/" + pfState.cap) : "portfolio";
+  }
+  function closeWork() {
+    var had = !!pfState.work;
+    closeWorkSilent();
+    if (had && location.hash.indexOf("#work/") === 0) {
+      pfSetHash(pfState.cap ? ("#cap/" + pfState.cap) : "#portfolio");
     }
   }
 
-  /* hash 深链：#work/<id>、#cap/<id> */
-  var pfWritingHash = false;
+  /* hash 深链：#work/<id>、#cap/<id>（比对上次写入值，避免回环；支持浏览器前进/后退） */
+  var pfSelfHash = null;
+  function pfSetHash(hh) {
+    pfSelfHash = hh;
+    if (location.hash !== hh) { location.hash = hh; }
+    else { pfSelfHash = null; } // 值未变不会触发 hashchange，无需守卫
+  }
   function applyPfHash() {
     if (!PF) { return; }
     var hsh = location.hash;
     if (hsh.indexOf("#work/") === 0) {
       var wid = hsh.slice(6);
-      if (PF.works.some ? PF.works.some(function (w) { return w.id === wid; }) : true) { openWork(wid); }
-    } else if (hsh.indexOf("#cap/") === 0) {
-      var cid = hsh.slice(5);
-      if (capCn[cid] && pfState.cap !== cid) { toggleCap(cid); }
+      var exists = PF.works.some(function (w) { return w.id === wid; });
+      if (exists && pfState.work !== wid) { openWork(wid); }
+    } else {
+      // 非作品 hash：若抽屉开着则关掉（Back 键回到 #cap/#portfolio）
+      if (pfState.work) { closeWorkSilent(); }
+      if (hsh.indexOf("#cap/") === 0) {
+        var cid = hsh.slice(5);
+        if (capCn[cid] && pfState.cap !== cid) { toggleCap(cid); }
+      } else if (pfState.cap && (hsh === "#portfolio" || hsh === "" || hsh === "#")) {
+        // 回到无筛选态
+        pfState.cap = null; refreshCapUI(); applyCapFilter();
+      }
     }
   }
   if (PF) {
     window.addEventListener("hashchange", function () {
-      if (pfWritingHash) { pfWritingHash = false; return; }
+      if (location.hash === pfSelfHash) { pfSelfHash = null; return; }
+      pfSelfHash = null;
       applyPfHash();
     });
     $("pf-close").addEventListener("click", closeWork);
