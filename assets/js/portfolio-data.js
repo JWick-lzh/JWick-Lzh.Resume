@@ -88,7 +88,7 @@ window.PORTFOLIO = {
       links: [{ label: "查看产品方案与演示 →", href: "./demos/ai-order.html", primary: true }]
     },
     {
-      id: "caigou-cloud", tier: "A", statusLabel: "可运行 · 全栈",
+      id: "caigou-cloud", tier: "A", statusLabel: "浏览器可跑 · 全栈",
       title: "采宝 智能采购 Agent（Cloud）",
       subtitle: "对话式全链路智能采购 · React + FastAPI · 2026.05–至今",
       tags: ["agent", "orch", "mm", "scene", "fullstack", "industry"],
@@ -102,13 +102,18 @@ window.PORTFOLIO = {
         "端到端可现场重演；后端主链路测试通过（24 测试文件 · TDD · code-review）"
       ],
       media: {
-        type: "run",
-        cmd: "后端: cd backend && python main.py\n前端: cd frontend && npm run dev  →  localhost",
-        arch: "用户一句话 / 一个文件\n   │\n   ▼\n[询价构建] → [发送网关(可插拔)] → [报价识别 GLM-4v]\n   │                                    │\n   ▼                                    ▼\n[状态机议价引擎] ←──────────── [定价] → [采购单] → 回写 ERP\n   │  APScheduler 计时 · SSE/WS 实时推送",
-        caption: "本地可运行，启动即演示（演示数据全 mock、自洽闭环）"
+        type: "iframe",
+        src: "./caigou/",
+        url: "采宝 采购 Agent · 浏览器可跑 Demo",
+        caption: "真实全栈应用的浏览器可跑版：登录后一句话→询价→报价→议价→定价→采购单全链路闭环，另含供应商画像/议价中心/工作台/配置中心。数据全 mock、自洽可复现（无需后端）。"
       },
-      links: [{ label: "打开采宝原型演示 →", href: "./prototypes/caibao-workbench.html", primary: true }],
-      note: "早期采宝 HTML 原型（工作台/议价中心/供应商画像/配置中心）可作为「从原型到产品」的演进佐证，见下方原型入口。",
+      links: [
+        { label: "全屏打开可跑 Demo →", href: "./caigou/", primary: true },
+        { label: "工作台", href: "./caigou/#/workbench" },
+        { label: "供应商画像", href: "./caigou/#/suppliers" },
+        { label: "议价中心", href: "./caigou/#/negotiation" }
+      ],
+      note: "真实 React + FastAPI 全栈应用；此处为浏览器直跑的静态 Demo（后端逻辑用确定性 mock 复刻，界面与交互与全栈版一致）。下方早期 HTML 原型可作为「从原型到产品」的演进佐证。",
       protoLinks: [
         { label: "工作台原型", href: "./prototypes/caibao-workbench.html" },
         { label: "议价中心原型", href: "./prototypes/caibao-negotiation.html" },
