@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>商品 Agent（GM Service）· Demo 打磨中</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%233e7d1f'/></svg>" />
+<style>
+  :root{--bg:#f7faf5;--surface:#ffffff;--text:#18211a;--muted:#54655a;--accent:#3e7d1f;--border:#dde7d9}
+  :root[data-theme=dark]{--bg:#0b0f0e;--surface:#121917;--text:#e9f0ec;--muted:#9fb0aa;--accent:#b6f36b;--border:#1e2a27}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{max-width:520px;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 36px}
+  .badge{display:inline-block;font-size:12px;color:var(--accent);border:1px solid var(--border);border-radius:999px;padding:4px 12px;margin-bottom:20px}
+  h1{font-size:24px;margin-bottom:12px}
+  p{color:var(--muted);line-height:1.8;font-size:14px}
+  a{display:inline-block;margin-top:24px;color:var(--accent);text-decoration:none;font-size:14px}
+</style>
+<script>
+(function(){try{
+  var p=new URLSearchParams(location.search),t=p.get('theme')||localStorage.getItem('theme');
+  if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+  document.documentElement.setAttribute('data-theme',t);
+}catch(e){}})();
+</script>
+</head>
+<body>
+<main class="card">
+  <span class="badge">Demo 打磨中</span>
+  <h1>商品 Agent（GM Service）</h1>
+  <p>这个项目正在开发中。地址已经固定，Demo 做完会在这里原地上线，敬请期待。</p>
+  <a href="../index.html#portfolio">← 返回作品集</a>
+</main>
+</body>
+</html>
