@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>林灶辉 · 作品集设计稿 (Mockup)</title>
+<style>
+  :root{
+    --bg:#0b0f0e; --bg-soft:#0f1513; --surface:#121917; --surface-2:#172321;
+    --text:#e9f0ec; --muted:#9fb0aa; --faint:#6b7d77;
+    --accent:#b6f36b; --accent-2:#7fe0c4; --accent-soft:rgba(182,243,107,.12);
+    --border:#1e2a27; --border-strong:#2a3a36;
+    --radius:16px; --shadow:0 12px 40px rgba(0,0,0,.45);
+    --glow:0 0 26px rgba(182,243,107,.18);
+    --tier1:#b6f36b; --tier2:#7fbfff; --tier3:#c9a0ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(900px 500px at 82% -8%,rgba(127,224,196,.08),transparent 60%),radial-gradient(760px 420px at 8% 4%,rgba(182,243,107,.07),transparent 55%);
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+  /* NAV */
+  header{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);
+    background:rgba(11,15,14,.72);border-bottom:1px solid var(--border)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{font-weight:700;letter-spacing:.3px;display:flex;align-items:center;gap:9px}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:var(--glow)}
+  .nav-links{display:flex;gap:26px;font-size:14px;color:var(--muted)}
+  .nav-links a:hover{color:var(--text)}
+  .badge-mock{font-size:11px;color:var(--accent);border:1px solid var(--border-strong);
+    padding:3px 9px;border-radius:999px;background:var(--accent-soft)}
+
+  /* HERO */
+  .hero{padding:82px 0 44px}
+  .kicker{font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:18px}
+  .hero h1{font-size:clamp(34px,5.4vw,60px);line-height:1.12;font-weight:800;letter-spacing:-.5px}
+  .hero h1 .hl{color:var(--accent)}
+  .hero p.lead{margin-top:20px;max-width:720px;color:var(--muted);font-size:17px}
+  .hero-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+  .chip{border:1px solid var(--border-strong);background:var(--surface);border-radius:999px;
+    padding:8px 15px;font-size:13px;color:var(--muted)}
+  .chip b{color:var(--text)}
+
+  .section{padding:64px 0}
+  .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:8px;flex-wrap:wrap}
+  .section-head h2{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.3px}
+  .section-head .sub{color:var(--faint);font-size:14px;max-width:520px}
+  .eyebrow{font-size:12px;letter-spacing:2px;color:var(--accent-2);text-transform:uppercase;margin-bottom:12px}
+
+  /* CAPABILITY MATRIX */
+  .cap-hint{color:var(--muted);font-size:14px;margin:10px 0 22px}
+  .cap-hint b{color:var(--accent)}
+  .caps{display:flex;flex-wrap:wrap;gap:12px}
+  .cap{cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);
+    padding:12px 16px;border-radius:14px;transition:.18s ease;display:flex;flex-direction:column;gap:2px;min-width:150px}
+  .cap:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .cap .cn{font-size:14px;font-weight:600}
+  .cap .meta{font-size:12px;color:var(--faint)}
+  .cap.active{border-color:var(--accent);background:var(--accent-soft);box-shadow:var(--glow)}
+  .cap.active .cn{color:var(--accent)}
+
+  /* WORKS */
+  .tierbar{display:flex;align-items:center;gap:12px;margin:34px 0 16px}
+  .tierbar .tt{font-size:14px;font-weight:700;letter-spacing:.4px}
+  .tierbar .desc{font-size:12px;color:var(--faint)}
+  .tierbar .line{flex:1;height:1px;background:var(--border)}
+  .dot-t{width:9px;height:9px;border-radius:3px}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .card{position:relative;border:1px solid var(--border);background:var(--surface);border-radius:var(--radius);
+    padding:22px;transition:.2s ease;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;gap:12px}
+  .card:hover{border-color:var(--border-strong);transform:translateY(-3px);box-shadow:var(--shadow)}
+  .card.dim{opacity:.32;filter:saturate(.5)}
+  .card.match{border-color:var(--accent);box-shadow:var(--glow)}
+  .card .toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .pill{font-size:11px;padding:3px 10px;border-radius:999px;border:1px solid var(--border-strong);color:var(--muted);white-space:nowrap}
+  .pill.live{color:#0b0f0e;background:var(--tier1);border-color:var(--tier1);font-weight:700}
+  .pill.run{color:var(--tier1);border-color:var(--tier1)}
+  .pill.proto{color:var(--tier2);border-color:var(--tier2)}
+  .card h3{font-size:19px;font-weight:750;letter-spacing:-.2px;display:flex;align-items:center;gap:8px}
+  .card .st{color:var(--muted);font-size:13px;margin-top:-4px}
+  .card .desc{color:var(--muted);font-size:14px}
+  .card .metrics{display:flex;flex-wrap:wrap;gap:8px}
+  .metric{font-size:12px;background:var(--surface-2);border:1px solid var(--border);padding:5px 10px;border-radius:8px}
+  .metric b{color:var(--accent)}
+  .tagrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+  .tag{font-size:11px;color:var(--faint);border:1px solid var(--border);padding:3px 9px;border-radius:999px}
+  .tag.on{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+  .card .cta{margin-top:auto;font-size:13px;color:var(--accent);display:flex;align-items:center;gap:6px}
+
+  /* DRAWER */
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:.25s;z-index:90}
+  .scrim.open{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:min(920px,94vw);background:var(--bg-soft);
+    border-left:1px solid var(--border-strong);z-index:100;transform:translateX(102%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+    display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.5)}
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 26px;border-bottom:1px solid var(--border)}
+  .drawer-head h3{font-size:20px;font-weight:750}
+  .drawer-head .st{color:var(--muted);font-size:13px}
+  .xbtn{border:1px solid var(--border-strong);background:var(--surface);color:var(--text);width:38px;height:38px;
+    border-radius:10px;cursor:pointer;font-size:18px;transition:.15s}
+  .xbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .drawer-body{overflow-y:auto;padding:26px}
+  .kv{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+  .frame-wrap{border:1px solid var(--border-strong);border-radius:14px;overflow:hidden;background:#0a0a0a}
+  .frame-bar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--surface-2);border-bottom:1px solid var(--border)}
+  .frame-bar .d{width:11px;height:11px;border-radius:50%}
+  .frame-bar .url{margin-left:8px;font-size:12px;color:var(--faint);font-family:ui-monospace,monospace}
+  .frame-wrap iframe{width:100%;height:560px;border:0;display:block;background:#fff}
+  .frame-wrap.mobile iframe{height:640px;max-width:390px;margin:0 auto}
+  .shotimg{width:100%;border:1px solid var(--border-strong);border-radius:14px;display:block}
+  .block{margin:22px 0}
+  .block h4{font-size:14px;letter-spacing:.5px;text-transform:uppercase;color:var(--accent-2);margin-bottom:12px}
+  .ach{list-style:none;display:flex;flex-direction:column;gap:9px}
+  .ach li{padding-left:22px;position:relative;color:var(--muted);font-size:14px}
+  .ach li:before{content:"";position:absolute;left:2px;top:9px;width:8px;height:8px;border-radius:2px;background:var(--accent)}
+  .arch{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--muted);white-space:pre;overflow-x:auto;line-height:1.6}
+  .links{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .btn{border:1px solid var(--border-strong);background:var(--surface);padding:9px 16px;border-radius:10px;font-size:13px;color:var(--text);transition:.15s}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{background:var(--accent);color:#0b0f0e;border-color:var(--accent);font-weight:700}
+  .note{font-size:12.5px;color:var(--faint);border-left:2px solid var(--border-strong);padding-left:12px;margin-top:14px}
+  footer{border-top:1px solid var(--border);padding:30px 0;color:var(--faint);font-size:13px;text-align:center}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}.nav-links{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand"><span class="dot"></span> 林灶辉 · 作品集</div>
+    <nav class="nav-links">
+      <a href="#caps">能力矩阵</a>
+      <a href="#works">作品</a>
+      <a href="#">工作经历</a>
+      <a href="#">联系</a>
+    </nav>
+    <span class="badge-mock">设计稿 MOCKUP</span>
+  </div>
+</header>
+
+<section class="hero wrap">
+  <div class="kicker">AI 产品负责人 · 会 coding 的 PM</div>
+  <h1>从 0 带出一条<span class="hl">生鲜 AI 产品线</span>,<br>还有一个 <span class="hl">4.9k★</span> 的开源平台在线上跑着。</h1>
+  <p class="lead">10 年 toB·SaaS,带过 ~80 人团队。这里的每个作品都能<b>点开看、跑起来、或读架构</b>——真产品、真代码、真用户,不是 PPT。</p>
+  <div class="hero-stats">
+    <span class="chip"><b>10 年+</b> toB 产品</span>
+    <span class="chip"><b>4</b> 条 AI 产品线</span>
+    <span class="chip"><b>4.9k★</b> 开源 Agent 平台</span>
+    <span class="chip"><b>6</b> 个可点开/可运行作品</span>
+  </div>
+</section>
+
+<!-- CAPABILITY MATRIX -->
+<section class="section wrap" id="caps">
+  <div class="eyebrow">Capability Matrix · 能力矩阵</div>
+  <div class="section-head"><h2>点一个能力,看哪些作品能证明它</h2></div>
+  <p class="cap-hint">👇 点击任意能力标签 → 下方作品自动<b>高亮匹配、淡化无关</b>;再点一次取消。这就是「能力 → 作品」的单点跳转。</p>
+  <div class="caps" id="capList"></div>
+</section>
+
+<!-- WORKS -->
+<section class="section wrap" id="works" style="padding-top:8px">
+  <div class="eyebrow">Portfolio · 作品集</div>
+  <div class="section-head">
+    <h2>作品</h2>
+    <div class="sub">按「能证明什么 + 完成度」分三档。点卡片 → 打开详情:交互原型直接内嵌可玩,真产品看真截图/架构。</div>
+  </div>
+  <div id="worksHost"></div>
+</section>
+
+<footer class="wrap">这是<b>设计稿(Mockup)</b>,用于确认呈现方式与交互 · 内容为真实作品映射 · 确认后我会把它落到你的 React 简历站上</footer>
+
+<!-- DRAWER -->
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div>
+      <h3 id="dTitle"></h3>
+      <div class="st" id="dSt"></div>
+    </div>
+    <button class="xbtn" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="dBody"></div>
+</aside>
+
+<script>
+/* ---------- 能力体系(真实提炼) ---------- */
+const CAPS = [
+  {id:'agent',  cn:'Agent设计与拟人化交互'},
+  {id:'orch',   cn:'流程 / 状态机编排'},
+  {id:'rag',    cn:'RAG / 知识库'},
+  {id:'mm',     cn:'多模态 / OCR'},
+  {id:'viz',    cn:'数据可视化与看板'},
+  {id:'rbac',   cn:'后台 / RBAC / 多租户'},
+  {id:'supply', cn:'供应链业务建模'},
+  {id:'arch',   cn:'系统架构与工程化'},
+  {id:'p01',    cn:'产品 0→1 与商业化'},
+  {id:'full',   cn:'全栈落地(会写代码的 PM)'},
+];
+const CAPMAP = Object.fromEntries(CAPS.map(c=>[c.id,c.cn]));
+
+/* ---------- 作品(真实映射) ---------- */
+const WORKS = [
+  /* Tier1 真产品 */
+  {id:'supermagic',tier:1,status:'live',statusLabel:'线上产品',
+   title:'超级麦吉 Super Magic',subtitle:'企业级开源 AI Agent 平台 · 产品负责人 · 2024–2026',
+   tags:['agent','orch','p01','arch'],
+   desc:'“让每个人都拥有属于自己的 AI 军团。” 带 20+ 人团队从立项到商业化,打造 Agent+Flow+IM+协同 OS 生态。',
+   metrics:[['注册用户','5000+'],['付费企业','2+'],['开源开发者','4000+'],['GitHub','★4.9k']],
+   media:{type:'shot',src:'shots/supermagic-home.png'},
+   ach:['上线当月签约 2 家付费企业,获 5000+ 注册用户','多 Agent 协作:投资报告等任务效率数倍提升','智能审批落地,审批流从 1 天压到 1 小时内','Agentlang 成为增速较快的国产 AI Agent 框架,首月 4000+ 开发者'],
+   links:[['体验国内版','https://www.letsmagic.cn/','primary'],['国际版 MagicRew','https://www.magicrew.ai/',''],['GitHub','#','']]},
+
+  {id:'caigou',tier:1,status:'run',statusLabel:'可运行 · 全栈',
+   title:'采购 Agent Cloud',subtitle:'对话式全链路智能采购 · React + FastAPI · 2026',
+   tags:['agent','orch','mm','supply','full','rbac'],
+   desc:'一句话发起询价 → Agent 整理发送 → 多模态识别报价(文字/Excel/图片OCR) → 状态机自动议价 → 定价 → 生成采购单,全程自动化。',
+   metrics:[['前端','React 18+Vite'],['后端','FastAPI'],['识别','GLM-4v 多模态'],['提交','90+ · TDD']],
+   media:{type:'run',cmd:'后端: cd backend && python main.py\n前端: cd frontend && npm run dev  →  localhost'},
+   ach:['状态机(确定性)+ LLM(理解生成)清晰分层,流程不被模型带偏','多模态报价识别:文字 + Excel + 图片 OCR(GLM-4v)','自动议价策略(指标价 / 持续降),话术生成','SSE + WebSocket 实时表格填充;APScheduler 计时调度','24 个测试文件、TDD、code-review 全流程'],
+   arch:'用户一句话\n   │\n   ▼\n[询价构建]→[发送网关(可插拔)]→[报价识别 GLM-4v]\n   │                                   │\n   ▼                                   ▼\n[状态机议价引擎]←──────────────[定价]→[采购单]\n   │  APScheduler 计时 / SSE 实时推送',
+   links:[['本地可跑(启动即演示)','#','primary'],['演进自:采宝早期HTML原型','#','']],
+   note:'早期概念稿(采宝 HTML 原型)可作为“从原型到产品”的演进佐证挂在这里。'},
+
+  {id:'aiorder',tier:1,status:'run',statusLabel:'可运行 · 全栈',
+   title:'AI-Order 智能订单录入',subtitle:'LLM + OCR 多模态订单识别 · LangGraph · 2026',
+   tags:['mm','orch','supply','full','arch'],
+   desc:'上传订单图片/PDF/Excel/文本 → 自动识别商品、数量、价格、备注,结构化输出。规则引擎处理方言别名(“番茄→西红柿”)。',
+   metrics:[['编排','LangGraph 5节点'],['OCR','PaddleOCR'],['LLM','Qwen'],['部署','Docker Compose']],
+   media:{type:'run',cmd:'docker compose up  →  API:8000  Streamlit UI:8501'},
+   ach:['LangGraph 5 节点工作流:路由 → 文本/图片/PDF/Excel → 规则检索 → LLM 识别 → 结构化输出','PaddleOCR 中文识别 + 模型预热','FastAPI REST + Streamlit 交互界面 + 健康检查','Docker 双容器(API + UI),开发/生产模式'],
+   arch:'输入(文本/图片/PDF/Excel)\n        │  路由节点\n   ┌────┼──────┬────────┐\n 文本  图片OCR  PDF     Excel\n   └────┴──────┴────────┘\n        │ 规则检索(别名/历史修正)\n        ▼\n   LLM 识别(Qwen)→ 结构化 JSON 输出',
+   links:[['演示界面(Streamlit)','#','primary'],['GitHub','#','']]},
+
+  {id:'platform',tier:1,status:'run',statusLabel:'生产级 · 架构案例',
+   title:'观麦 Agent 平台',subtitle:'多租户 Agent SaaS 底座 · Next.js + Mastra · 2026',
+   tags:['arch','rag','rbac','orch','agent'],
+   desc:'生鲜企业的 AI 顾问 SaaS 平台。四进程微服务架构,应用层多租户强制隔离,RAGFlow 知识库,多渠道(Web/微信)接入。',
+   metrics:[['代码量','6.4 万行 TS'],['提交','1190+'],['架构','四进程微服务'],['隔离','应用层多租户']],
+   media:{type:'shot',src:''},
+   ach:['四进程拓扑:web / orchestrator / channel / worker,独立伸缩','应用层多租户强制(tenantId 首参 + ESLint 边界防御)','RAGFlow 双轨检索:文件级过滤 + chunk 级 Tag Set 加权','Mastra 三层记忆(工作/中期/长期 dialectic)','Lean DDD + 分层测试(单测/集成/E2E)'],
+   arch:'apps/\n ├─ web           Next.js 控制台 (tRPC + SSE)\n ├─ orchestrator  Agent 运行时 (Mastra runner)\n ├─ channel       微信 iLink adapter\n └─ worker        记忆压缩 / 异步任务\npackages/  identity·agent·conversation·memory·knowledge·llm·channel',
+   links:[['架构文档','#','primary'],['用户操作手册','#','']],
+   note:'规模大、依赖多,不适合“点点看”;以架构 + 工程规范 + 代码亮点呈现最能体现真实水平。'},
+
+  /* Tier2 交互原型 */
+  {id:'lobster',tier:2,status:'proto',statusLabel:'可点开原型',
+   title:'龙虾 经营 Agent',subtitle:'生鲜经营分析后台 · Linear 暗色设计系统 · 2026',
+   tags:['agent','rbac','rag','supply','viz'],
+   desc:'面向生鲜老板的 AI 经营助手:问答→诊断→日报三层分析。5 个高保真后台原型 + 真实 FastAPI/React 代码。',
+   metrics:[['原型页','5 页'],['设计系统','Linear 暗色'],['后端','FastAPI'],['前端','React 18']],
+   media:{type:'iframe',src:'../lobster-agent/prototypes/list-task-center-prototype/list-task-center-prototype.html',url:'lobster-agent · 任务中心原型'},
+   ach:['统一 Linear 暗色设计系统(色板/排版/间距参数化)','多租户 RBAC:组织架构树 + 按钮级权限','知识库审核反馈 → 任务中心自动流转','对比度达标、无障碍考虑、150–300ms 动效规范'],
+   links:[['全屏打开原型','../lobster-agent/prototypes/list-task-center-prototype/list-task-center-prototype.html','primary'],['数据上传原型','../lobster-agent/prototypes/list-data-upload-prototype/list-data-upload-prototype.html',''],['RBAC 原型','../lobster-agent/prototypes/rbac-management-prototype/rbac-management-prototype.html','']]},
+
+  {id:'boss',tier:2,status:'proto',statusLabel:'可点开原型 · 移动端',
+   title:'老板助手 经营驾驶舱',subtitle:'移动端数据驾驶舱 + 异常预警 · 2026',
+   tags:['viz','supply'],
+   desc:'给生鲜老板看的移动端应用:经营数据面板、趋势图、客户/商品排行、四类异常预警、周报、参数化阈值设置。',
+   metrics:[['形态','移动端 H5'],['完成度','完整可交互'],['图表','趋势/排行/KPI'],['预警','4 类']],
+   media:{type:'iframe',mobile:true,src:'../prototype/老板助手原型_v1.0.html',url:'老板助手原型 v1.0'},
+   ach:['5 tab 一级导航 + 二级详情模态,信息架构清晰','多维趋势图、排行表、KPI 卡片可交互(tooltip/段控)','预警分类 + 优先级 + 可分享','参数化运营配置:动态阈值 / 口径切换'],
+   links:[['全屏打开原型','../prototype/老板助手原型_v1.0.html','primary']]},
+];
+
+/* ---------- 渲染能力 ---------- */
+let activeCap=null;
+const capHost=document.getElementById('capList');
+CAPS.forEach(c=>{
+  const n=WORKS.filter(w=>w.tags.includes(c.id)).length;
+  const el=document.createElement('div');
+  el.className='cap';el.dataset.id=c.id;
+  el.innerHTML=`<span class="cn">${c.cn}</span><span class="meta">${n} 个作品</span>`;
+  el.onclick=()=>toggleCap(c.id);
+  capHost.appendChild(el);
+});
+
+/* ---------- 渲染作品 ---------- */
+const TIERS=[
+  {t:1,name:'① 线上 / 可运行的真产品',color:'var(--tier1)',desc:'真截图 · 可跑 · 架构案例 · 线上/GitHub 链接'},
+  {t:2,name:'② 高保真交互原型',color:'var(--tier2)',desc:'内嵌 iframe,点开直接玩'},
+];
+const worksHost=document.getElementById('worksHost');
+TIERS.forEach(tr=>{
+  const bar=document.createElement('div');bar.className='tierbar';
+  bar.innerHTML=`<span class="dot-t" style="background:${tr.color}"></span><span class="tt">${tr.name}</span><span class="desc">${tr.desc}</span><span class="line"></span>`;
+  worksHost.appendChild(bar);
+  const grid=document.createElement('div');grid.className='grid';
+  WORKS.filter(w=>w.tier===tr.t).forEach(w=>grid.appendChild(cardEl(w)));
+  worksHost.appendChild(grid);
+});
+
+function cardEl(w){
+  const el=document.createElement('div');
+  el.className='card';el.dataset.id=w.id;el.dataset.tags=w.tags.join(',');
+  const pillCls=w.status==='live'?'live':(w.status==='proto'?'proto':'run');
+  const metrics=w.metrics.map(m=>`<span class="metric">${m[0]} <b>${m[1]}</b></span>`).join('');
+  const tags=w.tags.map(t=>`<span class="tag" data-t="${t}">${CAPMAP[t]}</span>`).join('');
+  el.innerHTML=`
+    <div class="toprow"><span class="pill ${pillCls}">${w.statusLabel}</span></div>
+    <h3>${w.title}</h3>
+    <div class="st">${w.subtitle}</div>
+    <div class="desc">${w.desc}</div>
+    <div class="metrics">${metrics}</div>
+    <div class="tagrow">${tags}</div>
+    <div class="cta">查看详情 →</div>`;
+  el.onclick=()=>openDrawer(w.id);
+  return el;
+}
+
+/* ---------- 能力筛选(能力→作品高亮) ---------- */
+function toggleCap(id){
+  activeCap = activeCap===id ? null : id;
+  document.querySelectorAll('.cap').forEach(c=>c.classList.toggle('active',c.dataset.id===activeCap));
+  document.querySelectorAll('.card').forEach(card=>{
+    const tags=card.dataset.tags.split(',');
+    const on=activeCap&&tags.includes(activeCap);
+    card.classList.toggle('match',!!on);
+    card.classList.toggle('dim',!!activeCap&&!on);
+    card.querySelectorAll('.tag').forEach(t=>t.classList.toggle('on',activeCap&&t.dataset.t===activeCap));
+  });
+  if(activeCap) document.getElementById('works').scrollIntoView({behavior:'smooth'});
+}
+
+/* ---------- 抽屉(项目→作品详情) ---------- */
+function openDrawer(id){
+  const w=WORKS.find(x=>x.id===id);
+  document.getElementById('dTitle').textContent=w.title;
+  document.getElementById('dSt').textContent=w.subtitle;
+  const b=document.getElementById('dBody');
+  let media='';
+  if(w.media.type==='iframe'){
+    media=`<div class="frame-wrap ${w.media.mobile?'mobile':''}">
+      <div class="frame-bar"><span class="d" style="background:#ff5f56"></span><span class="d" style="background:#ffbd2e"></span><span class="d" style="background:#27c93f"></span><span class="url">${w.media.url}</span></div>
+      <iframe src="${w.media.src}" loading="lazy"></iframe></div>
+      <div class="note">↑ 这是真实原型文件,直接内嵌可交互。落地后同样的方式内嵌到简历站。</div>`;
+  }else if(w.media.type==='shot' && w.media.src){
+    media=`<img class="shotimg" src="${w.media.src}" alt="${w.title} 截图"/><div class="note">↑ 线上产品真实截图(letsmagic.cn 无头浏览器抓取)。</div>`;
+  }else if(w.media.type==='shot'){
+    media=`<div class="arch">${w.arch||''}</div><div class="note">架构案例:以拓扑图 + 工程规范 + 代码亮点呈现(此项待补真实架构图/截图)。</div>`;
+  }else if(w.media.type==='run'){
+    media=`<div class="arch">$ ${w.media.cmd}</div>${w.arch?`<div class="block"><h4>架构</h4><div class="arch">${w.arch}</div></div>`:''}<div class="note">可运行:本地启动即可现场演示;落地建议补 2–3 分钟录屏。</div>`;
+  }
+  const metrics=w.metrics.filter(m=>m[1]).map(m=>`<span class="metric">${m[0]} <b>${m[1]}</b></span>`).join('');
+  const ach=w.ach.map(a=>`<li>${a}</li>`).join('');
+  const tags=w.tags.map(t=>`<span class="tag on">${CAPMAP[t]}</span>`).join('');
+  const links=w.links.map(l=>`<a class="btn ${l[2]}" href="${l[1]}" ${l[1].startsWith('http')||l[1].endsWith('.html')?'target="_blank"':''}>${l[0]}</a>`).join('');
+  b.innerHTML=`
+    <div class="kv">${metrics}</div>
+    ${media}
+    <div class="block"><h4>关键成果</h4><ul class="ach">${ach}</ul></div>
+    <div class="block"><h4>体现的能力</h4><div class="tagrow">${tags}</div></div>
+    ${w.note?`<div class="note">${w.note}</div>`:''}
+    <div class="block"><h4>入口</h4><div class="links">${links}</div></div>`;
+  document.getElementById('scrim').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer').setAttribute('aria-hidden','false');
+}
+function closeDrawer(){
+  document.getElementById('scrim').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer').setAttribute('aria-hidden','true');
+  document.querySelector('#dBody').innerHTML='';
+  if(location.hash.startsWith('#work/')) history.replaceState(null,'','#works');
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+
+/* ---------- Hash 深链:#work/<id> 打开作品;#cap/<id> 激活能力 ---------- */
+function applyHash(){
+  const h=location.hash;
+  if(h.startsWith('#work/')){const id=h.slice(6);if(WORKS.find(w=>w.id===id))openDrawer(id);}
+  else if(h.startsWith('#cap/')){const id=h.slice(5);if(CAPMAP[id]&&activeCap!==id)toggleCap(id);}
+}
+window.addEventListener('DOMContentLoaded',applyHash);
+window.addEventListener('hashchange',applyHash);
+/* 让卡片“查看详情”与能力点击也写入 hash(演示单点跳转/可分享链接) */
+const _open=openDrawer;openDrawer=function(id){location.hash='work/'+id;_open(id);};
+</script>
+</body>
+</html>
