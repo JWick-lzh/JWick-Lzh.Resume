@@ -121,6 +121,26 @@ window.PORTFOLIO = {
         { label: "配置中心原型", href: "./prototypes/caibao-config.html" }
       ]
     },
+    {
+      id: "boss", tier: "A", statusLabel: "浏览器可跑 · 语音版",
+      title: "老板助手 · 语音版经营助手",
+      subtitle: "移动端优先双模式 · Agent 对话 + 语音播报 · 2026",
+      tags: ["viz", "scene", "industry", "agent", "fullstack"],
+      desc: "给生鲜老板的经营助手：数据面板、趋势图、客户/商品排行、四类异常预警、周报、参数化阈值。内置助手「小达」，能查历史经营、解读异常给建议、语音播报当日情况。",
+      metrics: [["形态", "手机/桌面双模式"], ["助手", "查数/解读/播报"], ["语音", "Web Speech 中文"], ["测试", "26 单测 + 50 E2E"]],
+      achievements: [
+        "5 tab 一级导航 + 二级详情，<768px 全屏 App + 底部 tabbar，≥768px 侧边导航 + 宽屏两列",
+        "多维趋势图、排行表、KPI 卡片可交互（手写 SVG 图表，tooltip / 段控切换）",
+        "异常预警：未下单客户 / 滞销商品 / 采购成本波动 / 利润率波动，分类 + 优先级",
+        "助手「小达」只做三件事：查历史经营、解读异常给建议、语音播报当日；无 Key 走演示兜底模式，点开即用",
+        "演示数据种子生成（刷新不变），2024.01–2026.06 共 30 个月日粒度，自洽可复现"
+      ],
+      media: { type: "iframe", mobile: true, src: "./boss/", url: "老板助手 · 浏览器可跑 Demo", caption: "完整应用浏览器直跑（演示数据 · 无 Key 走演示兜底模式，助手可正常对话）。" },
+      links: [
+        { label: "全屏打开可跑 Demo →", href: "./boss/", primary: true },
+        { label: "早期静态原型", href: "./prototypes/boss-assistant.html" }
+      ]
+    },
     /* ===== Tier B ===== */
     {
       id: "lobster", tier: "B", statusLabel: "可点开原型",
@@ -144,22 +164,6 @@ window.PORTFOLIO = {
         { label: "RBAC 权限", href: "./prototypes/lobster-rbac.html" },
         { label: "渠道设置", href: "./prototypes/lobster-channels.html" }
       ]
-    },
-    {
-      id: "boss", tier: "B", statusLabel: "可点开原型 · 移动端",
-      title: "老板助手 经营驾驶舱",
-      subtitle: "移动端数据驾驶舱 + 异常预警 · 2026",
-      tags: ["viz", "scene", "industry"],
-      desc: "给生鲜老板看的移动端应用：经营数据面板、趋势图、客户/商品排行、四类异常预警、周报、参数化阈值设置。让老板随手掌握经营全貌。",
-      metrics: [["形态", "移动端 H5"], ["完成度", "完整可交互"], ["图表", "趋势/排行/KPI"], ["预警", "4 类"]],
-      achievements: [
-        "5 tab 一级导航 + 二级详情模态，移动端信息架构清晰",
-        "多维趋势图、排行表、KPI 卡片可交互（tooltip / 段控切换）",
-        "异常预警：未下单客户 / 滞销商品 / 采购成本波动 / 利润率波动，分类 + 优先级 + 可分享",
-        "参数化运营配置：动态阈值、口径切换"
-      ],
-      media: { type: "iframe", mobile: true, src: "./prototypes/boss-assistant.html", url: "老板助手原型 v1.0", caption: "真实移动端原型，内嵌可交互（演示数据）。" },
-      links: [{ label: "全屏打开原型", href: "./prototypes/boss-assistant.html", primary: true }]
     },
     /* ===== Tier C ===== */
     {
