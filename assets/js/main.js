@@ -675,19 +675,23 @@
     clear(body);
 
     // metrics
-    var mrow = h("div", { class: "pf-metrics" });
-    w.metrics.forEach(function (m) { mrow.appendChild(h("span", { class: "pf-metric" }, [doc.createTextNode(m[0] + " "), h("b", { text: m[1] })])); });
-    body.appendChild(mrow);
+    if (w.metrics && w.metrics.length) {
+      var mrow = h("div", { class: "pf-metrics" });
+      w.metrics.forEach(function (m) { mrow.appendChild(h("span", { class: "pf-metric" }, [doc.createTextNode(m[0] + " "), h("b", { text: m[1] })])); });
+      body.appendChild(mrow);
+    }
 
     // media
     body.appendChild(mediaNode(w));
 
     // 关键成果
-    var achWrap = h("div", { class: "pf-block" }, [h("h4", { text: "关键成果" })]);
-    var ul = h("ul", { class: "pf-ach" });
-    w.achievements.forEach(function (a) { ul.appendChild(h("li", { text: a })); });
-    achWrap.appendChild(ul);
-    body.appendChild(achWrap);
+    if (w.achievements && w.achievements.length) {
+      var achWrap = h("div", { class: "pf-block" }, [h("h4", { text: "关键成果" })]);
+      var ul = h("ul", { class: "pf-ach" });
+      w.achievements.forEach(function (a) { ul.appendChild(h("li", { text: a })); });
+      achWrap.appendChild(ul);
+      body.appendChild(achWrap);
+    }
 
     // 体现的能力
     var capWrap = h("div", { class: "pf-block" }, [h("h4", { text: "体现的能力" })]);

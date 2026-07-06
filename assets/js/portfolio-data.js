@@ -115,7 +115,7 @@ window.PORTFOLIO = {
         { label: "供应商画像", href: "./caigou/#/suppliers" },
         { label: "议价中心", href: "./caigou/#/negotiation" }
       ],
-      note: "真实 React + FastAPI 全栈应用；此处为浏览器直跑的静态 Demo（后端逻辑用确定性 mock 复刻，界面与交互与全栈版一致）。下方早期 HTML 原型可作为「从原型到产品」的演进佐证。",
+      note: "真实 React + FastAPI 全栈应用；此处为浏览器直跑的静态 Demo（后端逻辑用确定性 mock 复刻，界面与交互与全栈版一致）。下方早期 HTML 原型可作为「从原型到产品」的演进佐证。项目持续迭代中，Demo 会随源项目更新在本地址原地升级。",
       protoLinks: [
         { label: "工作台原型", href: "./prototypes/caibao-workbench.html" },
         { label: "议价中心原型", href: "./prototypes/caibao-negotiation.html" },
@@ -143,6 +143,17 @@ window.PORTFOLIO = {
         { label: "早期静态原型", href: "./prototypes/boss-assistant.html" }
       ]
     },
+    {
+      id: "product-agent", tier: "A", statusLabel: "开发中 · Demo 打磨中",
+      title: "商品 Agent（GM Service）",
+      subtitle: "观麦 ERP 商品 / 采购域服务的 Agent 化 · 开发中",
+      tags: ["scene", "industry", "arch"],
+      desc: "基于观麦生鲜供应链 ERP 服务（商品、订单、采购规格等域）的 Agent 化改造，正在开发中。Demo 地址已预留，做完原地上线。",
+      metrics: [],
+      achievements: [],
+      media: { type: "plan", caption: "开发中 · Demo 即将上线" },
+      links: [{ label: "Demo 预留地址（打磨中）", href: "./product-agent/", primary: true }]
+    },
     /* ===== Tier B ===== */
     {
       id: "lobster", tier: "B", statusLabel: "可点开原型",
@@ -164,7 +175,8 @@ window.PORTFOLIO = {
         { label: "资料上传", href: "./prototypes/lobster-data-upload.html" },
         { label: "用户与角色", href: "./prototypes/lobster-users-roles.html" },
         { label: "RBAC 权限", href: "./prototypes/lobster-rbac.html" },
-        { label: "渠道设置", href: "./prototypes/lobster-channels.html" }
+        { label: "渠道设置", href: "./prototypes/lobster-channels.html" },
+        { label: "完整版 Demo（打磨中）", href: "./lobster/" }
       ]
     },
     /* ===== Tier C ===== */
