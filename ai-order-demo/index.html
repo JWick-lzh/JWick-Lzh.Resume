@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鲜达 AI 智能订单助手</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%232f6fed'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>AI</text></svg>">
+<style>
+  :root{
+    --blue:#2f6fed; --blue-dark:#245bd0; --blue-soft:#eaf1fe;
+    --navy:#20304f; --navy-hi:#2c4372;
+    --green:#2ba471; --green-soft:#e8f8ef;
+    --amber:#d48806; --amber-soft:#fff7e6;
+    --red:#e5484d; --red-soft:#fff1f0;
+    --purple:#7b61e0; --purple-soft:#f1edfd;
+    --t1:#1d2129; --t2:#4e5969; --t3:#86909c; --t4:#c1c7cf;
+    --border:#e9ebef; --border-lt:#f0f1f3;
+    --bg:#f4f6f9; --card:#fff;
+    --shadow:0 1px 2px rgba(20,30,60,.04),0 6px 18px rgba(20,30,60,.05);
+    --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--font);color:var(--t1);background:var(--bg);font-size:13px;-webkit-font-smoothing:antialiased;overflow:hidden}
+  ::-webkit-scrollbar{width:9px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#d3d7de;border-radius:6px}::-webkit-scrollbar-thumb:hover{background:#bcc1c9}
+  ::-webkit-scrollbar-track{background:transparent}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  input,textarea,select{font-family:inherit;outline:none;border:none;background:none;color:var(--t1);font-size:13px}
+  a{color:var(--blue);cursor:pointer;text-decoration:none}
+  .app{display:flex;height:100vh}
+
+  /* 全局交互：小手 + 悬停 + 按压回弹 */
+  [onclick],[role=button],button,a,select,.item,.mod,.citem,.tab,.stab,.dtabs span,.segs button,.sw,.gcard,input[type=checkbox]{cursor:pointer}
+  input[type=text],input[type=date],input[type=password],textarea{cursor:text}
+  button,a,.btn,.item,.mod,.citem,.tab,.stab,.dtabs span,.segs button,.rowop button,.addprod,.addgroup,.op-links a,.sw,.gcard,[onclick]{transition:transform .12s ease,background .15s ease,color .15s ease,box-shadow .15s ease,opacity .12s ease,border-color .15s ease}
+  button:active,.btn:active,.mod:active,.citem:active,.stab:active,.addprod:active,.addgroup:active,.rowop button:active,.gcard:active,[onclick]:active{transform:translateY(1px) scale(.985)}
+  .btn:active{opacity:.9}
+  .mod:hover .ic{transform:translateY(-3px);box-shadow:0 10px 20px rgba(40,60,120,.22)}
+  .mod .ic{transition:transform .15s ease,box-shadow .15s ease}
+  .op-links a:hover{text-decoration:underline}
+  a:active{opacity:.7}
+
+  /* 图标导航（深色） */
+  .rail{width:60px;flex-shrink:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;padding-top:12px;overflow-y:auto}
+  .rail::-webkit-scrollbar{width:0}
+  .rail .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#4d8bff,#2f6fed);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;margin-bottom:16px;flex-shrink:0}
+  .rail .item{width:46px;height:46px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#9fb0cc;margin-bottom:3px;flex-shrink:0}
+  .rail .item svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7}
+  .rail .item span{font-size:10px}
+  .rail .item:hover{background:var(--navy-hi);color:#dbe5f5}
+  .rail .item.on{background:var(--blue);color:#fff}
+
+  .body{flex:1;display:flex;flex-direction:column;min-width:0}
+  .topbar{height:44px;flex-shrink:0;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:12px}
+  .topbar .brand{font-weight:600}
+  .topbar .spacer{flex:1}
+  .topbar .me{display:flex;align-items:center;gap:8px;color:var(--t2)}
+  .topbar .avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#9db4de,#6f8fce);display:flex;align-items:center;justify-content:center}
+  .topbar .avatar svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+  .tabbar{height:38px;flex-shrink:0;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;padding:0 14px;gap:4px}
+  .tabbar .tab{display:flex;align-items:center;gap:7px;padding:7px 14px;color:var(--t2);border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0}
+  .tabbar .tab.on{color:var(--blue);background:var(--bg);border-color:var(--border)}
+  .tabbar .home-ic{color:var(--t3);padding:7px 10px}
+  .view{flex:1;overflow:auto;min-height:0}
+
+  /* 通用组件 */
+  .btn{height:32px;padding:0 16px;border-radius:7px;font-size:13px;display:inline-flex;align-items:center;gap:5px;justify-content:center;white-space:nowrap}
+  .btn.pri{background:var(--blue);color:#fff}.btn.pri:hover{background:var(--blue-dark)}
+  .btn.pri:disabled{background:#b9cdf5;cursor:not-allowed}
+  .btn.ghost{border:1px solid var(--border);color:var(--t2);background:#fff}.btn.ghost:hover{border-color:var(--blue);color:var(--blue)}
+  .btn.danger{border:1px solid #ffccc7;color:var(--red);background:#fff}.btn.danger:hover{background:var(--red-soft)}
+  .btn.sm{height:26px;padding:0 10px;font-size:12px;border-radius:6px}
+  .badge{font-size:12px;padding:1px 8px;border-radius:5px;font-weight:500;white-space:nowrap}
+  .badge.pending{color:var(--amber);background:var(--amber-soft)}
+  .badge.done{color:var(--green);background:var(--green-soft)}
+  .badge.failed{color:var(--red);background:var(--red-soft)}
+  .badge.merged{color:var(--purple);background:var(--purple-soft)}
+  .badge.processing{color:var(--blue);background:var(--blue-soft)}
+  .badge.wx{color:#2ba471;background:var(--green-soft)}
+  .badge.mail{color:#d46b08;background:#fff3e8}
+  .badge.gray{color:var(--t3);background:var(--bg)}
+  .ipt{height:32px;border:1px solid var(--border);border-radius:7px;padding:0 10px;background:#fff;color:var(--t1)}
+  .ipt:focus{border-color:#a9c6ff}
+  select.ipt{padding:0 6px}
+  .sw{width:36px;height:20px;border-radius:12px;background:#cdd3dc;position:relative;display:inline-block;vertical-align:middle}
+  .sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .sw.on{background:var(--green)}
+  .sw.on::after{left:18px}
+  .statbar{display:flex;align-items:center;gap:10px;color:var(--t2);font-size:13px;padding:2px 0}
+  .statbar b{font-size:16px;color:var(--t1)}
+  .statbar .sep{color:var(--border);margin:0 4px}
+  .pagefoot{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;color:var(--t3);font-size:12px;border-top:1px solid var(--border-lt)}
+  .pagefoot .pg{display:flex;gap:6px;align-items:center}
+  .pagefoot .pg span{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--blue);color:#fff}
+  .ellipsis{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* 首页 */
+  .home{padding:18px 22px;max-width:1400px;width:100%;margin:0 auto}
+  @media (max-width:900px){
+    .home{padding:14px}
+    .banner{padding:20px 18px}
+    .row2{grid-template-columns:1fr}
+    .stats .s b{font-size:24px}
+  }
+  .banner{background:linear-gradient(120deg,#dbe7fb,#eef4fe 60%,#f3f0fe);border-radius:14px;padding:26px 30px;margin-bottom:16px}
+  .banner h1{font-size:24px;margin-bottom:6px}
+  .banner .date{color:var(--t3);margin-bottom:20px}
+  .mods{display:flex;gap:14px;flex-wrap:wrap}
+  .mod{width:78px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .mod .ic{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 14px rgba(40,60,120,.15)}
+  .mod .ic svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:1.8}
+  .mod span{font-size:13px;color:var(--t2)}
+  .mod:hover span{color:var(--blue)}
+  .row2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-top:16px}
+  .panel{background:#fff;border-radius:12px;padding:20px 22px;box-shadow:var(--shadow)}
+  .panel .ph{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;margin-bottom:18px}
+  .panel .ph .sp{flex:1}
+  .stats{display:flex}
+  .stats .s{flex:1;text-align:center;border-right:1px solid var(--border-lt)}
+  .stats .s:last-child{border:none}
+  .stats .s b{display:block;font-size:30px;font-weight:700}
+  .stats .s.p b{color:var(--blue)} .stats .s.d b{color:var(--green)} .stats .s.f b{color:var(--red)} .stats .s.a b{color:var(--t1)}
+  .stats .s span{color:var(--t3);font-size:13px}
+  .quota .big{font-size:34px;font-weight:800;color:var(--blue);margin-bottom:2px}
+  .quota .bar{height:8px;background:#eef1f6;border-radius:6px;margin:14px 0 8px;overflow:hidden}
+  .quota .bar i{display:block;height:100%;width:98%;background:linear-gradient(90deg,#4d8bff,#2f6fed)}
+  .quota .qf{display:flex;justify-content:space-between;color:var(--t3);font-size:12px}
+  .gboard{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .gcard{border:1px solid var(--border);border-radius:10px;padding:13px 15px}
+  .gcard:hover{border-color:#bcd4ff;box-shadow:var(--shadow)}
+  .gcard .gn{font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .gcard .gm{display:flex;gap:14px;color:var(--t3);font-size:12px}
+  .gcard .gm b{color:var(--t1)}
+
+  /* 订单录入 */
+  .luru{display:flex;height:100%}
+  .cust{width:280px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
+  .cust .ch{padding:16px 16px 10px}
+  .cust .ch .tt{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .cust .ch .tt .ai{background:var(--blue);color:#fff;font-size:11px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .segs{display:flex;background:var(--bg);border-radius:8px;padding:3px;margin-top:12px}
+  .segs button{flex:1;height:28px;border-radius:6px;font-size:13px;color:var(--t2)}
+  .segs button.on{background:#fff;color:var(--blue);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .search{margin:10px 16px;height:34px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;gap:7px;padding:0 10px;color:var(--t3)}
+  .search svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8}
+  .search input{flex:1}
+  .clist{flex:1;overflow-y:auto;padding:0 8px 12px}
+  .citem{padding:11px 12px;border-radius:9px;border:1px solid transparent}
+  .citem:hover{background:var(--bg)}
+  .citem.on{background:var(--blue-soft);border-color:#bcd4ff}
+  .citem .cn{font-weight:600;margin-bottom:3px}
+  .citem .cid{font-size:12px;color:var(--t4)}
+  .chat{flex:1;display:flex;flex-direction:column;min-width:0;background:linear-gradient(180deg,#fbfcff,#f4f7fc)}
+  .chat .msgs{flex:1;overflow-y:auto;padding:26px;display:flex;flex-direction:column}
+  .hero{margin:auto;text-align:center;max-width:520px}
+  .hero .ic{width:78px;height:78px;border-radius:50%;background:var(--blue-soft);display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+  .hero .ic svg{width:34px;height:34px;stroke:var(--blue);fill:none;stroke-width:1.6}
+  .hero h2{font-size:22px;margin-bottom:12px}
+  .hero p{color:var(--t3);line-height:1.9}
+  .msg{display:flex;gap:11px;margin-bottom:18px;max-width:760px}
+  .msg .ava{width:32px;height:32px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .msg.ai .ava{background:var(--blue-soft);color:var(--blue)} .msg.me{flex-direction:row-reverse;margin-left:auto}
+  .msg.me .ava{background:#fff0e0;color:#f79b3d}
+  .msg .ava svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7}
+  .bub{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 15px;line-height:1.7;box-shadow:var(--shadow);white-space:pre-wrap}
+  .msg.me .bub{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .resultcard{border:1px solid var(--border);border-radius:11px;padding:14px 16px;margin-top:10px;background:#fff;box-shadow:var(--shadow);max-width:520px}
+  .resultcard .rt{font-weight:600;margin-bottom:6px}
+  .resultcard .rmeta{color:var(--t3);font-size:12px;margin-bottom:10px}
+  .composer{flex-shrink:0;padding:14px 26px 22px}
+  .composer .box{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
+  .composer .box:focus-within{border-color:#a9c6ff}
+  .composer textarea{width:100%;height:60px;resize:none;line-height:1.6}
+  .composer textarea::placeholder{color:var(--t4)}
+  .composer .cf{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:6px}
+  .composer .up{width:32px;height:32px;border-radius:8px;color:var(--t3);display:flex;align-items:center;justify-content:center}
+  .composer .up:hover{background:var(--bg);color:var(--blue)}
+  .composer .up svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7}
+  .composer .tip{text-align:center;color:var(--t4);font-size:12px;margin-top:8px}
+
+  /* 列表页通用 */
+  .wrap{padding:16px 18px}
+  .filters{background:#fff;border-radius:10px;padding:14px 16px;box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(4,1fr);gap:12px 16px;margin-bottom:14px}
+  .fld{display:flex;align-items:center;gap:8px}
+  .fld>label{color:var(--t2);white-space:nowrap}
+  .fld .ipt,.fld select{flex:1;height:32px;border:1px solid var(--border);border-radius:7px;padding:0 10px;background:#fff}
+  .fld.acts{justify-content:flex-end;gap:8px}
+  .daterange{flex:1;display:flex;align-items:center;gap:6px}
+  .daterange .ipt{flex:1;min-width:0}
+  .listcard{background:#fff;border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+  .lc-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border-lt)}
+  .lc-head b{font-size:15px}
+  .lc-head .sp{flex:1}
+  .alert{margin:12px 18px 0;background:var(--amber-soft);border:1px solid #ffe7ba;border-radius:8px;padding:8px 14px;color:#8c5800}
+  .stabs{display:flex;gap:6px;padding:12px 18px 4px}
+  .stab{padding:5px 14px;border-radius:7px;color:var(--t2);background:var(--bg)}
+  .stab.on{background:var(--blue-soft);color:var(--blue);font-weight:600}
+  .stab b{margin-left:6px}
+  table{width:100%;border-collapse:collapse}
+  thead th{text-align:left;font-weight:600;color:var(--t2);padding:12px 14px;border-bottom:1px solid var(--border);white-space:nowrap;background:#fafbfc}
+  tbody td{padding:11px 14px;border-bottom:1px solid var(--border-lt);vertical-align:middle}
+  tbody tr:hover{background:#fafcff}
+  .txt-ell{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t2)}
+  .op-links a{margin-right:12px;white-space:nowrap}
+  .op-links a.del{color:var(--red)}
+  .rev-sel{height:28px;border:1px solid var(--border);border-radius:6px;padding:0 6px;background:#fff;cursor:pointer}
+  .empty{padding:60px;text-align:center;color:var(--t4)}
+  .prio{display:inline-flex;background:var(--bg);border-radius:7px;padding:2px}
+  .prio span{padding:3px 9px;border-radius:5px;color:var(--t3);font-size:12px;cursor:pointer}
+  .prio span.on{background:#fff;color:var(--blue);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+  /* 任务详情 */
+  .detail{display:flex;height:100%;min-height:0}
+  .dleft{width:320px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);overflow-y:auto;padding:16px}
+  .dtabs{display:flex;gap:16px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px}
+  .dtabs span{color:var(--t3)}
+  .dtabs span.on{color:var(--blue);font-weight:600}
+  .sec-t{text-align:center;color:var(--t3);font-size:12px;margin:16px 0 10px}
+  .file{border:1px solid var(--border);border-radius:9px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+  .file .fi{width:30px;height:30px;border-radius:7px;background:var(--blue-soft);color:var(--blue);display:flex;align-items:center;justify-content:center}
+  .file .fi svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7}
+  .file .fn{flex:1;font-weight:500;word-break:break-all}
+  .rawmsg{background:var(--bg);border-radius:9px;padding:13px 14px;line-height:1.9;color:var(--t2);white-space:pre-wrap;transition:box-shadow .3s}
+  .rawmsg.flash{box-shadow:0 0 0 3px var(--blue-soft);background:var(--blue-soft)}
+  .wxmsg{display:flex;gap:9px;margin-bottom:14px}
+  .wxmsg .wava{width:30px;height:30px;border-radius:7px;background:#e6f4ea;color:#2ba471;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+  .wxmsg .wb{background:var(--bg);border-radius:0 10px 10px 10px;padding:9px 12px;line-height:1.7;color:var(--t1);white-space:pre-wrap;max-width:230px}
+  .wxmsg .wname{font-size:11px;color:var(--t4);margin-bottom:3px}
+  .dmain{flex:1;overflow-y:auto;padding:16px 20px;min-width:0}
+  .dm-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .dm-head b{font-size:16px}
+  .dm-head .sp{flex:1}
+  .dm-meta{display:flex;gap:34px;color:var(--t3);margin-bottom:16px;flex-wrap:wrap}
+  .dm-meta b{color:var(--t1);font-weight:500}
+  .group{border:1px solid var(--border);border-radius:11px;margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow)}
+  .g-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#fafbfd;border-bottom:1px solid var(--border-lt)}
+  .g-head .gt{font-weight:600}
+  .g-head .cnt{color:var(--blue);font-size:12px}
+  .g-head .sp{flex:1}
+  .g-form{display:flex;flex-wrap:wrap;gap:12px 20px;padding:14px 16px 4px;align-items:center}
+  .g-form .gf{display:flex;align-items:center;gap:8px}
+  .g-form .gf label{color:var(--t2);white-space:nowrap}
+  .g-form .gf .ipt{height:30px}
+  .gm-rec{color:var(--blue);background:var(--blue-soft);font-size:12px;padding:3px 9px;border-radius:6px}
+  .itbl{padding:8px 16px 14px}
+  .itbl th{background:transparent;border-bottom:1px solid var(--border);padding:8px 8px;font-size:12px}
+  .itbl td{padding:6px 8px;border-bottom:1px solid var(--border-lt)}
+  .itbl .ci{width:100%;border:1px solid var(--border);border-radius:6px;height:32px;padding:0 8px}
+  .itbl .ci:focus{border-color:#a9c6ff}
+  .itbl .qn{width:64px}.itbl .un{width:48px}.itbl .pn{width:72px}
+  .itbl tr.warn td{background:#fff8f8}
+  .rowop{display:flex;gap:6px}
+  .rowop button{width:22px;height:22px;border-radius:50%;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center}
+  .rowop .add{background:var(--blue)} .rowop .del{background:#f56c6c}
+  .addprod{color:var(--blue);text-align:center;padding:9px}
+  .addprod:hover{background:var(--blue-soft)}
+  .addgroup{border:1px dashed var(--border);border-radius:10px;text-align:center;padding:12px;color:var(--t2)}
+  .addgroup:hover{border-color:var(--blue);color:var(--blue)}
+  .warntip{color:var(--amber);font-size:11px;margin-left:4px}
+
+  /* 设置页 */
+  .settabs{display:flex;gap:4px;padding:0 18px;background:#fff;border-radius:10px 10px 0 0;border-bottom:1px solid var(--border)}
+  .settabs span{padding:13px 16px;color:var(--t2);border-bottom:2px solid transparent;margin-bottom:-1px}
+  .settabs span.on{color:var(--blue);font-weight:600;border-color:var(--blue)}
+  .setbody{background:#fff;border-radius:0 0 10px 10px;box-shadow:var(--shadow);padding:20px}
+  .setrow{display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid var(--border-lt)}
+  .setrow:last-child{border:none}
+  .setrow .st{flex:1}
+  .setrow .st b{display:block;margin-bottom:3px}
+  .setrow .st span{color:var(--t3);font-size:12px}
+  .setrow textarea{width:420px;border:1px solid var(--border);border-radius:8px;padding:8px 10px;height:64px;resize:none;line-height:1.6}
+
+  /* 弹窗 */
+  .mask{position:fixed;inset:0;background:rgba(15,25,50,.35);display:none;align-items:center;justify-content:center;z-index:90;backdrop-filter:blur(2px)}
+  .mask.on{display:flex}
+  .modal{background:#fff;border-radius:14px;min-width:420px;max-width:720px;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(15,25,50,.25);animation:pop .18s ease}
+  @keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+  .m-head{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border-lt)}
+  .m-head b{font-size:15px;flex:1}
+  .m-head .x{color:var(--t3);font-size:16px;padding:4px 8px;border-radius:6px}
+  .m-head .x:hover{background:var(--bg)}
+  .m-body{padding:18px 20px;overflow-y:auto;line-height:1.8}
+  .m-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border-lt)}
+  .m-body .frow{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .m-body .frow label{width:80px;color:var(--t2);text-align:right}
+  .m-body .frow .ipt{flex:1}
+  .m-body textarea.ipt{height:120px;padding:8px 10px;resize:vertical;line-height:1.6}
+  .kvtable th,.kvtable td{padding:7px 10px;font-size:12px}
+
+  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-16px);background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px rgba(20,30,60,.16);border-radius:10px;padding:10px 20px;display:flex;align-items:center;gap:9px;opacity:0;pointer-events:none;transition:.25s;z-index:99}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast .dot{width:18px;height:18px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--green)}
+  .toast.err .dot{background:var(--red)}
+  .loading{position:fixed;inset:0;background:rgba(255,255,255,.55);display:none;align-items:center;justify-content:center;z-index:98}
+  .loading.on{display:flex}
+  .spin{width:34px;height:34px;border:3px solid var(--blue-soft);border-top-color:var(--blue);border-radius:50%;animation:sp .8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* 右下角常驻：智能问答 + 帮助文档 */
+  .fabs{position:fixed;right:22px;bottom:22px;display:flex;flex-direction:column;gap:10px;z-index:80}
+  .fab{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;
+    box-shadow:0 6px 20px rgba(30,60,140,.28);transition:transform .15s ease,box-shadow .15s ease;position:relative}
+  .fab:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 10px 26px rgba(30,60,140,.35)}
+  .fab svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:1.8}
+  .fab.qa-btn{background:linear-gradient(135deg,#4d8bff,#2f6fed)}
+  .fab.help-btn{background:linear-gradient(135deg,#8a98ad,#5f6f88)}
+  .fab .tip{position:absolute;right:56px;top:50%;transform:translateY(-50%);background:var(--navy);color:#fff;font-size:12px;
+    padding:5px 10px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:.15s}
+  .fab:hover .tip{opacity:1}
+  .qa{position:fixed;right:22px;bottom:82px;width:372px;max-width:calc(100vw - 28px);height:500px;max-height:calc(100vh - 120px);
+    background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(15,25,50,.22);border:1px solid var(--border);
+    display:none;flex-direction:column;overflow:hidden;z-index:85;animation:pop .18s ease}
+  .qa.on{display:flex}
+  .qa-h{background:linear-gradient(120deg,#2f6fed,#4d8bff);color:#fff;padding:13px 16px;display:flex;align-items:center;gap:9px;flex-shrink:0}
+  .qa-h .qt{font-weight:700;font-size:14px}
+  .qa-h .qp{font-size:11px;opacity:.85;margin-top:1px}
+  .qa-h .sp{flex:1}
+  .qa-h .x{cursor:pointer;font-size:15px;opacity:.85;padding:2px 4px}
+  .qa-h .x:hover{opacity:1}
+  .qa-b{flex:1;overflow-y:auto;padding:14px;background:#f7f9fd}
+  .qa-m{display:flex;margin-bottom:12px}
+  .qa-m.u{justify-content:flex-end}
+  .qa-m .bb{max-width:82%;padding:9px 13px;border-radius:12px;line-height:1.7;font-size:13px;white-space:pre-wrap;word-break:break-word}
+  .qa-m.a .bb{background:#fff;border:1px solid var(--border);border-top-left-radius:3px;box-shadow:0 1px 4px rgba(20,30,60,.05)}
+  .qa-m.u .bb{background:var(--blue);color:#fff;border-top-right-radius:3px}
+  .qa-m.a .bb .dots i{display:inline-block;width:5px;height:5px;border-radius:50%;background:#b8c4d8;margin-right:4px;animation:qd 1s infinite}
+  .qa-m.a .bb .dots i:nth-child(2){animation-delay:.15s}.qa-m.a .bb .dots i:nth-child(3){animation-delay:.3s}
+  @keyframes qd{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}
+  .qa-chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 8px;background:#f7f9fd;flex-shrink:0}
+  .qa-chips .chip{font-size:12px;color:var(--blue);background:var(--blue-soft);border:1px solid #cdddfb;border-radius:20px;padding:4px 11px;cursor:pointer}
+  .qa-chips .chip:hover{background:#dbe8fd}
+  .qa-in{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:#fff;flex-shrink:0}
+  .qa-in input{flex:1;height:36px;border:1px solid var(--border);border-radius:10px;padding:0 12px;font-size:13px}
+  .qa-in input:focus{border-color:var(--blue)}
+  .qa-in button{width:60px;height:36px;border-radius:10px;background:var(--blue);color:#fff;font-size:13px;font-weight:600}
+  .qa-in button:disabled{opacity:.5}
+  .help-doc h3{font-size:15px;margin:16px 0 8px;display:flex;align-items:center;gap:7px}
+  .help-doc h3:first-child{margin-top:0}
+  .help-doc p{color:var(--t2);line-height:1.8;margin-bottom:6px}
+  .help-doc .hd-path{background:var(--blue-soft);border:1px solid #cdddfb;border-radius:9px;padding:10px 14px;line-height:1.9;color:var(--t1);margin:8px 0}
+  .help-doc .hd-mod{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+  .help-doc .hd-mod b{display:block;margin-bottom:4px}
+  .help-doc .hd-mod span{color:var(--t2);line-height:1.75;font-size:12.5px}
+  @media (max-width:600px){ .qa{right:14px} .fabs{right:14px;bottom:14px} }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="rail" id="rail"></div>
+  <div class="body">
+    <div class="topbar">
+      <span class="brand">鲜达 AI 订单助手</span>
+      <div class="spacer"></div>
+      <div class="me"><span>系统管理员</span><span class="avatar"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.4"/><path d="M5.5 19.5c.8-3.2 3.4-5 6.5-5s5.7 1.8 6.5 5"/></svg></span></div>
+    </div>
+    <div class="tabbar" id="tabbar"></div>
+    <div class="view" id="view"></div>
+  </div>
+</div>
+<div class="toast" id="toast"><span class="dot">✓</span><span id="toastMsg"></span></div>
+<div class="loading" id="loading"><div class="spin"></div></div>
+<div class="mask" id="mask"><div class="modal" id="modal"></div></div>
+<input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp,.xlsx,.xls,.pdf" style="display:none">
+
+<div class="qa" id="qaPanel">
+  <div class="qa-h">
+    <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 14h.01M15 14h.01"/></svg>
+    <div><div class="qt">智能问答</div><div class="qp" id="qaPage">当前页面：首页</div></div>
+    <div class="sp"></div><span class="x" onclick="toggleQA(false)">✕</span>
+  </div>
+  <div class="qa-b" id="qaMsgs"></div>
+  <div class="qa-chips">
+    <span class="chip" onclick="askQA('这个页面是做什么的？')">这个页面是做什么的？</span>
+    <span class="chip" onclick="askQA('怎么完整走一遍从录入到下单的流程？')">怎么走完整流程？</span>
+    <span class="chip" onclick="askQA('图片和Excel识别怎么用？')">图片/Excel 怎么用？</span>
+  </div>
+  <div class="qa-in">
+    <input id="qaInput" placeholder="问我任何关于这个产品的问题…" onkeydown="if(event.key==='Enter')sendQA()">
+    <button id="qaSend" onclick="sendQA()">发送</button>
+  </div>
+</div>
+<div class="fabs">
+  <div class="fab qa-btn" onclick="toggleQA()"><span class="tip">智能问答：这个页面是干嘛的？</span>
+    <svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 14h.01M15 14h.01"/></svg></div>
+  <div class="fab help-btn" onclick="openHelp()"><span class="tip">帮助文档：功能用处与使用方法</span>
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.5 2.5 0 1 1 3.6 2.24c-.8.4-1.1.96-1.1 1.96"/><path d="M12 17h.01"/></svg></div>
+</div>
+
+<script>
+const API = location.origin;
+const S = {
+  view:'home', customers:[], operators:[], custStats:{}, seg:'客户', custSearch:'', selCust:null, selGroup:null,
+  chatMsgs:[], tasks:[], stats:{total:0,pending:0,done:0,failed:0,merged:0}, checked:new Set(),
+  filters:{status:'',group:'',reviewer:'',customer:'',keyword:'',date_from:'',date_to:''},
+  task:null, dtab:'基本信息',
+  groups:[], groupStats:{}, salemenus:[], smStats:{}, prompts:[], promptTab:'客户提示词',
+  memory:[], settings:null, setTab:'成员管理', custChecked:new Set(),
+};
+const STATUS_TXT={pending:'待处理',done:'已完成',failed:'失败',processing:'识别中',merged:'合单'};
+
+/* ============ 基础 ============ */
+async function api(path, opts){
+  if(window.MOCK) return mockApi(path, opts||{});
+  const o = Object.assign({}, opts);
+  if(!(o.body instanceof FormData)) o.headers = Object.assign({'Content-Type':'application/json'}, o.headers);
+  const r = await fetch(API+path, o);
+  if(!r.ok){ let m=''; try{m=(await r.json()).detail}catch(e){}; throw new Error(m||('HTTP '+r.status)); }
+  return r.json();
+}
+function loading(b){ document.getElementById('loading').classList.toggle('on',b); }
+function toast(msg,err){ const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg;
+  t.classList.toggle('err',!!err); t.classList.add('on'); clearTimeout(window._t); window._t=setTimeout(()=>t.classList.remove('on'),2400); }
+function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function notImpl(name){ toast('「'+(name||'该功能')+'」还在开发中 🛠️'); }
+const num=x=>x===''||x==null?'':x;
+function V(){ return document.getElementById('view'); }
+function modal(title, body, foot){
+  document.getElementById('modal').innerHTML =
+    `<div class="m-head"><b>${title}</b><span class="x" onclick="closeModal()">✕</span></div>
+     <div class="m-body">${body}</div>${foot?`<div class="m-foot">${foot}</div>`:''}`;
+  document.getElementById('mask').classList.add('on');
+}
+function closeModal(){ document.getElementById('mask').classList.remove('on'); }
+document.getElementById('mask').addEventListener('click',e=>{ if(e.target.id==='mask') closeModal(); });
+
+/* ============ 智能问答 + 帮助文档（右下角常驻） ============ */
+const PAGE_TIPS={
+  home:'首页是产品总览工作台：8 大模块快捷入口、今日任务统计（点数字直达筛选列表）、录单额度、群聊看板。',
+  luru:'订单录入页模拟客户下单：左侧选客户/群聊，右侧发一句话、一张菜单照片或一个 Excel，AI 自动识别成待审核订单。',
+  shenhe:'订单审核页是人工审核工作台：多条件筛选、状态统计、勾选合单、重识别、分配审核员，点行进详情。',
+  detail:'任务详情页：左侧还原原始消息，右侧可编辑商品/数量/单价/备注，确认下单后生成鲜达单号。',
+  customers:'客户管理页维护客户档案：编号、绑定群聊、SKU 数，核心是设置备注优先级（单个/批量）。',
+  groups:'群聊管理页管理微信/邮件群：禁言开关、群详情、新增邮件群。',
+  salemenu:'报价单页是商品价格来源：启停、单个/批量同步、点名称预览 SKU。',
+  prompts:'提示词页配置 AI 大脑：订单解析/意图识别模板，可新建/编辑/启停/删除。',
+  memory:'AI 记忆页展示越用越准的机制：客户维度修正/习惯/常买统计，详情可见真实生效的修正规则。',
+  settings:'设置页是系统配置中心：成员管理、信道/回复/通知开关，全部真实持久化。'};
+S.qaHist=[]; S.qaOpened=false; S.qaBusy=false;
+function qaPageSync(){
+  const el=document.getElementById('qaPage');
+  if(el) el.textContent='当前页面：'+(TAB_TXT[S.view]||'首页');
+  if(S.qaOpened && document.getElementById('qaPanel').classList.contains('on') && S.qaLastView!==S.view){
+    S.qaLastView=S.view;
+    pushQA('a','已切换到「'+(TAB_TXT[S.view]||'首页')+'」。'+(PAGE_TIPS[S.view]||''));
+  }
+}
+function pushQA(role,text,typing){
+  const box=document.getElementById('qaMsgs');
+  const bb=typing?'<span class="dots"><i></i><i></i><i></i></span>':esc(text);
+  box.insertAdjacentHTML('beforeend',`<div class="qa-m ${role==='u'?'u':'a'}" ${typing?'id="qaTyping"':''}><div class="bb">${bb}</div></div>`);
+  box.scrollTop=box.scrollHeight;
+  if(!typing) S.qaHist.push({role:role==='u'?'user':'assistant',content:text});
+}
+function toggleQA(force){
+  const p=document.getElementById('qaPanel');
+  const on=force!==undefined?force:!p.classList.contains('on');
+  p.classList.toggle('on',on);
+  if(on){
+    qaPageSync(); S.qaLastView=S.view;
+    if(!S.qaOpened){ S.qaOpened=true;
+      pushQA('a','你好！我是产品导览助手 🤖 可以问我任何页面是干嘛的、怎么用。\n\n'+(PAGE_TIPS[S.view]||PAGE_TIPS.home)); }
+    setTimeout(()=>document.getElementById('qaInput').focus(),100);
+  }
+}
+function askQA(q){ document.getElementById('qaInput').value=q; sendQA(); }
+async function sendQA(){
+  if(S.qaBusy) return;
+  const ipt=document.getElementById('qaInput'); const q=ipt.value.trim();
+  if(!q) return;
+  ipt.value=''; pushQA('u',q);
+  S.qaBusy=true; document.getElementById('qaSend').disabled=true;
+  pushQA('a','',true);
+  try{
+    const d=await api('/api/assistant',{method:'POST',body:JSON.stringify({question:q,page:S.view,history:S.qaHist.slice(0,-1)})});
+    document.getElementById('qaTyping')?.remove();
+    pushQA('a',d.answer);
+  }catch(e){
+    document.getElementById('qaTyping')?.remove();
+    pushQA('a','（网络异常）'+(PAGE_TIPS[S.view]||'')+'\n更多内容可点右下角「帮助文档」。');
+  }
+  S.qaBusy=false; document.getElementById('qaSend').disabled=false;
+  ipt.focus();
+}
+const HELP_MODS=[
+  ['🏠 首页','产品总览工作台。','看今日单量、剩余额度；点模块图标或群聊卡片快速跳转；点统计数字直达对应状态的审核列表。'],
+  ['✍️ 订单录入','模拟客户在群里下单，是整个流程的起点。','左侧选客户或群聊 → 右侧输入框发一句话（如“牛肉20斤价格42元”）、点 📎 传菜单照片或 Excel → AI 识别后返回结果卡片，点卡片直接进任务详情。'],
+  ['📋 订单审核','AI 识别结果的人工审核工作台。','用顶部条件筛选任务；勾选多个同群任务点「合单」；识别失败的点「重识别」；点任意行进入详情处理。'],
+  ['📄 任务详情','单个任务的编辑与下单页。','左侧看客户原始消息；右侧直接改商品/数量/单价/备注（总价自动算）→「保存」存草稿，「确认下单」或「全部确认下单」生成鲜达单号。'],
+  ['👥 客户管理','维护客户档案与识别偏好。','搜索/筛选客户；单个改「备注优先级」，或勾选多个批量设置——它决定 AI 把备注写到订单级还是商品级。'],
+  ['💬 群聊管理','管理接单的微信/邮件群。','开关禁言（禁言后该群消息不再识别）；点名称看群详情；「新增邮件群」可添加邮件接单信道。'],
+  ['🏷 报价单','商品与价格的数据源。','启停报价单；点「同步」把最新商品价格喂给 AI；点名称抽样预览里面的 SKU。'],
+  ['🧩 提示词','AI 识别的大脑配置。','针对不同客户的订单格式，新建/编辑解析模板；意图识别模板负责判断消息是下单还是闲聊；可随时启停。'],
+  ['🧠 AI 记忆','让 AI 越用越准。','看每个客户的修正/习惯/常买统计；点「详情」看真实生效的商品修正规则（如“九王→韭黄”）和近期任务。'],
+  ['⚙️ 设置','系统配置中心。','成员管理（新增操作员/改密码/删除）；开关微信机器人/邮件信道；编辑下单成功后的自动回复模板。'],
+];
+function openHelp(){
+  modal('📖 帮助文档 · 鲜达 AI 智能订单助手',
+    `<div class="help-doc">
+      <h3>这是什么产品？</h3>
+      <p>一个生鲜 B2B 智能录单产品原型：客户在微信群发<b>一句话 / 一张图 / 一个 Excel</b>，AI 自动识别成结构化订单，人工审核后一键下单。所有功能真实可点、数据真实持久化。</p>
+      <h3>🚀 60 秒上手路径</h3>
+      <div class="hd-path">① 首页 → 点「订单录入」<br>② 左侧选「张三大排档」→ 输入：<b>牛肉20斤价格42元，啤酒5箱，记得牛肉切片</b> → 发送<br>③ AI 识别出订单 → 点结果卡片进详情 → 改改数量 → 点「全部确认下单」<br>④ 回「订单审核」列表，看到状态「已完成」+ 鲜达单号 ✅<br>⑤ 再试试：录入页点 📎 上传一张菜单照片，体验 GLM-4V 视觉识别</div>
+      <h3>📚 各功能模块</h3>
+      ${HELP_MODS.map(([t,w,h])=>`<div class="hd-mod"><b>${t}</b><span><b style="display:inline">用处：</b>${w}<br><b style="display:inline">怎么用：</b>${h}</span></div>`).join('')}
+      <h3>❓ 常见问题</h3>
+      <p><b>识别失败怎么办？</b>在订单审核列表对该任务点「重识别」，或进详情手动补充商品。</p>
+      <p><b>为什么“九王”会自动变成“韭黄”？</b>这是 AI 记忆里的商品修正规则在生效（rules.json），可在「AI 记忆」页查看。</p>
+      <p><b>数据存哪了？</b>${window.MOCK?'当前是静态演示模式，数据存在浏览器 localStorage，只影响你自己。想恢复初始演示数据，<a href="javascript:resetDemo()">点这里一键重置</a>。':'本地 SQLite（order_data.db），删掉该文件重启即恢复初始演示数据。'}</p>
+      <p><b>还有不明白的？</b>点右下角蓝色「智能问答」按钮，直接问它任何问题。</p>
+    </div>`,
+    `<button class="btn pri" onclick="closeModal()">知道了</button>`);
+}
+
+const ICONS={
+  home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/>',
+  audit:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 13h6M9 17h3"/>',
+  edit:'<path d="M4 20h4L18 10l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+  users:'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5"/><path d="M16 5.5a3 3 0 0 1 0 5"/>',
+  chatg:'<path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/>',
+  bag:'<path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+  code:'<path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/>',
+  brain:'<path d="M12 4a3 3 0 0 0-3 3v9a3 3 0 0 0 6 0V7a3 3 0 0 0-3-3z"/><path d="M9 8H7a3 3 0 0 0 0 6h2M15 8h2a3 3 0 0 1 0 6h-2"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/>',
+  file:'<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/>',
+  robot:'<rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 14h.01M15 14h.01"/>',
+  user:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/>',
+  up:'<path d="M12 16V6M7 11l5-5 5 5M5 19h14"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>',
+  stack:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+};
+function svg(k){ return `<svg viewBox="0 0 24 24">${ICONS[k]}</svg>`; }
+
+/* ============ 导航 ============ */
+const RAIL=[['home','首页','home'],['audit','订单审核','shenhe'],['edit','订单录入','luru'],
+  ['users','客户','customers'],['chatg','群聊','groups'],['bag','报价单','salemenu'],
+  ['code','提示词','prompts'],['brain','AI记忆','memory'],['gear','设置','settings']];
+function renderRail(){
+  document.getElementById('rail').innerHTML =
+    '<div class="logo">AI</div>' + RAIL.map(([ic,label,v])=>{
+      const on=(v===S.view)||(v==='shenhe'&&S.view==='detail');
+      return `<div class="item ${on?'on':''}" onclick="go('${v}')">${svg(ic)}<span>${label}</span></div>`;
+    }).join('');
+}
+const TAB_TXT={home:'首页',luru:'订单录入',shenhe:'订单审核',detail:'任务详情',customers:'客户管理',
+  groups:'群聊管理',salemenu:'报价单',prompts:'提示词',memory:'AI 记忆',settings:'设置'};
+function renderTabs(){
+  let tabs=[[S.view,TAB_TXT[S.view]]];
+  if(S.view==='detail') tabs=[['shenhe','订单审核'],['detail','任务详情']];
+  document.getElementById('tabbar').innerHTML =
+    `<div class="tab home-ic" onclick="go('home')">⌂</div>` +
+    tabs.map(([v,t],i)=>`<div class="tab ${i===tabs.length-1?'on':''}" onclick="go('${v}')">${t}</div>`).join('');
+}
+
+async function go(v, arg){
+  S.view=v; renderRail(); renderTabs(); qaPageSync();
+  try{
+    if(v==='home'){ await loadTasks(); await ensureGroups(); V().innerHTML=renderHome(); }
+    else if(v==='luru'){ await ensureCustomers(); await ensureGroups(); V().innerHTML=renderLuru(); bindLuru(); }
+    else if(v==='shenhe'){ S.checked.clear(); await loadTasks(); V().innerHTML=renderShenhe(); }
+    else if(v==='detail'){ await openTask(arg); }
+    else if(v==='customers'){ await loadCustPage(); V().innerHTML=renderCustomers(); }
+    else if(v==='groups'){ await ensureGroups(true); V().innerHTML=renderGroups(); }
+    else if(v==='salemenu'){ await loadSalemenus(); V().innerHTML=renderSalemenu(); }
+    else if(v==='prompts'){ await loadPrompts(); V().innerHTML=renderPrompts(); }
+    else if(v==='memory'){ await loadMemory(); V().innerHTML=renderMemory(); }
+    else if(v==='settings'){ await loadSettings(); V().innerHTML=renderSettings(); }
+  }catch(e){ toast(e.message,true); }
+}
+
+/* ============ 首页 ============ */
+function renderHome(){
+  const d=new Date(); const wk=['日','一','二','三','四','五','六'][d.getDay()];
+  const date=`${d.getFullYear()}年${String(d.getMonth()+1).padStart(2,'0')}月${String(d.getDate()).padStart(2,'0')}日 星期${wk}`;
+  const mods=[['audit','订单审核','#3d7cf0','shenhe'],['edit','订单录入','#22b07d','luru'],
+    ['users','客户管理','#f0913d','customers'],['chatg','群聊管理','#e56ba8','groups'],
+    ['bag','报价单','#a86ef0','salemenu'],['code','提示词','#5b8def','prompts'],
+    ['brain','AI 记忆','#f05b8d','memory'],['gear','设置','#8a98ad','settings']];
+  const today=new Date().toISOString().slice(0,10);
+  const gb=S.groups.map(g=>{
+    const gt=S.tasks.filter(t=>t.wx_group_name===g.name);
+    const gtToday=gt.filter(t=>t.created_at.startsWith(today));
+    const pending=gt.filter(t=>t.status==='pending').length;
+    return `<div class="gcard" onclick="S.filters.group='${esc(g.name)}';go('shenhe')">
+      <div class="gn"><span class="badge ${g.type==='微信'?'wx':'mail'}">${g.type}</span>${esc(g.name.split('/')[0])}</div>
+      <div class="gm"><span>今日 <b>${gtToday.length}</b> 单</span><span>待处理 <b>${pending}</b></span><span>成员 <b>${g.members||'—'}</b></span></div>
+    </div>`;
+  }).join('');
+  return `<div class="home">
+    <div class="banner"><h1>早上好 👋，鲜达 AI 订单助手</h1><div class="date">${date}</div>
+      <div class="mods">${mods.map(([ic,t,c,v])=>`<div class="mod" onclick="go('${v}')"><div class="ic" style="background:linear-gradient(135deg,${c},${c}cc)">${svg(ic)}</div><span>${t}</span></div>`).join('')}</div>
+    </div>
+    <div class="row2">
+      <div class="panel"><div class="ph">🕓 今日任务</div>
+        <div class="stats">
+          <div class="s p" onclick="quickStatus('pending')"><b>${S.stats.pending}</b><span>待处理 ›</span></div>
+          <div class="s d" onclick="quickStatus('done')"><b>${S.stats.done}</b><span>已完成</span></div>
+          <div class="s f" onclick="quickStatus('failed')"><b>${S.stats.failed}</b><span>失败</span></div>
+          <div class="s a" onclick="quickStatus('')"><b>${S.stats.total}</b><span>全部</span></div>
+        </div>
+      </div>
+      <div class="panel quota"><div class="ph">⚡ 录单额度</div>
+        <div class="big">99330</div><div style="color:var(--t3);font-size:12px">剩余额度</div>
+        <div class="bar"><i></i></div>
+        <div class="qf"><span>已用 1840</span><span>总额 101170</span></div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px"><div class="ph">💬 群聊看板<div class="sp"></div><a onclick="go('groups')">全部 ›</a></div>
+      <div class="gboard">${gb||'<div class="empty">暂无群聊</div>'}</div>
+    </div>
+  </div>`;
+}
+
+/* ============ 订单录入 ============ */
+async function ensureCustomers(){
+  if(S.customers.length) return;
+  const d=await api('/api/customers'); S.customers=d.customers; S.operators=d.operators; S.custStats=d.stats;
+}
+async function ensureGroups(force){
+  if(S.groups.length && !force) return;
+  const d=await api('/api/groups'); S.groups=d.groups; S.groupStats=d.stats;
+}
+function renderLuru(){
+  const isCust=S.seg==='客户';
+  let listHtml='';
+  if(isCust){
+    const list=S.customers.filter(c=>!S.custSearch||c.name.includes(S.custSearch)||c.customer_id.includes(S.custSearch));
+    listHtml=list.map(c=>`<div class="citem ${S.selCust&&S.selCust.customer_id===c.customer_id?'on':''}" onclick="selCust('${c.customer_id}')">
+      <div class="cn">${esc(c.name)}</div><div class="cid">${c.customer_id}${c.wx_group_name?' · '+esc(c.wx_group_name):''}</div></div>`).join('');
+  }else{
+    const list=S.groups.filter(g=>!S.custSearch||g.name.includes(S.custSearch));
+    listHtml=list.map(g=>`<div class="citem ${S.selGroup&&S.selGroup.id===g.id?'on':''}" onclick="selGroup(${g.id})">
+      <div class="cn">${esc(g.name.split('/')[0])}</div><div class="cid"><span class="badge ${g.type==='微信'?'wx':'mail'}">${g.type}</span> ${g.customer_count} 个客户</div></div>`).join('');
+  }
+  const selName=S.selCust?S.selCust.name:(S.selGroup?S.selGroup.name.split('/')[0]:'');
+  return `<div class="luru">
+    <div class="cust">
+      <div class="ch"><div class="tt">AI录单 <span class="ai">AI</span></div>
+        <div class="segs">${['客户','群聊'].map(s=>`<button class="${S.seg===s?'on':''}" onclick="setSeg('${s}')">${s}</button>`).join('')}</div>
+      </div>
+      <div class="search">${svg('search')}<input placeholder="搜索名称、ID…" value="${esc(S.custSearch)}" oninput="S.custSearch=this.value;rerenderLuru(true)"></div>
+      <div class="clist">${listHtml||'<div class="empty">无匹配结果</div>'}</div>
+    </div>
+    <div class="chat">
+      <div class="msgs" id="msgs">${S.chatMsgs.length?S.chatMsgs.map(renderMsg).join(''):renderHeroEmpty()}</div>
+      <div class="composer"><div class="box">
+        <textarea id="luruInput" placeholder="${selName?('已选择：'+esc(selName)+'，粘贴或输入下单内容…'):'请先在左侧选择客户或群聊…'}"></textarea>
+        <div class="cf"><button class="up" title="上传图片 / Excel" onclick="pickFile()">${svg('up')}</button>
+          <button class="btn pri" onclick="sendLuru()">发送</button></div>
+      </div><div class="tip">支持文字、图片（GLM-4V 识别）、Excel；PDF 识别开发中</div></div>
+    </div>
+  </div>`;
+}
+function renderHeroEmpty(){
+  return `<div class="hero"><div class="ic">${svg('stack')}</div><h2>让录单 更简单</h2>
+    <p>选择客户，发送文字 / 图片 / Excel<br>AI 自动识别商品信息并生成订单</p></div>`;
+}
+function renderMsg(m){
+  if(m.role==='me') return `<div class="msg me"><div class="ava">${svg('user')}</div><div class="bub">${esc(m.text)}</div></div>`;
+  return `<div class="msg ai"><div class="ava">${svg('robot')}</div><div class="bub">${m.html}</div></div>`;
+}
+function bindLuru(){
+  const t=document.getElementById('luruInput');
+  if(t) t.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendLuru();} });
+  scrollMsgs();
+}
+function setSeg(s){ S.seg=s; S.custSearch=''; rerenderLuru(); }
+function selCust(id){ S.selCust=S.customers.find(c=>c.customer_id===id); S.selGroup=null; rerenderLuru(); }
+function selGroup(id){
+  S.selGroup=S.groups.find(g=>g.id===id);
+  const bound=S.customers.find(c=>c.wx_group_name && S.selGroup.name.includes(c.wx_group_name));
+  S.selCust=bound||null;
+  rerenderLuru();
+  if(!bound) toast('该群聊暂无绑定客户，将以群名录单');
+}
+function rerenderLuru(keepFocus){
+  const el=document.activeElement; const pos=el&&el.selectionStart;
+  V().innerHTML=renderLuru(); bindLuru();
+  if(keepFocus){ const s=document.querySelector('.search input'); if(s){ s.focus(); s.setSelectionRange(pos,pos); } }
+}
+function currentTarget(){
+  if(S.selCust) return {customer_id:S.selCust.customer_id, customer_name:S.selCust.name, wx_group_name:S.selCust.wx_group_name||(S.selGroup?S.selGroup.name:'')};
+  if(S.selGroup) return {customer_id:'', customer_name:S.selGroup.name.split('/')[0], wx_group_name:S.selGroup.name};
+  return null;
+}
+async function sendLuru(){
+  const t=document.getElementById('luruInput'); const text=t.value.trim();
+  if(!text) return;
+  S.chatMsgs.push({role:'me',text}); t.value='';
+  document.getElementById('msgs').innerHTML=S.chatMsgs.map(renderMsg).join(''); scrollMsgs();
+  const target=currentTarget();
+  if(!target){
+    S.chatMsgs.push({role:'ai',html:'请先在左侧选择一个客户（或群聊），我才能帮你把这段内容识别成对应客户的订单哦～'});
+    document.getElementById('msgs').innerHTML=S.chatMsgs.map(renderMsg).join(''); scrollMsgs(); return;
+  }
+  const idx=S.chatMsgs.push({role:'ai',html:'<span style="color:var(--t3)">AI 正在识别商品信息…</span>'})-1;
+  document.getElementById('msgs').innerHTML=S.chatMsgs.map(renderMsg).join(''); scrollMsgs();
+  try{
+    const d=await api('/api/tasks',{method:'POST',body:JSON.stringify(Object.assign({text},target))});
+    fillLuruResult(idx,d);
+  }catch(e){ S.chatMsgs[idx].html='识别失败：'+esc(e.message); document.getElementById('msgs').innerHTML=S.chatMsgs.map(renderMsg).join(''); }
+}
+function fillLuruResult(idx,d){
+  const tk=d.task;
+  if(d.success){
+    S.chatMsgs[idx].html=`订单构建成功，已生成待审核任务。<br>共识别 <b>${tk.product_count}</b> 项商品，客户「${esc(tk.customer_name)}」。
+      <div class="resultcard"><div class="rt">${esc(tk.customer_name)}</div>
+      <div class="rmeta">任务号 ${tk.id} · <span class="badge pending">待处理</span> · ${tk.product_count} 条明细${tk.original_file?' · 📎'+esc(tk.original_file):''}</div>
+      <button class="btn pri" onclick="go('detail','${tk.id}')">去审核 →</button></div>`;
+  }else{
+    S.chatMsgs[idx].html='没能识别出有效商品，请换种表述或换个文件再试。任务已记入「失败」列表。';
+  }
+  document.getElementById('msgs').innerHTML=S.chatMsgs.map(renderMsg).join(''); scrollMsgs();
+}
+function pickFile(){
+  if(!currentTarget()){ toast('请先在左侧选择客户或群聊',true); return; }
+  document.getElementById('fileInput').click();
+}
+document.getElementById('fileInput').addEventListener('change', async e=>{
+  const f=e.target.files[0]; e.target.value='';
+  if(!f) return;
+  if(/\.pdf$/i.test(f.name)){ notImpl('PDF 识别'); return; }
+  const target=currentTarget();
+  S.chatMsgs.push({role:'me',text:'📎 '+f.name});
+  const idx=S.chatMsgs.push({role:'ai',html:'<span style="color:var(--t3)">AI 正在识别文件（'+esc(f.name)+'）…</span>'})-1;
+  if(S.view==='luru'){ document.getElementById('msgs').innerHTML=S.chatMsgs.map(renderMsg).join(''); scrollMsgs(); }
+  try{
+    const fd=new FormData();
+    fd.append('file',f); fd.append('customer_id',target.customer_id);
+    fd.append('customer_name',target.customer_name); fd.append('wx_group_name',target.wx_group_name);
+    const d=await api('/api/tasks/upload',{method:'POST',body:fd});
+    fillLuruResult(idx,d);
+  }catch(err){ S.chatMsgs[idx].html='文件识别失败：'+esc(err.message);
+    if(S.view==='luru') document.getElementById('msgs').innerHTML=S.chatMsgs.map(renderMsg).join(''); }
+});
+function scrollMsgs(){ const m=document.getElementById('msgs'); if(m)m.scrollTop=m.scrollHeight; }
+
+/* ============ 订单审核 ============ */
+async function loadTasks(){
+  const f=S.filters; const qs=new URLSearchParams(Object.entries(f).filter(([k,v])=>v)).toString();
+  const d=await api('/api/tasks'+(qs?'?'+qs:'')); S.tasks=d.tasks; S.stats=d.stats;
+}
+function renderShenhe(){
+  const f=S.filters;
+  const opt=(arr,val)=>arr.map(o=>`<option value="${o[0]}" ${o[0]===val?'selected':''}>${o[1]}</option>`).join('');
+  const statusOpts=[['','全部'],['pending','待处理'],['done','已完成'],['failed','失败'],['merged','合单']];
+  const revOpts=[['','全部']].concat((S.operators.length?S.operators:['未分配']).map(o=>[o,o]));
+  const rows=S.tasks.map(renderRow).join('');
+  const mergeOn=S.checked.size>=2;
+  return `<div class="wrap">
+    <div class="filters">
+      <div class="fld"><label>状态</label><select onchange="setF('status',this.value)">${opt(statusOpts,f.status)}</select></div>
+      <div class="fld"><label>下单日期</label><div class="daterange"><input type="date" class="ipt" value="${f.date_from}" onchange="setF('date_from',this.value)"><span>→</span><input type="date" class="ipt" value="${f.date_to}" onchange="setF('date_to',this.value)"></div></div>
+      <div class="fld"><label>群聊</label><input class="ipt" placeholder="全部" value="${esc(f.group)}" onchange="setF('group',this.value)"></div>
+      <div class="fld"><label>审核员</label><select onchange="setF('reviewer',this.value)">${opt(revOpts,f.reviewer)}</select></div>
+      <div class="fld"><label>门店</label><input class="ipt" placeholder="全部" value="${esc(f.customer)}" onchange="setF('customer',this.value)"></div>
+      <div class="fld" style="grid-column:span 2"><label>订单号/原文</label><input class="ipt" placeholder="搜索关键词" value="${esc(f.keyword)}" onchange="setF('keyword',this.value)"></div>
+      <div class="fld acts"><button class="btn pri" onclick="doQuery()">查 询</button><button class="btn ghost" onclick="resetF()">重 置</button></div>
+    </div>
+    <div class="listcard">
+      <div class="lc-head"><b>待审核订单</b><div class="sp"></div>
+        <button class="btn ghost" onclick="doQuery()">刷 新</button>
+        <button class="btn ${mergeOn?'pri':'ghost'}" ${mergeOn?'':'disabled style="opacity:.5;cursor:not-allowed"'} onclick="${mergeOn?'doMerge()':''}">合 单${S.checked.size?`（${S.checked.size}）`:''}</button>
+      </div>
+      ${S.stats.failed?`<div class="alert">⚠️ 有 ${S.stats.failed} 个识别失败的订单，<a onclick="quickStatus('failed')">立即查看</a></div>`:''}
+      <div class="stabs">
+        <div class="stab ${!f.status?'on':''}" onclick="quickStatus('')">全部 <b>${S.stats.total}</b></div>
+        <div class="stab ${f.status==='pending'?'on':''}" onclick="quickStatus('pending')">待处理 <b>${S.stats.pending}</b></div>
+        <div class="stab ${f.status==='done'?'on':''}" onclick="quickStatus('done')">已完成 <b>${S.stats.done}</b></div>
+        <div class="stab ${f.status==='merged'?'on':''}" onclick="quickStatus('merged')">合单 <b>${S.stats.merged||0}</b></div>
+      </div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th style="width:36px"><input type="checkbox" onchange="checkAll(this.checked)"></th>
+          <th>状态</th><th>时间</th><th>群聊</th><th>门店</th><th>原文</th><th>商品数</th><th>鲜达单号</th><th>审核员</th><th>操作</th></tr></thead>
+        <tbody>${rows||'<tr><td colspan="10" class="empty">暂无数据</td></tr>'}</tbody>
+      </table></div>
+      <div class="pagefoot"><span>共 ${S.tasks.length} 条记录</span><div class="pg"><span>1</span> 20 条/页</div></div>
+    </div>
+  </div>`;
+}
+function renderRow(t){
+  const st=t.status; const revs=S.operators.length?S.operators:['未分配'];
+  const canCheck=st==='pending'||st==='failed';
+  const sel=`<select class="rev-sel" onchange="setReviewer('${t.id}',this.value)" onclick="event.stopPropagation()">${revs.map(o=>`<option ${o===t.operator?'selected':''}>${o}</option>`).join('')}</select>`;
+  return `<tr>
+    <td>${canCheck?`<input type="checkbox" ${S.checked.has(t.id)?'checked':''} onchange="checkOne('${t.id}',this.checked)">`:''}</td>
+    <td><span class="badge ${st}">${STATUS_TXT[st]||st}</span></td>
+    <td>${t.created_at.slice(5,16)}</td>
+    <td class="ellipsis" style="max-width:130px">${esc(t.wx_group_name)||'-'}</td>
+    <td class="ellipsis" style="max-width:150px">${esc(t.customer_name)||'-'}</td>
+    <td class="txt-ell" title="${esc(t.original_message)}">${esc(t.original_message.replace(/\n/g,' '))||'-'}</td>
+    <td>${t.product_count}</td>
+    <td>${esc(t.xd_order_no)||'-'}</td>
+    <td>${sel}</td>
+    <td class="op-links"><a onclick="go('detail','${t.id}')">查看</a><a onclick="reidentify('${t.id}')">重识别</a><a class="del" onclick="delTask('${t.id}')">删除</a></td>
+  </tr>`;
+}
+function checkOne(id,on){ on?S.checked.add(id):S.checked.delete(id); V().innerHTML=renderShenhe(); }
+function checkAll(on){ S.checked.clear(); if(on) S.tasks.filter(t=>t.status==='pending'||t.status==='failed').forEach(t=>S.checked.add(t.id)); V().innerHTML=renderShenhe(); }
+async function doMerge(){
+  if(!confirm(`确认将选中的 ${S.checked.size} 个任务合并为一单？`)) return;
+  loading(true);
+  try{ const d=await api('/api/tasks/merge',{method:'POST',body:JSON.stringify({task_ids:[...S.checked]})});
+    toast('合单成功'); S.checked.clear(); go('detail', d.task.id); }
+  catch(e){ toast(e.message,true); }
+  loading(false);
+}
+function setF(k,v){ S.filters[k]=v; }
+function doQuery(){ go('shenhe'); }
+function resetF(){ S.filters={status:'',group:'',reviewer:'',customer:'',keyword:'',date_from:'',date_to:''}; go('shenhe'); }
+function quickStatus(s){ S.filters.status=s; go('shenhe'); }
+async function setReviewer(id,val){ try{ const t=await api('/api/tasks/'+id); await api('/api/tasks/'+id,{method:'PUT',body:JSON.stringify({groups:t.groups,operator:val})}); toast('已分配审核员：'+val);}catch(e){toast(e.message,true);} }
+async function reidentify(id){ loading(true); try{ const d=await api('/api/tasks/'+id+'/reidentify',{method:'POST',body:'{}'}); toast(d.success?'重识别完成':'重识别未得到有效商品',!d.success); await loadTasks(); V().innerHTML=renderShenhe(); }catch(e){toast(e.message,true);} loading(false); }
+async function delTask(id){ if(!confirm('确认删除该任务？'))return; try{ await api('/api/tasks/'+id,{method:'DELETE'}); toast('已删除'); await loadTasks(); V().innerHTML=renderShenhe(); }catch(e){toast(e.message,true);} }
+
+/* ============ 任务详情 ============ */
+async function openTask(id){
+  loading(true);
+  try{ S.task=await api('/api/tasks/'+id); S.dtab='基本信息'; V().innerHTML=renderDetail(); }
+  catch(e){ toast(e.message,true); }
+  loading(false);
+}
+function renderDetail(){
+  const t=S.task; const submitted=t.groups.filter(g=>g.status==='已提交').length;
+  return `<div class="detail">
+    <div class="dleft">
+      <div class="dtabs">${['基本信息','群聊消息','定位来源'].map(x=>`<span class="${S.dtab===x?'on':''}" onclick="setDtab('${x}')">${x}</span>`).join('')}</div>
+      <div id="dleftBody">${renderDleft()}</div>
+    </div>
+    <div class="dmain">
+      <div class="dm-head"><b>任务详情</b><span class="badge ${t.status}">${STATUS_TXT[t.status]}</span>
+        <span style="color:var(--t3);font-size:12px">${submitted}/${t.groups.length} 组已提交</span>
+        <div class="sp"></div>
+        <button class="btn ghost" onclick="addGroup()">新建分组</button>
+        <button class="btn ghost" onclick="saveTask()">保 存</button>
+        <button class="btn danger" onclick="delFromDetail()">删 除</button>
+        <button class="btn pri" onclick="confirmAll()">全部确认下单</button>
+      </div>
+      <div class="dm-meta"><span>客服群聊：<b>${esc(t.wx_group_name)||'-'}</b></span><span>门店：<b>${esc(t.customer_name)}</b></span><span>创建时间：<b>${t.created_at}</b></span><span>鲜达单号：<b>${esc(t.xd_order_no)||'-'}</b></span></div>
+      ${t.groups.map((g,gi)=>renderGroup(g,gi)).join('')||'<div class="empty">暂无订单分组（识别失败任务可点「新建分组」手工录入，或回列表「重识别」）</div>'}
+      <div class="addgroup" onclick="addGroup()">＋ 新增订单分组</div>
+    </div>
+  </div>`;
+}
+function renderDleft(){
+  const t=S.task;
+  if(S.dtab==='群聊消息'){
+    const msgs=(t.original_message||'').split(/\n---\n|\n(?=【)/).filter(Boolean);
+    return msgs.map(m=>`<div class="wxmsg"><div class="wava">${esc(t.customer_name[0]||'客')}</div>
+      <div><div class="wname">${esc(t.wx_group_name||'群聊')} · 下单人员</div><div class="wb">${esc(m)}</div></div></div>`).join('')
+      ||'<div class="empty">暂无群聊消息</div>';
+  }
+  return `${t.original_file?`<div class="sec-t">原始文件</div><div class="file"><div class="fi">${svg('file')}</div><div class="fn">${esc(t.original_file)}</div><a onclick="notImpl('文件下载')">下载</a></div>`:''}
+    <div class="sec-t">原始消息</div>
+    <div class="rawmsg" id="rawmsg">${esc(t.original_message)||'（无）'}</div>`;
+}
+function setDtab(x){
+  if(x==='定位来源'){
+    S.dtab='基本信息';
+    document.getElementById('dleftBody').innerHTML=renderDleft();
+    document.querySelectorAll('.dtabs span').forEach((s,i)=>s.classList.toggle('on',i===0));
+    const r=document.getElementById('rawmsg');
+    if(r){ r.classList.add('flash'); r.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>r.classList.remove('flash'),1600); }
+    toast('已定位到原始消息来源');
+    return;
+  }
+  S.dtab=x;
+  document.getElementById('dleftBody').innerHTML=renderDleft();
+  document.querySelectorAll('.dtabs span').forEach(s=>s.classList.toggle('on',s.textContent===x));
+}
+function renderGroup(g,gi){
+  const rows=g.items.map((it,ii)=>`
+    <tr class="${it.warning?'warn':''}">
+      <td>${it.seq||ii+1}</td>
+      <td style="color:var(--t2)">${esc(it.raw_text)}</td>
+      <td><input class="ci" value="${esc(it.product_name)}" oninput="edit(${gi},${ii},'product_name',this.value)">${it.warning?'<span class="warntip">⚠ 未匹配</span>':''}</td>
+      <td><input class="ci qn" value="${num(it.qty)}" oninput="edit(${gi},${ii},'qty',this.value)"></td>
+      <td><input class="ci un" value="${esc(it.unit)}" oninput="edit(${gi},${ii},'unit',this.value)"></td>
+      <td><input class="ci pn" value="${num(it.price)}" oninput="edit(${gi},${ii},'price',this.value)"></td>
+      <td style="color:var(--t2)">¥${num(it.total)||'0.00'}</td>
+      <td><input class="ci" value="${esc(it.remark)}" placeholder="备注" oninput="edit(${gi},${ii},'remark',this.value)"></td>
+      <td><div class="rowop"><button class="add" onclick="addRow(${gi},${ii})">＋</button><button class="del" onclick="delRow(${gi},${ii})">−</button></div></td>
+    </tr>`).join('');
+  return `<div class="group">
+    <div class="g-head"><span class="gt">订单${gi+1}组</span><span class="cnt">${g.items.length}个商品</span>
+      ${g.status==='已提交'?'<span class="badge done">已提交</span>':'<span class="badge pending">待确定</span>'}
+      <div class="sp"></div><button class="btn pri" onclick="confirmGroup(${gi})">确认下单</button></div>
+    <div class="g-form">
+      <div class="gf"><label>下单门店</label><input class="ipt" value="${esc(g.store_name)}" oninput="editG(${gi},'store_name',this.value)"></div>
+      <div class="gf"><label>收货时间</label><input type="date" class="ipt" value="${g.deliver_date}" onchange="editG(${gi},'deliver_date',this.value)">
+        <input class="ipt" style="width:64px" value="${g.time_start}" oninput="editG(${gi},'time_start',this.value)"><span>→</span><input class="ipt" style="width:64px" value="${g.time_end}" oninput="editG(${gi},'time_end',this.value)"></div>
+      <span class="gm-rec">GM推荐 06:00~20:30</span>
+      <div class="gf" style="flex:1;min-width:260px"><label>订单备注</label><input class="ipt" style="flex:1" value="${esc(g.remark)}" placeholder="点击填写备注" oninput="editG(${gi},'remark',this.value)"></div>
+    </div>
+    <div class="itbl"><div style="overflow-x:auto"><table>
+      <thead><tr><th style="width:40px">序号</th><th>识别文本</th><th>商品名称</th><th>数量</th><th>单位</th><th>单价</th><th>总价</th><th>备注</th><th style="width:60px">操作</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div><div class="addprod" onclick="addRow(${gi},${g.items.length-1})">＋ 新增商品</div></div>
+  </div>`;
+}
+function edit(gi,ii,k,v){ const it=S.task.groups[gi].items[ii];
+  if(k==='qty'||k==='price'){ v=v.replace(/[^0-9.]/g,''); it[k]=v===''?'':parseFloat(v); const q=parseFloat(it.qty),p=parseFloat(it.price); it.total=(!isNaN(q)&&!isNaN(p))?Math.round(q*p*100)/100:''; refreshTotals(gi); }
+  else it[k]=v;
+  if(k==='product_name') it.warning=!v;
+}
+function refreshTotals(gi){
+  const g=S.task.groups[gi];
+  const trs=document.querySelectorAll('.group')[gi].querySelectorAll('tbody tr');
+  g.items.forEach((it,ii)=>{ const td=trs[ii]&&trs[ii].children[6]; if(td) td.textContent='¥'+(num(it.total)||'0.00'); });
+}
+function editG(gi,k,v){ S.task.groups[gi][k]=v; }
+function addRow(gi,ii){ const g=S.task.groups[gi]; g.items.splice(ii+1,0,{seq:g.items.length+1,raw_text:'',product_name:'',qty:'',unit:'斤',price:'',total:'',remark:'',sku:'',warning:true}); reseq(gi); V().innerHTML=renderDetail(); }
+function delRow(gi,ii){ const g=S.task.groups[gi]; if(g.items.length>1){g.items.splice(ii,1); reseq(gi);} V().innerHTML=renderDetail(); }
+function reseq(gi){ S.task.groups[gi].items.forEach((it,i)=>it.seq=i+1); }
+function addGroup(){ const t=S.task; const d=new Date(Date.now()+864e5).toISOString().slice(0,10);
+  t.groups.push({store_name:t.customer_name,store_id:t.customer_id,deliver_date:d,time_start:'06:00',time_end:'22:30',remark:'',tag:'',status:'待确定',items:[{seq:1,raw_text:'',product_name:'',qty:'',unit:'斤',price:'',total:'',remark:'',sku:'',warning:true}]});
+  V().innerHTML=renderDetail(); }
+async function saveTask(){ try{ S.task=await api('/api/tasks/'+S.task.id,{method:'PUT',body:JSON.stringify({groups:S.task.groups})}); toast('已保存'); V().innerHTML=renderDetail(); }catch(e){toast(e.message,true);} }
+async function saveSilently(){ try{ S.task=await api('/api/tasks/'+S.task.id,{method:'PUT',body:JSON.stringify({groups:S.task.groups})}); }catch(e){} }
+async function confirmGroup(gi){ await saveSilently(); try{ const d=await api('/api/tasks/'+S.task.id+'/confirm',{method:'POST',body:JSON.stringify({group_index:gi})}); S.task=d.task; toast(d.all_done?('全部下单完成，鲜达单号 '+S.task.xd_order_no):'该分组已确认下单'); V().innerHTML=renderDetail(); }catch(e){toast(e.message,true);} }
+async function confirmAll(){ await saveSilently(); try{ const d=await api('/api/tasks/'+S.task.id+'/confirm',{method:'POST',body:'{}'}); S.task=d.task; toast('全部确认下单完成，鲜达单号 '+S.task.xd_order_no); V().innerHTML=renderDetail(); }catch(e){toast(e.message,true);} }
+async function delFromDetail(){ if(!confirm('确认删除该任务？'))return; try{ await api('/api/tasks/'+S.task.id,{method:'DELETE'}); toast('已删除'); go('shenhe'); }catch(e){toast(e.message,true);} }
+
+/* ============ 客户管理 ============ */
+let custFilter={keyword:'',bind:'',priority:''};
+async function loadCustPage(){
+  const qs=new URLSearchParams(Object.entries(custFilter).filter(([k,v])=>v)).toString();
+  const d=await api('/api/customers'+(qs?'?'+qs:''));
+  S.customers=d.customers; S.operators=d.operators; S.custStats=d.stats; S.custChecked.clear();
+}
+function renderCustomers(){
+  const rows=S.customers.map(c=>`<tr>
+    <td><input type="checkbox" ${S.custChecked.has(c.customer_id)?'checked':''} onchange="custCheck('${c.customer_id}',this.checked)"></td>
+    <td>${c.customer_id}</td>
+    <td style="font-weight:500">${esc(c.name)}</td>
+    <td class="ellipsis" style="max-width:190px;color:var(--t2)">${esc(c.address)||'-'}</td>
+    <td>${esc(c.phone)||'-'}</td>
+    <td>${c.wx_group_name?`<span class="badge processing">${esc(c.wx_group_name)}</span>`:'<span class="badge gray">未绑定</span>'}</td>
+    <td>${c.sku_count}</td>
+    <td><div class="prio">${['订单备注','SPU备注','合并'].map(p=>`<span class="${c.priority===p?'on':''}" onclick="setPrio('${c.customer_id}','${p}')">${p}</span>`).join('')}</div></td>
+  </tr>`).join('');
+  return `<div class="wrap">
+    <div class="filters" style="grid-template-columns:repeat(3,1fr) auto">
+      <div class="fld"><label>客户名称</label><input class="ipt" placeholder="名称 / ID" value="${esc(custFilter.keyword)}" onchange="custFilter.keyword=this.value"></div>
+      <div class="fld"><label>绑定状态</label><select onchange="custFilter.bind=this.value">
+        <option value="">全部</option><option value="bound" ${custFilter.bind==='bound'?'selected':''}>已绑定群</option><option value="unbound" ${custFilter.bind==='unbound'?'selected':''}>未绑定群</option></select></div>
+      <div class="fld"><label>备注优先级</label><select onchange="custFilter.priority=this.value">
+        <option value="">全部</option>${['订单备注','SPU备注','合并'].map(p=>`<option ${custFilter.priority===p?'selected':''}>${p}</option>`).join('')}</select></div>
+      <div class="fld acts"><button class="btn pri" onclick="go('customers')">查 询</button><button class="btn ghost" onclick="custFilter={keyword:'',bind:'',priority:''};go('customers')">重 置</button></div>
+    </div>
+    <div class="listcard">
+      <div class="lc-head">
+        <div class="statbar">总客户 <b>${S.custStats.total}</b><span class="sep">|</span>已绑群 <b>${S.custStats.bound}</b><span class="sep">|</span>已同步 SKU <b>${S.custStats.synced}</b></div>
+        <div class="sp"></div>
+        <button class="btn ghost" onclick="batchPrio()">批量设置备注优先级${S.custChecked.size?`（${S.custChecked.size}）`:''}</button>
+        <button class="btn ghost" onclick="go('customers')">刷 新</button>
+      </div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th style="width:36px"><input type="checkbox" onchange="custCheckAll(this.checked)"></th>
+          <th>客户 ID</th><th>客户名称</th><th>地址</th><th>电话</th><th>群绑定</th><th>已同步的SKU数</th><th>备注优先级</th></tr></thead>
+        <tbody>${rows||'<tr><td colspan="8" class="empty">暂无客户</td></tr>'}</tbody>
+      </table></div>
+      <div class="pagefoot"><span>共 ${S.customers.length} 个客户</span><div class="pg"><span>1</span> 50 条/页</div></div>
+    </div>
+  </div>`;
+}
+function custCheck(id,on){ on?S.custChecked.add(id):S.custChecked.delete(id); V().innerHTML=renderCustomers(); }
+function custCheckAll(on){ S.custChecked.clear(); if(on) S.customers.forEach(c=>S.custChecked.add(c.customer_id)); V().innerHTML=renderCustomers(); }
+async function setPrio(cid,p){
+  try{ await api('/api/customers/priority',{method:'PUT',body:JSON.stringify({customer_ids:[cid],priority:p})});
+    const c=S.customers.find(x=>x.customer_id===cid); c.priority=p; V().innerHTML=renderCustomers(); toast('已设置为「'+p+'」'); }
+  catch(e){ toast(e.message,true); }
+}
+function batchPrio(){
+  if(!S.custChecked.size){ toast('请先勾选客户',true); return; }
+  modal('批量设置备注优先级',
+    `<div class="frow"><label>优先级</label><select class="ipt" id="mPrio">${['订单备注','SPU备注','合并'].map(p=>`<option>${p}</option>`).join('')}</select></div>
+     <div style="color:var(--t3)">将应用到选中的 ${S.custChecked.size} 个客户</div>`,
+    `<button class="btn ghost" onclick="closeModal()">取消</button><button class="btn pri" onclick="doBatchPrio()">确定</button>`);
+}
+async function doBatchPrio(){
+  const p=document.getElementById('mPrio').value;
+  try{ await api('/api/customers/priority',{method:'PUT',body:JSON.stringify({customer_ids:[...S.custChecked],priority:p})});
+    closeModal(); toast('已批量设置'); go('customers'); }catch(e){ toast(e.message,true); }
+}
+
+/* ============ 群聊管理 ============ */
+let grpFilter={type:'',reviewer:''};
+function renderGroups(){
+  const list=S.groups.filter(g=>(!grpFilter.type||g.type===grpFilter.type)&&(!grpFilter.reviewer||g.reviewer.includes(grpFilter.reviewer)));
+  const rows=list.map(g=>`<tr>
+    <td style="font-weight:500">${esc(g.name)}</td>
+    <td><span class="badge ${g.type==='微信'?'wx':'mail'}">${g.type}</span></td>
+    <td>${g.members||'—'}</td>
+    <td><a onclick="groupDetail(${g.id})">${g.customer_count} 个客户</a></td>
+    <td>${esc(g.reviewer)}</td>
+    <td><span class="sw ${g.muted?'':'on'}" title="${g.muted?'已禁言':'正常'}" onclick="toggleMute(${g.id})"></span> <span style="color:${g.muted?'var(--red)':'var(--t3)'};font-size:12px">${g.muted?'禁言':'正常'}</span></td>
+    <td>—</td><td>—</td>
+    <td class="op-links"><a onclick="groupDetail(${g.id})">详情</a>${g.type==='邮件'?`<a onclick="notImpl('编辑邮件群')">编辑</a>`:''}<a class="del" onclick="delGroup(${g.id})">删除</a></td>
+  </tr>`).join('');
+  return `<div class="wrap">
+    <div class="filters" style="grid-template-columns:1fr 1fr auto">
+      <div class="fld"><label>群聊类型</label><select onchange="grpFilter.type=this.value;go('groups')">
+        <option value="">全部</option><option ${grpFilter.type==='微信'?'selected':''}>微信</option><option ${grpFilter.type==='邮件'?'selected':''}>邮件</option></select></div>
+      <div class="fld"><label>审核员</label><input class="ipt" placeholder="全部" value="${esc(grpFilter.reviewer)}" onchange="grpFilter.reviewer=this.value;go('groups')"></div>
+      <div class="fld acts">
+        <button class="btn ghost" onclick="notImpl('批量删除')">批量删除</button>
+        <button class="btn ghost" onclick="notImpl('群聊迁移')">群聊迁移</button>
+        <button class="btn pri" onclick="addEmailGroup()">新增邮件群</button>
+      </div>
+    </div>
+    <div class="listcard">
+      <div class="lc-head">
+        <div class="statbar">总群聊 <b>${S.groupStats.total}</b><span class="sep">|</span>已绑客户 <b>${S.groupStats.bound}</b><span class="sep">|</span>已禁言 <b>${S.groupStats.muted}</b></div>
+        <div class="sp"></div><button class="btn ghost" onclick="go('groups')">刷 新</button>
+      </div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>群聊名称</th><th>类型</th><th>成员数</th><th>客户</th><th>审核员</th><th>发言</th><th>订单价格</th><th>下单时段</th><th>操作</th></tr></thead>
+        <tbody>${rows||'<tr><td colspan="9" class="empty">暂无群聊</td></tr>'}</tbody>
+      </table></div>
+      <div class="pagefoot"><span>共 ${list.length} 个群聊</span><div class="pg"><span>1</span> 20 条/页</div></div>
+    </div>
+  </div>`;
+}
+async function toggleMute(id){
+  try{ const d=await api('/api/groups/'+id+'/mute',{method:'POST',body:'{}'});
+    const g=S.groups.find(x=>x.id===id); g.muted=d.muted?1:0;
+    await ensureGroups(true); V().innerHTML=renderGroups(); toast(d.muted?'已禁言':'已恢复发言'); }
+  catch(e){ toast(e.message,true); }
+}
+async function delGroup(id){
+  if(!confirm('确认删除该群聊？')) return;
+  try{ await api('/api/groups/'+id,{method:'DELETE'}); await ensureGroups(true); V().innerHTML=renderGroups(); toast('已删除'); }
+  catch(e){ toast(e.message,true); }
+}
+function groupDetail(id){
+  const g=S.groups.find(x=>x.id===id);
+  const bound=S.customers.filter(c=>c.wx_group_name&&g.name.includes(c.wx_group_name));
+  modal('群聊详情',
+    `<div class="frow"><label>群聊名称</label><div>${esc(g.name)}</div></div>
+     <div class="frow"><label>类型</label><div><span class="badge ${g.type==='微信'?'wx':'mail'}">${g.type}</span></div></div>
+     <div class="frow"><label>成员数</label><div>${g.members||'—'}</div></div>
+     <div class="frow"><label>审核员</label><div>${esc(g.reviewer)}</div></div>
+     <div class="frow"><label>绑定客户</label><div>${bound.length?bound.map(c=>`<span class="badge processing" style="margin:0 6px 6px 0;display:inline-block">${esc(c.name)}</span>`).join(''):(g.customer_count+' 个客户')}</div></div>`,
+    `<button class="btn pri" onclick="closeModal()">知道了</button>`);
+}
+function addEmailGroup(){
+  modal('新增邮件群',
+    `<div class="frow"><label>群名称</label><input class="ipt" id="mGName" placeholder="如：陈氏餐饮"></div>
+     <div class="frow"><label>邮箱地址</label><input class="ipt" id="mGMail" placeholder="orders@example.com"></div>`,
+    `<button class="btn ghost" onclick="closeModal()">取消</button><button class="btn pri" onclick="doAddEmailGroup()">确定</button>`);
+}
+async function doAddEmailGroup(){
+  const name=document.getElementById('mGName').value.trim(), email=document.getElementById('mGMail').value.trim();
+  if(!name||!email){ toast('请填写完整',true); return; }
+  try{ await api('/api/groups/email',{method:'POST',body:JSON.stringify({name,email})}); closeModal(); await ensureGroups(true); V().innerHTML=renderGroups(); toast('已新增邮件群'); }
+  catch(e){ toast(e.message,true); }
+}
+
+/* ============ 报价单 ============ */
+let smFilter={keyword:'',status:''};
+async function loadSalemenus(){
+  const qs=new URLSearchParams(Object.entries(smFilter).filter(([k,v])=>v)).toString();
+  const d=await api('/api/salemenus'+(qs?'?'+qs:'')); S.salemenus=d.salemenus; S.smStats=d.stats;
+}
+function renderSalemenu(){
+  const rows=S.salemenus.map(s=>`<tr>
+    <td>${s.id}</td>
+    <td style="font-weight:500">${esc(s.name)}</td>
+    <td>${s.customer_count?s.customer_count+' 个':'无'}</td>
+    <td>${s.sku_count}</td>
+    <td style="color:var(--t3)">${s.synced_at}</td>
+    <td><span class="badge ${s.status==='启用'?'done':'gray'}">${s.status}</span></td>
+    <td class="op-links"><a onclick="smDetail('${s.id}')">详情</a><a onclick="smToggle('${s.id}')">${s.status==='启用'?'禁用':'启用'}</a><a onclick="smSync('${s.id}')">同步</a></td>
+  </tr>`).join('');
+  return `<div class="wrap">
+    <div class="filters" style="grid-template-columns:1fr 1fr auto">
+      <div class="fld"><label>报价单名称</label><input class="ipt" placeholder="名称 / ID" value="${esc(smFilter.keyword)}" onchange="smFilter.keyword=this.value"></div>
+      <div class="fld"><label>状态</label><select onchange="smFilter.status=this.value">
+        <option value="">全部</option><option ${smFilter.status==='启用'?'selected':''}>启用</option><option ${smFilter.status==='停用'?'selected':''}>停用</option></select></div>
+      <div class="fld acts"><button class="btn pri" onclick="go('salemenu')">查 询</button><button class="btn ghost" onclick="smFilter={keyword:'',status:''};go('salemenu')">重 置</button></div>
+    </div>
+    <div class="listcard">
+      <div class="lc-head">
+        <div class="statbar">总报价单 <b>${S.smStats.total}</b><span class="sep">|</span>活跃 <b>${S.smStats.active}</b><span class="sep">|</span>关联客户 <b>${S.smStats.customers}</b><span class="sep">|</span>SKU 总数 <b>${S.smStats.sku}</b></div>
+        <div class="sp"></div>
+        <button class="btn ghost" onclick="batchSync()">批量同步报价单</button>
+        <button class="btn ghost" onclick="go('salemenu')">刷 新</button>
+      </div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>报价单 ID</th><th>报价单名称</th><th>关联客户</th><th>SKU 数量</th><th>同步时间</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody>${rows||'<tr><td colspan="7" class="empty">暂无报价单</td></tr>'}</tbody>
+      </table></div>
+      <div class="pagefoot"><span>共 ${S.salemenus.length} 个报价单</span><div class="pg"><span>1</span> 20 条/页</div></div>
+    </div>
+  </div>`;
+}
+async function smSync(id){ loading(true); try{ const d=await api('/api/salemenus/'+id+'/sync',{method:'POST',body:'{}'}); toast('同步完成 '+d.synced_at); await loadSalemenus(); V().innerHTML=renderSalemenu(); }catch(e){toast(e.message,true);} loading(false); }
+async function smToggle(id){ try{ const d=await api('/api/salemenus/'+id+'/toggle',{method:'POST',body:'{}'}); toast('已'+d.status); await loadSalemenus(); V().innerHTML=renderSalemenu(); }catch(e){toast(e.message,true);} }
+async function batchSync(){ loading(true); try{ for(const s of S.salemenus) await api('/api/salemenus/'+s.id+'/sync',{method:'POST',body:'{}'}); toast('已同步全部报价单'); await loadSalemenus(); V().innerHTML=renderSalemenu(); }catch(e){toast(e.message,true);} loading(false); }
+function smDetail(id){
+  const s=S.salemenus.find(x=>x.id===id);
+  const MOCK_SKUS=[['SKU88231','西红柿','斤','4.00'],['SKU88232','去皮土豆','斤','3.00'],['SKU88240','五花肉','斤','18.00'],
+    ['SKU88251','琵琶腿','只','3.50'],['SKU88266','大白菜','斤','1.50'],['SKU88270','上海青','斤','2.20'],['SKU88281','基围虾','斤','45.00']];
+  modal(`报价单详情 · ${esc(s.name)}`,
+    `<div class="frow"><label>报价单 ID</label><div>${s.id}</div></div>
+     <div class="frow"><label>SKU 数量</label><div>${s.sku_count}</div></div>
+     <div class="frow"><label>同步时间</label><div>${s.synced_at}</div></div>
+     <div style="margin:10px 0 6px;color:var(--t2)">SKU 抽样预览：</div>
+     <table class="kvtable"><thead><tr><th>SKU</th><th>品名</th><th>单位</th><th>报价(元)</th></tr></thead>
+     <tbody>${MOCK_SKUS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody></table>`,
+    `<button class="btn pri" onclick="closeModal()">知道了</button>`);
+}
+
+/* ============ 提示词 ============ */
+async function loadPrompts(){ const d=await api('/api/prompts'); S.prompts=d.prompts; }
+function renderPrompts(){
+  const rows=S.prompts.map(p=>`<tr>
+    <td style="font-weight:500">${esc(p.name)}</td>
+    <td><span class="badge ${p.type==='订单解析'?'processing':'merged'}">${p.type}</span></td>
+    <td class="txt-ell" style="max-width:230px" title="${esc(p.bound)}">${esc(p.bound)}</td>
+    <td><span class="sw ${p.enabled?'on':''}" onclick="togglePrompt(${p.id})"></span></td>
+    <td class="txt-ell" style="max-width:260px;color:var(--t3)" title="${esc(p.content)}">${esc(p.content.slice(0,80))}…</td>
+    <td style="color:var(--t3)">${p.updated_at.slice(0,16)}</td>
+    <td class="op-links"><a onclick="editPrompt(${p.id})">编辑</a><a class="del" onclick="delPrompt(${p.id})">删除</a></td>
+  </tr>`).join('');
+  return `<div class="wrap">
+    <div class="listcard">
+      <div class="lc-head">
+        <div class="stabs" style="padding:0">
+          <div class="stab ${S.promptTab==='客户提示词'?'on':''}" onclick="S.promptTab='客户提示词';V().innerHTML=renderPrompts()">客户提示词</div>
+          <div class="stab" onclick="notImpl('系统提示词')">系统提示词</div>
+        </div>
+        <span style="color:var(--t3)">总模板 <b style="color:var(--t1)">${S.prompts.length}</b></span>
+        <div class="sp"></div>
+        <button class="btn ghost" onclick="notImpl('导入模版')">导入模版</button>
+        <button class="btn ghost" onclick="notImpl('AI 预识别')">AI 预识别</button>
+        <button class="btn pri" onclick="editPrompt()">新建模板</button>
+      </div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>模板名称</th><th>类型</th><th>绑定客户</th><th>状态</th><th>Prompt 预览</th><th>更新时间</th><th>操作</th></tr></thead>
+        <tbody>${rows||'<tr><td colspan="7" class="empty">暂无模板</td></tr>'}</tbody>
+      </table></div>
+      <div class="pagefoot"><span>共 ${S.prompts.length} 个模板</span><div class="pg"><span>1</span> 20 条/页</div></div>
+    </div>
+  </div>`;
+}
+async function togglePrompt(id){ try{ const d=await api('/api/prompts/'+id+'/toggle',{method:'POST',body:'{}'}); toast(d.enabled?'已启用':'已禁用'); await loadPrompts(); V().innerHTML=renderPrompts(); }catch(e){toast(e.message,true);} }
+async function delPrompt(id){ if(!confirm('确认删除该模板？'))return; try{ await api('/api/prompts/'+id,{method:'DELETE'}); toast('已删除'); await loadPrompts(); V().innerHTML=renderPrompts(); }catch(e){toast(e.message,true);} }
+function editPrompt(id){
+  const p=id?S.prompts.find(x=>x.id===id):{name:'',type:'订单解析',bound:'全部客户',content:''};
+  modal(id?'编辑模板':'新建模板',
+    `<div class="frow"><label>模板名称</label><input class="ipt" id="mPName" value="${esc(p.name)}" placeholder="如：默认文本订单解析"></div>
+     <div class="frow"><label>类型</label><select class="ipt" id="mPType">${['订单解析','意图识别'].map(t=>`<option ${p.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+     <div class="frow"><label>绑定客户</label><input class="ipt" id="mPBound" value="${esc(p.bound)}"></div>
+     <div class="frow"><label>Prompt</label><textarea class="ipt" id="mPContent" placeholder="输入提示词内容…">${esc(p.content)}</textarea></div>`,
+    `<button class="btn ghost" onclick="closeModal()">取消</button><button class="btn pri" onclick="savePrompt(${id||0})">保存</button>`);
+}
+async function savePrompt(id){
+  const body={name:document.getElementById('mPName').value.trim(),type:document.getElementById('mPType').value,
+    bound:document.getElementById('mPBound').value.trim()||'全部客户',content:document.getElementById('mPContent').value};
+  if(!body.name){ toast('请填写模板名称',true); return; }
+  try{ await api(id?'/api/prompts/'+id:'/api/prompts',{method:id?'PUT':'POST',body:JSON.stringify(body)});
+    closeModal(); toast('已保存'); await loadPrompts(); V().innerHTML=renderPrompts(); }catch(e){ toast(e.message,true); }
+}
+
+/* ============ AI 记忆 ============ */
+async function loadMemory(){ const d=await api('/api/memory'); S.memory=d.memory; }
+function renderMemory(){
+  const rows=S.memory.map(m=>`<tr>
+    <td>${m.customer_id}</td>
+    <td style="font-weight:500">${esc(m.customer_name)}</td>
+    <td>${m.fix}</td><td>${m.habit}</td><td>${m.fav}</td><td>${m.orders}</td>
+    <td style="color:var(--t3)">${m.last_order}</td><td style="color:var(--t3)">${m.updated}</td>
+    <td><a onclick="memDetail('${m.customer_id}')">查看详情</a></td>
+  </tr>`).join('');
+  return `<div class="wrap">
+    <div class="listcard">
+      <div class="lc-head">
+        <div class="stabs" style="padding:0">
+          <div class="stab on">客户记忆</div>
+          <div class="stab" onclick="notImpl('群聊记忆')">群聊记忆</div>
+        </div>
+        <div class="sp"></div>
+        <span style="color:var(--t3)">记忆随每次录单自动累积，用于提升识别准确率</span>
+      </div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>客户 ID</th><th>客户名称</th><th>商品修正</th><th>下单习惯</th><th>常购商品</th><th>累计订单</th><th>最近下单</th><th>最近更新</th><th>操作</th></tr></thead>
+        <tbody>${rows||'<tr><td colspan="9" class="empty">暂无记忆数据</td></tr>'}</tbody>
+      </table></div>
+      <div class="pagefoot"><span>共 ${S.memory.length} 个客户</span><div class="pg"><span>1</span> 20 条/页</div></div>
+    </div>
+  </div>`;
+}
+async function memDetail(cid){
+  loading(true);
+  try{
+    const d=await api('/api/memory/'+cid);
+    const fixes=Object.entries(d.correction_rules).slice(0,12);
+    modal(`AI 记忆 · ${esc(d.customer_name)}`,
+      `<div style="margin-bottom:6px;color:var(--t2);font-weight:600">🔧 商品修正规则（识别时自动应用）</div>
+       <table class="kvtable"><thead><tr><th>客户说法</th><th></th><th>标准商品</th></tr></thead>
+       <tbody>${fixes.map(([k,v])=>`<tr><td>${esc(k)}</td><td>→</td><td style="color:var(--blue)">${esc(v)}</td></tr>`).join('')||'<tr><td colspan="3">暂无</td></tr>'}</tbody></table>
+       <div style="margin:14px 0 6px;color:var(--t2);font-weight:600">🕓 下单习惯</div>
+       ${d.habits.map(h=>`<div style="color:var(--t2)">· ${esc(h)}</div>`).join('')}
+       <div style="margin:14px 0 6px;color:var(--t2);font-weight:600">🛒 常购商品</div>
+       <div>${d.favorites.map(f=>`<span class="badge processing" style="margin:0 6px 6px 0;display:inline-block">${esc(f)}</span>`).join('')}</div>
+       <div style="margin:14px 0 6px;color:var(--t2);font-weight:600">📋 近期任务</div>
+       ${d.recent_tasks.map(t=>`<div style="color:var(--t3);font-size:12px">· ${t.created_at} — ${t.product_count} 项商品 <span class="badge ${t.status}" style="font-size:11px">${STATUS_TXT[t.status]||t.status}</span> ${t.xd_order_no||''}</div>`).join('')||'<div style="color:var(--t4)">暂无</div>'}`,
+      `<button class="btn pri" onclick="closeModal()">知道了</button>`);
+  }catch(e){ toast(e.message,true); }
+  loading(false);
+}
+
+/* ============ 设置 ============ */
+async function loadSettings(){ const d=await api('/api/settings'); S.settings=d.settings; S.settingsOps=d.operators; }
+function renderSettings(){
+  const tabs=['成员管理','信道设置','回复设置','通知设置'];
+  let body='';
+  if(S.setTab==='成员管理'){
+    const rows=S.settingsOps.map(o=>`<tr>
+      <td>${o.username}</td><td>${esc(o.display_name)}</td>
+      <td><span class="badge ${o.role==='管理员'?'processing':'gray'}">${o.role}</span></td>
+      <td><span class="badge done">启用</span></td>
+      <td class="op-links">${o.username==='admin'?'—':`<a onclick="pwdModal('${o.username}')">改密码</a><a class="del" onclick="delOp('${o.username}')">删除</a>`}</td>
+    </tr>`).join('');
+    body=`<div class="lc-head" style="padding:0 0 14px">
+        <div class="statbar">总操作员 <b>${S.settingsOps.length}</b><span class="sep">|</span>已启用 <b>${S.settingsOps.length}</b></div>
+        <div class="sp"></div><button class="btn pri" onclick="addOpModal()">新增操作员</button></div>
+      <table><thead><tr><th>用户名</th><th>姓名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }else if(S.setTab==='信道设置'){
+    const c=S.settings.channel;
+    body=setSw('微信机器人','接收微信群消息并自动创建录单任务','channel.wx_bot',c.wx_bot)
+        +setSw('邮件信道','监听邮件群，附件自动进入识别队列','channel.email',c.email)
+        +setSw('API / Webhook','第三方系统推单接入（企业版）','channel.api_webhook',c.api_webhook);
+  }else if(S.setTab==='回复设置'){
+    const r=S.settings.reply;
+    body=setSw('自动回复','收到消息后自动回复确认','reply.auto_reply',r.auto_reply)
+        +setSw('下单成功回执','确认下单后向群内发送回执','reply.reply_after_confirm',r.reply_after_confirm)
+        +`<div class="setrow"><div class="st"><b>回执模板</b><span>支持变量 {count} {order_no}</span></div>
+          <textarea onchange="S.settings.reply.reply_template=this.value">${esc(r.reply_template)}</textarea></div>
+          <div style="text-align:right;padding-top:12px"><button class="btn pri" onclick="saveSettings()">保存设置</button></div>`;
+  }else{
+    const n=S.settings.notify;
+    body=setSw('每日日报','每天 18:00 推送录单统计日报','notify.daily_report',n.daily_report)
+        +setSw('识别失败提醒','任务识别失败时立即通知审核员','notify.fail_alert',n.fail_alert)
+        +setSw('额度不足提醒','录单额度低于 10% 时提醒','notify.quota_alert',n.quota_alert);
+  }
+  return `<div class="wrap">
+    <div class="settabs">${tabs.map(t=>`<span class="${S.setTab===t?'on':''}" onclick="S.setTab='${t}';V().innerHTML=renderSettings()">${t}</span>`).join('')}</div>
+    <div class="setbody">${body}</div>
+  </div>`;
+}
+function setSw(title,desc,path,on){
+  return `<div class="setrow"><div class="st"><b>${title}</b><span>${desc}</span></div>
+    <span class="sw ${on?'on':''}" onclick="toggleSetting('${path}',this)"></span></div>`;
+}
+async function toggleSetting(path,el){
+  const [a,b]=path.split('.');
+  S.settings[a][b]=!S.settings[a][b];
+  el.classList.toggle('on',S.settings[a][b]);
+  try{ await api('/api/settings',{method:'PUT',body:JSON.stringify({settings:S.settings})}); toast('已保存'); }
+  catch(e){ toast(e.message,true); }
+}
+async function saveSettings(){
+  try{ await api('/api/settings',{method:'PUT',body:JSON.stringify({settings:S.settings})}); toast('设置已保存'); }
+  catch(e){ toast(e.message,true); }
+}
+function addOpModal(){
+  modal('新增操作员',
+    `<div class="frow"><label>用户名</label><input class="ipt" id="mOUser" placeholder="登录用户名"></div>
+     <div class="frow"><label>姓名</label><input class="ipt" id="mOName" placeholder="显示姓名"></div>
+     <div class="frow"><label>角色</label><select class="ipt" id="mORole"><option>操作员</option><option>管理员</option></select></div>`,
+    `<button class="btn ghost" onclick="closeModal()">取消</button><button class="btn pri" onclick="doAddOp()">确定</button>`);
+}
+async function doAddOp(){
+  const username=document.getElementById('mOUser').value.trim(), display_name=document.getElementById('mOName').value.trim();
+  if(!username||!display_name){ toast('请填写完整',true); return; }
+  try{ await api('/api/operators',{method:'POST',body:JSON.stringify({username,display_name,role:document.getElementById('mORole').value})});
+    closeModal(); toast('已新增'); await loadSettings(); V().innerHTML=renderSettings(); }catch(e){ toast(e.message,true); }
+}
+async function delOp(u){ if(!confirm('确认删除操作员 '+u+'？'))return;
+  try{ await api('/api/operators/'+u,{method:'DELETE'}); toast('已删除'); await loadSettings(); V().innerHTML=renderSettings(); }catch(e){toast(e.message,true);} }
+function pwdModal(u){
+  modal('修改密码 · '+u,
+    `<div class="frow"><label>新密码</label><input type="password" class="ipt" id="mPwd" placeholder="输入新密码"></div>
+     <div class="frow"><label>确认密码</label><input type="password" class="ipt" id="mPwd2" placeholder="再次输入"></div>`,
+    `<button class="btn ghost" onclick="closeModal()">取消</button><button class="btn pri" onclick="doPwd()">确定</button>`);
+}
+function doPwd(){
+  const a=document.getElementById('mPwd').value, b=document.getElementById('mPwd2').value;
+  if(!a){ toast('请输入新密码',true); return; }
+  if(a!==b){ toast('两次输入不一致',true); return; }
+  closeModal(); toast('密码已更新');
+}
+
+/* ============ 静态演示模式（无后端也能完整运行，GitHub Pages 直接访问） ============ */
+/* 打开页面时探测 /api/health：后端在线走真实 FastAPI；探测失败自动切到浏览器内模拟数据层
+   （localStorage 持久化）+ 智谱 GLM 浏览器直调（官方接口已开放 CORS），全部功能闭环不变。 */
+const GLM={key:'',base:'https://open.bigmodel.cn/api/paas/v4'};
+const DB_KEY='xd_demo_db_v1';
+const RULES={
+  product_mapping:{"土豆":"马铃薯","西红柿":"番茄","洋芋":"马铃薯","落苏":"茄子","凉瓜":"苦瓜","洋柿子":"番茄","王瓜":"黄瓜","文旦":"柚子","提子":"葡萄","甘蕉":"香蕉","洋莓":"草莓","凤梨":"菠萝","石刁柏":"芦笋","菜椒":"青椒","菜花":"花椰菜","葱头":"洋葱","白虾":"鲜虾","九孔":"鲍鱼","白肉":"鸡肉","黄牛肉":"牛肉"},
+  correction_rules:{"九王":"韭黄","韭黄":"韭黄","落苏":"茄子","凉瓜":"苦瓜","洋柿子":"番茄","王瓜":"黄瓜","文旦":"柚子","提子":"葡萄","甘蕉":"香蕉","洋莓":"草莓","凤梨":"菠萝","石刁柏":"芦笋","菜椒":"青椒","菜花":"花椰菜","葱头":"洋葱","白虾":"鲜虾","九孔":"鲍鱼","白肉":"鸡肉","黄牛肉":"牛肉"}};
+let DB=null;
+const C=o=>JSON.parse(JSON.stringify(o));
+const P2=n=>String(n).padStart(2,'0');
+function fmtDate(d){ return d.getFullYear()+'-'+P2(d.getMonth()+1)+'-'+P2(d.getDate())+' '+P2(d.getHours())+':'+P2(d.getMinutes())+':'+P2(d.getSeconds()); }
+function mkId(){ const d=new Date(); return 'T'+d.getFullYear()+P2(d.getMonth()+1)+P2(d.getDate())+P2(d.getHours())+P2(d.getMinutes())+P2(d.getSeconds())+String(Date.now()%1000).padStart(3,'0'); }
+function xdNo(){ const d=new Date(); return 'XD'+String(d.getFullYear()%100)+P2(d.getMonth()+1)+P2(d.getDate())+String(Date.now()%100000).padStart(5,'0'); }
+function defaultGroup(storeName,storeId,items,remark){ const d=new Date(Date.now()+864e5);
+  return {store_name:storeName,store_id:storeId||'',deliver_date:d.getFullYear()+'-'+P2(d.getMonth()+1)+'-'+P2(d.getDate()),
+    time_start:'06:00',time_end:'22:30',remark:remark||'',tag:'',status:'待确定',items}; }
+function countItems(groups){ return groups.reduce((s,g)=>s+(g.items||[]).length,0); }
+function resetDemo(){ localStorage.removeItem(DB_KEY); location.reload(); }
+
+/* ---- 种子数据（与后端 order_flow.py 完全一致） ---- */
+const SEED_CUST=[
+  ["S3918695","城隍阁","华南订货群-BD","杭州市上城区河坊街12号","0571-8766驿",3077,"订单备注"],
+  ["S3877821","南山云厨餐饮","陈氏餐饮","深圳市南山区科技园南路8号","0755-2660小",3077,"订单备注"],
+  ["S3920057","盛京东北商贸","","沈阳市铁西区建设东路45号","-",3077,"SPU备注"],
+  ["S3877081","华南中心小学（老师）","华南小学订单群","广州市天河区华南路33号","-",671,"订单备注"],
+  ["S3886604","华南中心小学（老师）","华南小学订单群","广州市天河区华南路33号","-",3077,"合并"],
+  ["S3883292","华南中心小学（老师\\蔬菜水果）","华南小学订单群","广州市天河区华南路33号","-",671,"订单备注"],
+  ["S3877082","华南中心小学（学生）","华南小学订单群","广州市天河区华南路33号","-",671,"订单备注"],
+  ["S3872145","李四小学","华南订货群-BD","佛山市顺德区龙江镇文华路9号","-",472,"订单备注"],
+  ["S3920066","鸟鹏","","-","-",3077,"SPU备注"],
+  ["S3885587","容桂渔人码头","华南订货群-BD","佛山市顺德区容桂渔人码头","0757-2833鱼",3077,"订单备注"],
+  ["S3885513","桐乡市振东小学","振东小学配送群","嘉兴桐乡市振东新区校场东路","-",66,"订单备注"],
+  ["S3885516","桐乡市振东小学-老师晚餐","振东小学配送群","嘉兴桐乡市振东新区校场东路","-",66,"订单备注"],
+  ["S3886488","桐乡市振东小学-老师早餐","","嘉兴桐乡市振东新区校场东路","-",66,"合并"],
+  ["S3885515","桐乡市振东小学-老师中餐","振东小学配送群","嘉兴桐乡市振东新区校场东路","-",66,"订单备注"],
+  ["S3885514","桐乡市振东小学-学生中餐","振东小学配送群","嘉兴桐乡市振东新区校场东路","-",66,"订单备注"],
+  ["S3872360","小饼干烘焙店","华南订货群-BD","-","-",66,"SPU备注"],
+  ["S3886489","训练队早餐","","-","-",66,"订单备注"],
+  ["S3875045","毅服","华南订货群-BD","东莞市长安镇乌沙社区兴二路","-",95,"订单备注"],
+  ["S3866322","张三超市","张三的群","长沙市岳麓区麓山南路21号","137****2211",3077,"订单备注"],
+  ["S3866321","张三大排档","张三的群","长沙市天心区黄兴南路夜市街","137****2211",3077,"订单备注"],
+  ["S3866323","张三面馆","张三的群","长沙市芙蓉区五一大道88号","137****2211",472,"订单备注"],
+  ["S3866320","张三水果","张三的群","长沙市雨花区红星水果批发市场","137****2211",385,"订单备注"],
+  ["S3866324","张三小学第二食堂","张三的群","长沙市开福区湘江北路100号","-",671,"合并"],
+  ["S3866325","张三猪肉档","张三的群","长沙市雨花区红星农副产品大市场","137****2211",95,"订单备注"]];
+const SEED_GRP=[["华南小学订单群","微信",2,4,"王芳 (wangfang)",0],["融湖大汤家青菜","微信",3,4,"刘超 (liuchao)",0],
+  ["陈氏餐饮/chenshi.orders@example.com","邮件",0,1,"全部操作员",0],["振东小学配送群","微信",4,6,"全部操作员",0],
+  ["华南订货群-BD","微信",93,16,"赵敏 (zhaomin)",0],["张三的群","微信",8,6,"系统管理员",0]];
+const SEED_SM=[["S14114","123324",0,0,"启用"],["S9318","默认报价单",12,3077,"启用"],["S9400","华东一部专用",6,66,"启用"],
+  ["S9911","李四的报价单",1,472,"启用"],["S10286","学校食堂",0,385,"启用"],["S10309","毅服报价单",1,95,"启用"],
+  ["S10340","小-喜茶报价单",2,5,"启用"],["S10467","海慧食堂",3,671,"启用"],["S10597","小A",0,385,"启用"]];
+const SEED_PRM=[
+  ["特殊模板格式","订单解析","李四小学、桐乡市振东小学-老师中餐、张三超市 等 16 个客户",1,"你是订单解析专家，请严格按照以下思维链步骤解析订单，确保输出准确、完整、格式统一。\n### 步骤0：全局判断与预处理\n- 识别订单整体为单列表格还是多列并排表格\n- 剔除页眉页脚、水印、无关说明文字\n### 步骤1：商品行识别\n- 每行提取：商品名称、数量、单位、单价、金额、备注\n### 步骤2：输出\n- 严格输出 JSON items 数组，不得添加多余文字"],
+  ["鸟鹏","订单解析","城隍阁、容桂渔人码头 等 15 个客户",1,"你是一个订单解析专家，请严格按照以下思维链步骤解析订单。本提示词专为“鸟鹏.xlsx”此类版式的订单设计。\n### 步骤0：整体版式与数据定位\n- 识别表头行与数据起始行\n- 列映射：品名→product_name，数量→quantity"],
+  ["两列Excel模板","订单解析","城隍阁、张三大排档 等 15 个客户",1,"你是一个订单解析专家。请严格按照以下思维链步骤解析订单，确保提取准确、结构清晰。\n### 步骤0：全局观察与预处理\n- 识别文件为Excel表格，主要数据集中在前两列"],
+  ["备注填商品","订单解析","城隍阁、桐乡市振东小学-老师中餐 等 15 个客户",1,"# 食材入库单PARSING提示词\n## 思维链解析步骤\n步骤0【版式确认】：识别当前文档为「食材入库单」，整体为2组并列竖列组\n步骤1【逐行提取】：名称/数量/单位/单价/金额"],
+  ["意图识别2","意图识别","城隍阁、张三大排档 等 15 个客户",1,"# 订单解析Pipeline·意图识别\n判断用户消息属于：下单 / 改单 / 催货 / 闲聊 / 询价\n输出 intent 字段与置信度"],
+  ["默认文本订单解析","订单解析","全部客户",1,"从用户口语化文本中提取商品、数量、单位、单价、总价、备注，输出 JSON items 数组；数量单位保留原文；无价格时置 null"]];
+const SEED_OPS=[["zhaomin","赵敏","操作员",1],["admin","系统管理员","管理员",1],["liuchao","刘超","操作员",1],["wangfang","王芳","操作员",1]];
+const MOCK_MEM={"S3866320":[27,13,223,339],"S3866321":[29,41,248,542],"S3866322":[14,6,193,230],"S3866323":[8,1,34,39],
+  "S3866324":[6,0,97,124],"S3866325":[8,0,88,106],"S3872145":[6,3,47,61],"S3872360":[3,0,4,9],
+  "S3877081":[0,1,26,29],"S3877821":[20,13,180,277],"S3883292":[0,0,4,8],"S3885513":[1,0,1,1],
+  "S3885514":[2,1,2,2],"S3885515":[2,3,5,5],"S3885587":[1,3,7,7],"S3886489":[0,1,3,3],
+  "S3886604":[4,10,59,61],"S3918695":[1,0,1,1]};
+const MOCK_SETTINGS={channel:{wx_bot:true,email:true,api_webhook:false},
+  reply:{auto_reply:true,reply_after_confirm:true,reply_template:"您好，订单已录入系统，共{count}项商品，鲜达单号{order_no}，请核对。"},
+  notify:{daily_report:true,fail_alert:true,quota_alert:false}};
+const SEED_TASKS=[
+  ["华南小学订单群","S3877081","华南中心小学（老师）","pending","菜单.xlsx","--- 2026-07-03 / 华南中心小学（老师） ---\n猪肉:14斤\n酸菜:10斤\n鸡肉:3斤\n葡萄:7斤",
+   [["猪肉","鲜猪肉丝",14,"斤",24,336],["酸菜","酸菜",10,"斤",2,20],["鸡肉","东洋鸡肉早餐肠",3,"斤",50,150],["葡萄","葡萄",7,"斤",36,252]],13],
+  ["华南订货群-BD","S3877821","南山云厨餐饮","pending","","南山云厨餐饮 酸菜10斤，土豆30斤，西红柿15斤",
+   [["酸菜","酸菜",10,"斤",2,20],["土豆","去皮土豆",30,"斤",3,90],["西红柿","西红柿",15,"斤",4,60]],34],
+  ["张三的群","S3866322","张三超市","pending","","张三超市：五花肉100斤，排骨80斤，大白菜200斤",
+   [["五花肉","五花肉",100,"斤",18,1800],["排骨","精排骨",80,"斤",22,1760],["大白菜","大白菜",200,"斤",1.5,300]],55],
+  ["振东小学配送群","S3885514","桐乡市振东小学-学生中餐","done","","学生中餐：鸡腿240只，米饭套餐300份，青菜80斤",
+   [["鸡腿","琵琶腿",240,"只",3.5,840],["米饭套餐","学生餐A套",300,"份",8,2400],["青菜","上海青",80,"斤",2.2,176]],130],
+  ["华南订货群-BD","S3885587","容桂渔人码头","done","","渔人码头：鲈鱼30条，基围虾15斤，花甲20斤，姜葱适量",
+   [["鲈鱼","鲜活鲈鱼",30,"条",22,660],["基围虾","基围虾",15,"斤",45,675],["花甲","花甲",20,"斤",12,240],["姜葱","姜葱组合",1,"份",10,10]],190],
+  ["华南小学订单群","S3877082","华南中心小学（学生）","failed","","@#￥%……&*（无法识别的乱码内容）",[],260],
+  ["张三的群","S3866321","张三大排档","pending","","大排档补货：牛肉50斤，羊肉30斤，啤酒10箱，花生米20包",
+   [["牛肉","黄牛肉",50,"斤",42,2100],["羊肉","带皮羊肉",30,"斤",38,1140],["啤酒","青岛啤酒(箱)",10,"箱",48,480],["花生米","花生米",20,"包",6,120]],300]];
+
+function seedDB(){
+  const now=fmtDate(new Date());
+  const db={ver:1,
+    customers:SEED_CUST.map(r=>({customer_id:r[0],name:r[1],wx_group_name:r[2],address:r[3],phone:r[4],sku_count:r[5],priority:r[6]})),
+    groups:SEED_GRP.map((r,i)=>({id:i+1,name:r[0],type:r[1],members:r[2],customer_count:r[3],reviewer:r[4],muted:r[5]})),
+    nextGroupId:SEED_GRP.length+1,
+    salemenus:SEED_SM.map(r=>({id:r[0],name:r[1],customer_count:r[2],sku_count:r[3],status:r[4],synced_at:now})),
+    prompts:SEED_PRM.map((r,i)=>({id:i+1,name:r[0],type:r[1],bound:r[2],enabled:r[3],content:r[4],updated_at:now})),
+    nextPromptId:SEED_PRM.length+1,
+    operators:SEED_OPS.map(r=>({username:r[0],display_name:r[1],role:r[2],enabled:r[3]})),
+    settings:C(MOCK_SETTINGS), tasks:[]};
+  SEED_TASKS.forEach((s,k)=>{
+    const [grp,cid,cname,status,fname,msg,rows,mins]=s;
+    const items=rows.map((r,i)=>({seq:i+1,raw_text:r[0],product_name:r[1],qty:r[2],unit:r[3],price:r[4],total:r[5],remark:'',sku:'',warning:false}));
+    const groups=items.length?[defaultGroup(cname,cid,items)]:[];
+    let xd='';
+    if(status==='done'&&groups.length){ groups.forEach(g=>g.status='已提交'); xd='XD2607020'+String(1000+k*7).slice(1); }
+    db.tasks.push({id:mkId()+k,status,created_at:fmtDate(new Date(Date.now()-mins*60000)),wx_group_name:grp,
+      customer_id:cid,customer_name:cname,operator:status==='done'?'系统管理员':'未分配',reviewer:'',
+      original_message:msg,original_file:fname,xd_order_no:xd,product_count:countItems(groups),groups});
+  });
+  return db;
+}
+function initMockDB(){
+  try{ const raw=localStorage.getItem(DB_KEY); if(raw){ const d=JSON.parse(raw); if(d&&d.ver===1&&Array.isArray(d.tasks)){ DB=d; return; } } }catch(e){}
+  DB=seedDB(); saveDB();
+}
+function saveDB(){ try{ localStorage.setItem(DB_KEY,JSON.stringify(DB)); }catch(e){} }
+
+/* ---- GLM 浏览器直调 + 本地规则兜底解析 ---- */
+async function glmChat(payload,timeoutMs){
+  const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),timeoutMs||45000);
+  try{
+    const r=await fetch(GLM.base+'/chat/completions',{method:'POST',signal:ctl.signal,
+      headers:{'Authorization':'Bearer '+GLM.key,'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!r.ok) throw new Error('GLM HTTP '+r.status);
+    const d=await r.json(); return (d.choices[0].message.content||'').trim();
+  }finally{ clearTimeout(t); }
+}
+function stripFence(s){ if(s.includes('```')) s=s.includes('```json')?s.split('```json').pop().split('```')[0]:s.split('```')[1]; return s.trim(); }
+function fixName(n){ return RULES.correction_rules[n]||RULES.product_mapping[n]||n; }
+function itemsFromLLM(st){
+  return (st.items||[]).map((it,i)=>{
+    let qty=it.quantity,price=it.price,total=it.total_price;
+    if(total==null&&price!=null&&qty!=null){ const t=parseFloat(price)*parseFloat(qty); total=isNaN(t)?null:Math.round(t*100)/100; }
+    const raw=it.product_name||'';
+    return {seq:i+1,raw_text:raw,product_name:fixName(raw),qty:qty!=null?qty:'',unit:it.quantity_unit||'',
+      price:price!=null?price:'',total:total!=null?total:'',remark:(it.notes||[]).join('；'),sku:'',warning:!raw};
+  });
+}
+function localParse(text){
+  const UNITS='斤|千克|公斤|kg|克|g|箱|袋|份|个|只|条|包|盒|瓶|扎|把|捆|块|桶|罐|件|组|篮|筐|提|打|听|支|根|颗|粒|张';
+  const re=new RegExp('([\\u4e00-\\u9fa5A-Za-z]{1,12}?)\\s*[:：]?\\s*(\\d+(?:\\.\\d+)?)\\s*('+UNITS+')');
+  const items=[];
+  text.split(/[，,、;；。\n]+/).map(s=>s.trim()).filter(Boolean).forEach(seg=>{
+    const m=seg.match(re);
+    if(m){
+      let price=null;
+      const pm=seg.match(/(?:价格?|单价)\s*(\d+(?:\.\d+)?)\s*元?/)||seg.match(/(\d+(?:\.\d+)?)\s*元/);
+      if(pm) price=parseFloat(pm[1]);
+      items.push({product_name:m[1],quantity:parseFloat(m[2]),quantity_unit:m[3],price:price,total_price:null,notes:[]});
+    }else if(items.length){
+      const hit=items.find(it=>seg.includes(it.product_name));
+      (hit||items[items.length-1]).notes.push(seg);
+    }
+  });
+  return {items};
+}
+const TEXT_PROMPT='你是订单识别专家。从用户下单文本中提取所有商品信息。\n严格只输出 JSON，格式：\n{"items":[{"product_name":"商品名","quantity":数量数字,"quantity_unit":"单位","price":单价或null,"total_price":总价或null,"notes":["备注"]}]}\n数量单位保留原文（斤/千克/箱/袋/份等）。口语备注（如“切片”“要新鲜的”）放进对应商品 notes。识别不到商品时输出 {"items":[]}';
+const MOCK_VLM_PROMPT='你是订单识别专家。请识别图片中的订单/菜单/清单内容，提取所有商品信息。\n严格只输出 JSON，格式：\n{"items":[{"product_name":"商品名","quantity":数量数字,"quantity_unit":"单位","price":单价或null,"total_price":总价或null,"notes":["备注"]}]}\n数量单位保留原文（斤/千克/箱/袋/份等）。识别不到商品时输出 {"items":[]}';
+async function recognizeText(text){
+  let st=null;
+  try{
+    const ans=await glmChat({model:'glm-4-flash',temperature:0.1,max_tokens:1000,
+      messages:[{role:'user',content:TEXT_PROMPT+'\n\n用户文本：\n'+text}]});
+    st=JSON.parse(stripFence(ans));
+    if(Array.isArray(st)) st={items:st};
+  }catch(e){ st=localParse(text); }
+  if(!st||!Array.isArray(st.items)) st=localParse(text);
+  return itemsFromLLM(st);
+}
+function fileToB64(f){ return new Promise((res,rej)=>{ const r=new FileReader();
+  r.onload=()=>res(String(r.result).split(',')[1]); r.onerror=()=>rej(new Error('文件读取失败')); r.readAsDataURL(f); }); }
+async function recognizeImage(f){
+  const b64=await fileToB64(f);
+  const ans=await glmChat({model:'glm-4v-flash',temperature:0.1,max_tokens:1024,
+    messages:[{role:'user',content:[{type:'image_url',image_url:{url:b64}},{type:'text',text:MOCK_VLM_PROMPT}]}]},60000);
+  let st;
+  try{ st=JSON.parse(stripFence(ans)); if(Array.isArray(st)) st={items:st}; }catch(e){ st={items:[]}; }
+  return itemsFromLLM(st);
+}
+function loadXLSX(){
+  if(window.XLSX) return Promise.resolve();
+  return new Promise((res,rej)=>{ const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    s.onload=res; s.onerror=()=>rej(new Error('无法加载 Excel 解析组件（网络受限），请改用文字或图片下单'));
+    document.head.appendChild(s); });
+}
+async function excelToText(f){
+  await loadXLSX();
+  const buf=await f.arrayBuffer();
+  const wb=XLSX.read(buf,{type:'array'});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+  return rows.map(r=>r.map(v=>String(v).trim()).filter(Boolean).join(' ')).filter(Boolean).slice(0,60).join('\n');
+}
+
+/* ---- 智能问答（静态模式走 GLM 直调，失败回内置说明） ---- */
+const MOCK_GUIDE={
+  home:'首页：产品总览与工作台。顶部横幅是 8 大功能模块的快捷入口；「今日任务」实时统计待处理/已完成/失败单量（点击数字直达对应筛选的审核列表）；「录单额度」展示用量；「群聊看板」按群聊汇总今日单量与待处理数，点卡片直达该群的审核列表。',
+  luru:'订单录入：模拟客户在微信群/邮件里下单。左侧选客户或群聊，右侧对话框发一句话（如“牛肉20斤价格42元”）、传一张菜单照片（GLM-4V 视觉识别）或一个 Excel，AI 自动识别成结构化订单并生成待审核任务，点结果卡片可直接进入任务详情。',
+  shenhe:'订单审核：AI 识别结果的人工审核工作台。支持按状态/群聊/审核员/客户/关键词/日期多条件筛选；顶部有状态统计；可勾选多个任务「合单」、对识别失败的任务「重识别」、分配审核员、删除任务；点任意行进入任务详情。',
+  detail:'任务详情：单个录单任务的完整视图。左侧是原始消息（群聊气泡还原下单现场）；右侧订单分组可直接编辑商品/数量/单价/备注（总价自动计算），支持保存草稿、单组确认下单、全部确认下单——确认后生成鲜达单号，状态变为已完成。',
+  customers:'客户管理：维护下单客户档案。每个客户有编号、绑定群聊、SKU 同步数；核心是「备注优先级」（订单备注/SPU备注/合并），决定 AI 识别时备注写到哪一级，支持单个或勾选批量设置。',
+  groups:'群聊管理：管理接收订单的微信群/邮件群。可开关禁言（禁言后不再自动识别该群消息）、查看群详情（成员/绑定客户/审核员）、新增邮件群。',
+  salemenu:'报价单：客户可购商品与价格的来源。每个报价单挂着若干 SKU，可启用/停用、单个或批量「同步」（把最新商品价格同步给 AI 识别用）、点名称抽样预览 SKU。',
+  prompts:'提示词：AI 识别的大脑配置。订单解析模板决定怎么从文字/表格里抽商品，意图识别模板判断消息是下单还是闲聊；支持新建/编辑/启停/删除，不同客户可绑定不同模板以适配各家格式。',
+  memory:'AI 记忆：AI 越用越准的秘密。按客户维度统计商品修正/习惯/常买记录；点详情可看真实生效的修正规则（如“九王→韭黄”，存在 rules.json，识别时精确替换）和近期任务。',
+  settings:'设置：系统配置中心。成员管理（增删操作员/改密码）；信道开关（微信机器人/邮件/API）；自动回复模板（下单成功后回什么话）；通知开关。所有开关真实持久化。'};
+const MOCK_DOC='「鲜达 AI 智能订单助手」是一个生鲜 B2B SaaS 智能录单产品原型：客户在微信群里发一句话/一张图/一个 Excel，AI 自动识别成结构化订单，人工审核后一键下单生成鲜达单号。\n核心流程：订单录入（选客户→发消息→AI识别）→ 订单审核（筛选/合单/重识别）→ 任务详情（编辑商品→确认下单→出鲜达单号）。\n技术：文本识别走 GLM-4-flash，图片识别走 GLM-4V-flash 视觉模型，Excel 走前端解析+LLM；静态演示模式下数据存浏览器 localStorage 真实持久化。\n60秒演示路径：首页→订单录入→选「张三大排档」→输入“牛肉20斤价格42元，啤酒5箱，记得牛肉切片”→发送→去审核→改数量→全部确认下单→回列表看已完成+鲜达单号。\n各页面说明：\n'+Object.values(MOCK_GUIDE).map(v=>'- '+v).join('\n');
+
+/* ---- mock 路由：与后端 25+ 接口同形状 ---- */
+async function mockApi(path,opts){
+  const method=(opts.method||'GET').toUpperCase();
+  const u=new URL(path,'http://m');
+  const p=u.pathname.replace(/^\/api/,'');
+  const q=u.searchParams;
+  const fd=opts.body instanceof FormData?opts.body:null;
+  const body=(!fd&&opts.body)?JSON.parse(opts.body):{};
+  let m;
+
+  /* 客户 */
+  if(method==='GET'&&p==='/customers'){
+    const kw=q.get('keyword')||'',bind=q.get('bind')||'',pr=q.get('priority')||'';
+    const list=DB.customers.filter(c=>(!kw||c.name.includes(kw)||c.customer_id.includes(kw))
+      &&(bind!=='bound'||c.wx_group_name!=='')&&(bind!=='unbound'||c.wx_group_name==='')
+      &&(!pr||c.priority===pr)).slice().sort((a,b)=>a.customer_id<b.customer_id?-1:1);
+    return {customers:C(list),operators:['未分配'].concat(DB.operators.filter(o=>o.enabled).map(o=>o.display_name)),
+      stats:{total:DB.customers.length,bound:DB.customers.filter(c=>c.wx_group_name).length,synced:DB.customers.length}};
+  }
+  if(method==='PUT'&&p==='/customers/priority'){
+    (body.customer_ids||[]).forEach(cid=>{ const c=DB.customers.find(x=>x.customer_id===cid); if(c) c.priority=body.priority; });
+    saveDB(); return {success:true,count:(body.customer_ids||[]).length};
+  }
+
+  /* 任务 */
+  if(method==='POST'&&p==='/tasks'){
+    if(!(body.text||'').trim()) throw new Error('内容不能为空');
+    const items=await recognizeText(body.text);
+    return finishTask(body.wx_group_name||'',body.customer_id||'',body.customer_name,body.text,'',items);
+  }
+  if(method==='POST'&&p==='/tasks/upload'){
+    const f=fd.get('file');
+    const fname=(f&&f.name)||'上传文件';
+    if(f&&f.size>15*1024*1024) throw new Error('文件过大（≤15MB）');
+    const ext=(fname.match(/\.[^.]+$/)||[''])[0].toLowerCase();
+    let raw='',items=[];
+    if(['.jpg','.jpeg','.png','.bmp','.webp'].includes(ext)){ items=await recognizeImage(f); raw='[图片] '+fname; }
+    else if(['.xlsx','.xls'].includes(ext)){ const text=await excelToText(f); raw=text.slice(0,800); items=await recognizeText(text); }
+    else throw new Error('暂支持图片(jpg/png/webp)与Excel(xlsx/xls)；PDF识别开发中');
+    return finishTask(fd.get('wx_group_name')||'',fd.get('customer_id')||'',fd.get('customer_name')||'',raw,fname,items);
+  }
+  if(method==='POST'&&p==='/tasks/merge'){
+    const ids=body.task_ids||[];
+    if(ids.length<2) throw new Error('请选择至少 2 个任务进行合单');
+    const rows=ids.map(id=>DB.tasks.find(t=>t.id===id)).filter(Boolean);
+    if(rows.length<2) throw new Error('任务不存在或已被删除');
+    if(rows.some(r=>r.status!=='pending'&&r.status!=='failed')) throw new Error('只能合并「待处理/失败」状态的任务');
+    const allGroups=[],msgs=[];
+    rows.forEach(r=>{ allGroups.push(...C(r.groups||[])); if(r.original_message) msgs.push('【'+r.customer_name+'】'+r.original_message); });
+    const first=rows[0];
+    const t={id:mkId(),status:'pending',created_at:fmtDate(new Date()),wx_group_name:first.wx_group_name,
+      customer_id:first.customer_id,customer_name:first.customer_name+' 等'+rows.length+'单合并',operator:'未分配',reviewer:'',
+      original_message:msgs.join('\n---\n'),original_file:'',xd_order_no:'',product_count:countItems(allGroups),groups:allGroups};
+    DB.tasks.push(t); rows.forEach(r=>r.status='merged'); saveDB();
+    return {success:true,task:taskOut(t,true)};
+  }
+  if(method==='GET'&&p==='/tasks'){
+    const g=k=>q.get(k)||'';
+    const st=g('status'),cu=g('customer'),gr=g('group'),rv=g('reviewer'),kw=g('keyword'),df=g('date_from'),dt=g('date_to');
+    const list=DB.tasks.filter(t=>(!st||t.status===st)&&(!cu||t.customer_name.includes(cu))&&(!gr||(t.wx_group_name||'').includes(gr))
+      &&(!rv||t.operator===rv)
+      &&(!kw||(t.original_message||'').includes(kw)||(t.xd_order_no||'').includes(kw)||t.customer_name.includes(kw))
+      &&(!df||t.created_at>=df+' 00:00:00')&&(!dt||t.created_at<=dt+' 23:59:59'))
+      .slice().sort((a,b)=>a.created_at<b.created_at?1:-1);
+    const n=s=>DB.tasks.filter(t=>t.status===s).length;
+    return {tasks:list.map(t=>taskOut(t)),stats:{total:DB.tasks.length,pending:n('pending'),done:n('done'),failed:n('failed'),merged:n('merged')}};
+  }
+  if((m=p.match(/^\/tasks\/([^/]+)$/))){
+    if(method==='GET'){ return taskOut(findTask(m[1]),true); }
+    if(method==='PUT'){
+      const t=findTask(m[1]);
+      t.groups=body.groups||[]; t.product_count=countItems(t.groups);
+      if(body.operator!=null) t.operator=body.operator;
+      saveDB(); return taskOut(t,true);
+    }
+    if(method==='DELETE'){ DB.tasks=DB.tasks.filter(t=>t.id!==m[1]); saveDB(); return {success:true}; }
+  }
+  if((m=p.match(/^\/tasks\/([^/]+)\/confirm$/))&&method==='POST'){
+    const t=findTask(m[1]);
+    const groups=t.groups||[];
+    if(!groups.length) throw new Error('没有可下单的订单分组');
+    const targets=body.group_index==null?groups.map((_,i)=>i):[body.group_index];
+    targets.forEach(gi=>{ if(gi>=0&&gi<groups.length) groups[gi].status='已提交'; });
+    const allDone=groups.every(g=>g.status==='已提交');
+    if(allDone){ t.status='done'; if(!t.xd_order_no) t.xd_order_no=xdNo(); }
+    saveDB(); return {success:true,all_done:allDone,task:taskOut(t,true)};
+  }
+  if((m=p.match(/^\/tasks\/([^/]+)\/reidentify$/))&&method==='POST'){
+    const t=findTask(m[1]);
+    const items=await recognizeText(t.original_message||'');
+    t.groups=items.length?[defaultGroup(t.customer_name,t.customer_id,items)]:[];
+    t.status=items.length?'pending':'failed';
+    t.product_count=countItems(t.groups); t.xd_order_no='';
+    saveDB(); return {success:items.length>0,task:taskOut(t,true)};
+  }
+
+  /* 群聊 */
+  if(method==='GET'&&p==='/groups'){
+    const ty=q.get('type')||'',rv=q.get('reviewer')||'';
+    const list=DB.groups.filter(g=>(!ty||g.type===ty)&&(!rv||g.reviewer.includes(rv)));
+    return {groups:C(list),stats:{total:DB.groups.length,bound:DB.groups.length,muted:DB.groups.filter(g=>g.muted).length}};
+  }
+  if((m=p.match(/^\/groups\/(\d+)\/mute$/))&&method==='POST'){
+    const g=DB.groups.find(x=>x.id===+m[1]); if(!g) throw new Error('群聊不存在');
+    g.muted=g.muted?0:1; saveDB(); return {success:true,muted:!!g.muted};
+  }
+  if((m=p.match(/^\/groups\/(\d+)$/))&&method==='DELETE'){
+    DB.groups=DB.groups.filter(g=>g.id!==+m[1]); saveDB(); return {success:true};
+  }
+  if(method==='POST'&&p==='/groups/email'){
+    DB.groups.push({id:DB.nextGroupId++,name:body.name+'/'+body.email,type:'邮件',members:0,customer_count:0,reviewer:'全部操作员',muted:0});
+    saveDB(); return {success:true};
+  }
+
+  /* 报价单 */
+  if(method==='GET'&&p==='/salemenus'){
+    const kw=q.get('keyword')||'',st=q.get('status')||'';
+    const list=DB.salemenus.filter(s=>(!kw||s.name.includes(kw)||s.id.includes(kw))&&(!st||s.status===st));
+    return {salemenus:C(list),stats:{total:DB.salemenus.length,active:DB.salemenus.filter(s=>s.status==='启用').length,
+      customers:24,sku:DB.salemenus.reduce((a,s)=>a+s.sku_count,0)}};
+  }
+  if((m=p.match(/^\/salemenus\/([^/]+)\/sync$/))&&method==='POST'){
+    const s=DB.salemenus.find(x=>x.id===m[1]); if(!s) throw new Error('报价单不存在');
+    s.synced_at=fmtDate(new Date()); saveDB(); return {success:true,synced_at:s.synced_at};
+  }
+  if((m=p.match(/^\/salemenus\/([^/]+)\/toggle$/))&&method==='POST'){
+    const s=DB.salemenus.find(x=>x.id===m[1]); if(!s) throw new Error('报价单不存在');
+    s.status=s.status==='启用'?'停用':'启用'; saveDB(); return {success:true,status:s.status};
+  }
+
+  /* 提示词 */
+  if(method==='GET'&&p==='/prompts'){
+    const ty=q.get('type')||'';
+    const list=DB.prompts.filter(x=>!ty||x.type===ty).slice().sort((a,b)=>a.updated_at<b.updated_at?1:-1);
+    return {prompts:C(list)};
+  }
+  if(method==='POST'&&p==='/prompts'){
+    DB.prompts.push({id:DB.nextPromptId++,name:body.name,type:body.type||'订单解析',bound:body.bound||'全部客户',
+      enabled:1,content:body.content||'',updated_at:fmtDate(new Date())});
+    saveDB(); return {success:true};
+  }
+  if((m=p.match(/^\/prompts\/(\d+)$/))){
+    if(method==='PUT'){
+      const x=DB.prompts.find(o=>o.id===+m[1]);
+      if(x){ x.name=body.name; x.type=body.type||'订单解析'; x.bound=body.bound||'全部客户'; x.content=body.content||''; x.updated_at=fmtDate(new Date()); }
+      saveDB(); return {success:true};
+    }
+    if(method==='DELETE'){ DB.prompts=DB.prompts.filter(o=>o.id!==+m[1]); saveDB(); return {success:true}; }
+  }
+  if((m=p.match(/^\/prompts\/(\d+)\/toggle$/))&&method==='POST'){
+    const x=DB.prompts.find(o=>o.id===+m[1]); if(!x) throw new Error('模板不存在');
+    x.enabled=x.enabled?0:1; saveDB(); return {success:true,enabled:!!x.enabled};
+  }
+
+  /* AI 记忆 */
+  if(method==='GET'&&p==='/memory'){
+    const out=[];
+    DB.customers.slice().sort((a,b)=>a.customer_id<b.customer_id?-1:1).forEach(c=>{
+      const mm=MOCK_MEM[c.customer_id];
+      const mine=DB.tasks.filter(t=>t.customer_id===c.customer_id);
+      const local=mine.filter(t=>t.status!=='merged').length;
+      if(!mm&&!local) return;
+      const [fix,habit,fav,hist]=mm||[0,0,0,0];
+      const lt=mine.length?mine.map(t=>t.created_at).sort().pop():'07-02 13:58';
+      const disp=lt.length>12?lt.slice(5,16):lt;
+      out.push({customer_id:c.customer_id,customer_name:c.name,fix,habit,fav,orders:hist+local,last_order:disp,updated:disp});
+    });
+    return {memory:out};
+  }
+  if((m=p.match(/^\/memory\/([^/]+)$/))&&method==='GET'){
+    const c=DB.customers.find(x=>x.customer_id===m[1]);
+    const recent=DB.tasks.filter(t=>t.customer_id===m[1]).slice()
+      .sort((a,b)=>a.created_at<b.created_at?1:-1).slice(0,8)
+      .map(t=>({created_at:t.created_at,product_count:t.product_count,status:t.status,xd_order_no:t.xd_order_no||''}));
+    return {customer_id:m[1],customer_name:c?c.name:m[1],
+      product_mapping:C(RULES.product_mapping),correction_rules:C(RULES.correction_rules),
+      habits:['工作日 07:00 前下单居多','常用单位：斤 / 箱','价格敏感：低（很少议价）'],
+      favorites:['土豆','西红柿','五花肉','大白菜','鸡蛋'],recent_tasks:recent};
+  }
+
+  /* 设置 */
+  if(method==='GET'&&p==='/settings'){
+    return {settings:C(DB.settings),operators:C(DB.operators.slice().sort((a,b)=>a.username<b.username?-1:1))};
+  }
+  if(method==='PUT'&&p==='/settings'){ DB.settings=body.settings||DB.settings; saveDB(); return {success:true}; }
+  if(method==='POST'&&p==='/operators'){
+    if(DB.operators.some(o=>o.username===body.username)) throw new Error('用户名已存在');
+    DB.operators.push({username:body.username,display_name:body.display_name,role:body.role||'操作员',enabled:1});
+    saveDB(); return {success:true};
+  }
+  if((m=p.match(/^\/operators\/([^/]+)$/))&&method==='DELETE'){
+    if(m[1]==='admin') throw new Error('不能删除管理员');
+    DB.operators=DB.operators.filter(o=>o.username!==decodeURIComponent(m[1]));
+    saveDB(); return {success:true};
+  }
+
+  /* 智能问答 */
+  if(method==='POST'&&p==='/assistant'){
+    const tip=MOCK_GUIDE[body.page]||MOCK_GUIDE.home;
+    try{
+      const msgs=[{role:'system',content:'你是「鲜达 AI 智能订单助手」产品原型的内置导览助手，负责向体验者介绍每个页面是做什么的、怎么用。\n以下是产品完整说明：\n'+MOCK_DOC+'\n用户当前正停留在的页面：'+tip+'\n回答要求：中文、口语化、简洁（3~6句话为宜），优先结合用户当前页面回答；可以用少量换行分点；只基于以上说明回答，说明里没有的就坦率说这个原型没有该功能。'}];
+      (body.history||[]).slice(-6).forEach(h=>{ if((h.role==='user'||h.role==='assistant')&&h.content) msgs.push({role:h.role,content:String(h.content).slice(0,500)}); });
+      msgs.push({role:'user',content:String(body.question||'').slice(0,500)});
+      const answer=await glmChat({model:'glm-4-flash',messages:msgs,temperature:0.3,max_tokens:600});
+      return {success:true,answer};
+    }catch(e){
+      return {success:true,answer:'（离线模式）'+tip+'\n\n更多用法可点右下角「帮助文档」查看完整手册。'};
+    }
+  }
+
+  throw new Error('接口未实现：'+method+' '+p);
+}
+function findTask(tid){ const t=DB.tasks.find(x=>x.id===tid); if(!t) throw new Error('任务不存在'); return t; }
+function taskOut(t,full){
+  const o={id:t.id,status:t.status,created_at:t.created_at,wx_group_name:t.wx_group_name,customer_id:t.customer_id,
+    customer_name:t.customer_name,operator:t.operator,reviewer:t.reviewer,xd_order_no:t.xd_order_no||'',
+    product_count:t.product_count,original_message:t.original_message||'',original_file:t.original_file||''};
+  if(full) o.groups=C(t.groups||[]);
+  return o;
+}
+function finishTask(grp,cid,cname,msg,fname,items){
+  const status=items.length?'pending':'failed';
+  const groups=items.length?[defaultGroup(cname,cid,items)]:[];
+  const t={id:mkId(),status,created_at:fmtDate(new Date()),wx_group_name:grp,customer_id:cid,customer_name:cname,
+    operator:'未分配',reviewer:'',original_message:msg,original_file:fname,xd_order_no:'',
+    product_count:countItems(groups),groups};
+  DB.tasks.push(t); saveDB();
+  return {success:items.length>0,task:taskOut(t,true)};
+}
+
+/* 静态演示版：无后端可探测，直接进入浏览器内模拟数据层（避免加载期对不存在的 /api/health 发起请求产生控制台错误） */
+(async function boot(){
+  let ok=false;
+  if(!ok){
+    window.MOCK=true; initMockDB();
+    const b=document.querySelector('.topbar .brand');
+    if(b) b.insertAdjacentHTML('afterend','<span style="margin-left:8px;background:#fef3c7;color:#92400e;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap">静态演示模式</span>');
+  }
+  go('home');
+})();
+</script>
+</body>
+</html>

@@ -71,7 +71,7 @@ window.PORTFOLIO = {
       note: "生产版是多租户全栈平台（Next.js + tRPC + pgvector），规模大、依赖多；此处为专门制作的纯前端演示版，信息架构与生产版一致。"
     },
     {
-      id: "ai-order", tier: "A", statusLabel: "可运行 · 全栈",
+      id: "ai-order", tier: "A", statusLabel: "浏览器可跑 · 演示模式",
       title: "AI-Order 智能录单",
       subtitle: "LLM + OCR 多模态订单识别 · LangGraph · 2026",
       tags: ["mm", "orch", "scene", "fullstack", "arch"],
@@ -83,12 +83,11 @@ window.PORTFOLIO = {
         "FastAPI REST（图片/PDF/Excel/文本 四端点）+ Streamlit 交互界面 + 健康检查",
         "Docker 双容器（API + UI），开发 / 生产模式切换"
       ],
-      media: {
-        type: "plan",
-        arch: "输入（文本 / 图片 / PDF / Excel）\n        │  路由节点\n   ┌────┼──────┬────────┐\n 文本  图片OCR  PDF     Excel\n   └────┴──────┴────────┘\n        │ 规则检索（别名 / 历史修正）\n        ▼\n   LLM 识别（Qwen）→ 结构化 JSON 输出",
-        caption: "产品方案 · 观麦「智能录单」产品线（演示输入示例：食堂肉菜配送采购清单 · 演示数据）"
-      },
-      links: [{ label: "查看产品方案与演示 →", href: "./demos/ai-order.html", primary: true }]
+      media: { type: "iframe", src: "./ai-order-demo/", url: "AI 录单 · 静态演示", caption: "完整界面浏览器直跑（演示模式）：录单 / 审核 / 客户 / 报价单等模块可点可看。在线版未配置模型 Key，提交识别会提示失败；本地全栈版可完整跑通文字/图片/Excel 识别。" },
+      links: [
+        { label: "全屏打开演示 →", href: "./ai-order-demo/", primary: true },
+        { label: "产品方案图解", href: "./demos/ai-order.html" }
+      ]
     },
     {
       id: "caigou-cloud", tier: "A", statusLabel: "浏览器可跑 · 全栈",
