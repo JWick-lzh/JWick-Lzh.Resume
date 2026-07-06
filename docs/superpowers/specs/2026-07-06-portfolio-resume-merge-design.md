@@ -67,7 +67,7 @@ GitHub 号上只放一个项目：简历 + 作品集一体站（仓库 `JWick-lz
 
 - `boss` 条目：iframe 从 `./prototypes/boss-assistant.html` 升级为 `./boss/`（手机壳内嵌），直达链接同步。
 - `ai-order` 条目：从文字方案图升级为 iframe `./ai-order-demo/`，旧方案页 `./demos/ai-order.html` 保留作附链。
-- 新增「问答 Agent 平台」条目：iframe `./wenda/`，文案严格按简历口径（§7）。
+- 升级现有 `guanmai-platform` 条目为 iframe `./wenda/`（问答 Agent Platform 与观麦 AI Agent 平台是同一项目，不另立卡避免重复）。
 - 新增/调整「Product Agent GM Service」呈现：架构/方案卡 + 直达链接指向 `./product-agent/` 占位页。
 - `lobster` 条目：直达链接加 `./lobster/` 占位地址，iframe 暂不动。
 

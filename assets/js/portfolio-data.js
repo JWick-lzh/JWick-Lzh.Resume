@@ -50,7 +50,7 @@ window.PORTFOLIO = {
       ]
     },
     {
-      id: "guanmai-platform", tier: "A", statusLabel: "生产级 · 架构案例",
+      id: "guanmai-platform", tier: "A", statusLabel: "浏览器可跑 · 平台 Demo",
       title: "观麦 AI Agent 平台",
       subtitle: "企业级多租户 Agent 底座 · AI 产品负责人 · 2026.04–至今",
       tags: ["arch", "rag", "orch", "agent", "industry"],
@@ -63,9 +63,12 @@ window.PORTFOLIO = {
         "记忆系统：从对话记忆到长期画像分层管理，靠降频与缓存把 Token 成本控住",
         "多租户隔离 + Web/微信双通道，每个用户一个 1:1 私人助手；落地首个预设助手「经营顾问」"
       ],
-      media: { type: "arch", src: "./portfolio/guanmai-arch.png", caption: "龙虾 Agent 产品整体架构图（MVP）· 分层架构 / Agent 运行流程 / 多 Agent 协同 / 用户旅程" },
-      links: [],
-      note: "规模大、依赖多，不适合在线点点看；以架构 + 工程规范 + 平台方法论呈现最能体现真实水平。"
+      media: { type: "iframe", src: "./wenda/", url: "GM鲜达 · Agent 平台纯前端演示", caption: "平台租户侧演示（品牌 GM鲜达 · 演示数据）：知识卡建卡 → 审核 → 驳回批注 → 修改再提 → 上架 → 对话引用的全生命周期闭环。纯前端、零后端。" },
+      links: [
+        { label: "全屏打开平台 Demo →", href: "./wenda/", primary: true },
+        { label: "整体架构图", href: "./portfolio/guanmai-arch.png" }
+      ],
+      note: "生产版是多租户全栈平台（Next.js + tRPC + pgvector），规模大、依赖多；此处为专门制作的纯前端演示版，信息架构与生产版一致。"
     },
     {
       id: "ai-order", tier: "A", statusLabel: "可运行 · 全栈",
