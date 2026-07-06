@@ -14,7 +14,7 @@
 
 - 简历站自身代码禁用 `fetch` / ES `import`，数据经 `<script src>` 全局变量注入（file:// 双击可开）。
 - 文案铁律：只用 `20260630-AI产品-林灶辉-cc.md` 已有口径，不新增/夸大任何数字；开发中项目只写状态，不编成果。
-- 公开仓库零真实 API key。特别注意：`AI录单-Agent/docs/index.html` 第 1300 行有硬编码智谱 key（`ae1fe9464e2d...`），拷入时必须清空。
+- 公开仓库零真实 API key。特别注意：`AI录单-Agent/docs/index.html` 第 1300 行有硬编码智谱 key（已脱敏，不在本文档回填），拷入时必须清空。
 - 固定地址表（定死不改）：`./wenda/` `./ai-order-demo/` `./boss/` `./caigou/` `./product-agent/` `./lobster/`。
 - 简历仓库路径：`/Users/uicron/Desktop/GuanMai/Code/林灶辉-简历网站`（下称 `$SITE`）。所有提交到 main，**不 push**。
 - 提交信息中文，结尾加 `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`。
@@ -362,7 +362,7 @@ cp "/Users/uicron/Desktop/GuanMai/Code/AI录单-Agent/docs/index.html" "/Users/u
 然后用 Edit 工具把 `ai-order-demo/index.html` 中（原第 1300 行附近）：
 
 ```js
-const GLM={key:'AE1FE946-REDACTED',base:'https://open.bigmodel.cn/api/paas/v4'};
+const GLM={key:'<真实智谱 key，已脱敏；仅存在于源仓库 AI录单-Agent，本仓库禁止回填>',base:'https://open.bigmodel.cn/api/paas/v4'};
 ```
 
 改为：
