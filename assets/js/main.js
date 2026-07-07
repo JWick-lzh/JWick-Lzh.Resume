@@ -216,14 +216,14 @@
       var num = ("0" + (i + 1)).slice(-2);
       list.appendChild(h("li", { class: "reveal" }, [
         h("span", { class: "h-num", text: num }),
-        h("span", { text: text })
+        h("span", null, richText(text))
       ]));
     });
   }
 
   function bulletList(cls, items) {
     var ul = h("ul", { class: cls });
-    items.forEach(function (t) { ul.appendChild(h("li", { text: t })); });
+    items.forEach(function (t) { ul.appendChild(h("li", null, richText(t))); });
     return ul;
   }
 
@@ -240,6 +240,24 @@
       last = m.index + m[0].length;
     }
     if (last < text.length) { out.push(doc.createTextNode(text.slice(last))); }
+    return out.length ? out : [doc.createTextNode(text)];
+  }
+
+  // 富文本：把 **关键词** 渲染成 <strong>（强调核心技能/成果），其余文本走 linkify；无 innerHTML。
+  var BOLD_RE = /\*\*([^*]+)\*\*/g;
+  function richText(text) {
+    if (text == null) { return [doc.createTextNode("")]; }
+    if (text.indexOf("**") === -1) { return linkify(text); }
+    var out = [];
+    var last = 0;
+    var m;
+    BOLD_RE.lastIndex = 0;
+    while ((m = BOLD_RE.exec(text)) !== null) {
+      if (m.index > last) { linkify(text.slice(last, m.index)).forEach(function (n) { out.push(n); }); }
+      out.push(h("strong", { class: "kw", text: m[1] }));
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) { linkify(text.slice(last)).forEach(function (n) { out.push(n); }); }
     return out.length ? out : [doc.createTextNode(text)];
   }
 
@@ -269,7 +287,7 @@
           h("div", { class: "result-label", text: d.ui.resultsLabel }),
           (function () {
             var ul = h("ul", { class: "result-list" });
-            job.results.forEach(function (t) { ul.appendChild(h("li", { text: t })); });
+            job.results.forEach(function (t) { ul.appendChild(h("li", null, richText(t))); });
             return ul;
           })()
         ]));
@@ -320,7 +338,7 @@
           h("span", { class: "role", text: p.role }),
           h("span", { class: "period", text: p.period })
         ]),
-        h("p", { class: "proj-bg" }, linkify(p.background))
+        h("p", { class: "proj-bg" }, richText(p.background))
       ]);
 
       if (p.duties && p.duties.length) {

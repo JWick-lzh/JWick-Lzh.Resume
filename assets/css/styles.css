@@ -518,6 +518,9 @@ a { color: var(--accent); text-decoration: none; }
   vertical-align: middle;
 }
 
+/* 富文本强调：核心技能 / 关键成果的加粗词，用更强的正文色 + 加重字重，在双主题下都清晰突出 */
+strong.kw { font-weight: 700; color: var(--text); }
+
 .bullet-list { display: grid; gap: 9px; }
 .bullet-list li {
   position: relative;
