@@ -3,10 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>老板助手 · 语音版经营助手</title>
-  <meta name="description" content="面向生鲜配送老板的经营掌控助手：经营数据、异常预警、语音 Agent 对话。" />
+  <title>小达 · 经营助手挂件</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230D9488' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3.5 20.5h17'/><rect x='5' y='11' width='3.4' height='9.5' rx='1'/><rect x='10.3' y='6' width='3.4' height='14.5' rx='1'/><rect x='15.6' y='13.5' width='3.4' height='7' rx='1'/></svg>" />
-  <script type="module" crossorigin src="./assets/main-Yfuk4zJ3.js"></script>
+  <style>
+    /* 挂件在宿主页面的 iframe 里运行：透明背景，悬浮球/面板贴边铺满 iframe */
+    html, body { background: transparent !important; }
+    .agent-fab { right: 14px !important; bottom: 14px !important; }
+    .agent-panel {
+      right: 8px !important; bottom: 8px !important;
+      width: calc(100vw - 16px) !important; height: calc(100vh - 16px) !important;
+      max-height: none !important;
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/widget-4XVzziTe.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/global-BMjIMt1W.js">
   <link rel="stylesheet" crossorigin href="./assets/global-BWTubBgm.css">
 </head>
