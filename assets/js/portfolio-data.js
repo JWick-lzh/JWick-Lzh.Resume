@@ -94,9 +94,10 @@ window.PORTFOLIO = {
       title: "采宝 智能采购 Agent（Cloud）",
       subtitle: "对话式全链路智能采购 · React + FastAPI · 2026.05–至今",
       tags: ["agent", "orch", "mm", "scene", "fullstack", "industry"],
-      desc: "采购员一句话或一个文件触发 → 生成询价单 → 发供应商 → 识别报价（文字/截图/Excel）→ 多轮议价 → 定价 → 生成采购单 → 回写 ERP。重复操作交给机器。",
+      desc: "为什么做采购：它是供应链上成本的总闸门，省下的钱、避开的损耗都是隐形的——价值最难被直接看见，恰恰最该优先 AI 化；也是最容易滋生腐败的环节。采宝让一个采购员并行盘住 N 个供应商，同时把谈价黑箱打开：全程留痕、分单防串通、人工确认发单，过程可控合规，老板更有安全感。链路：一句话/文件 → 询价单 → 发供应商 → 识别报价（文字/截图/Excel）→ 多轮议价 → 定价 → 采购单 → 回写 ERP。",
       metrics: [["前端", "React 18 + Vite"], ["后端", "FastAPI"], ["识别", "GLM-4v 多模态"], ["质量", "90+ 提交 · TDD"]],
       achievements: [
+        "产品价值三层：战略（最核心又最难显性化的环节优先 AI 化）· 效率（1 个采购员扛 N 个供应商）· 合规（目标价不外泄 / 全程留痕 / 分单防串通 / 人工拍板）",
         "对话式全链路：一句话/文件触发，跑通询价 → 报价识别 → 议价 → 定价 → 采购单闭环",
         "划清边界：流程流转 / 计时催办 / 议价达标交给状态机，模型只做理解与话术，保证可控可复现",
         "多模态报价识别：文字 + 截图 + Excel（GLM-4v）；供应商六维评分、损耗补采等业务规则",
@@ -111,6 +112,7 @@ window.PORTFOLIO = {
       },
       links: [
         { label: "全屏打开可跑 Demo →", href: "./caigou/", primary: true },
+        { label: "源码仓库 GitHub", href: "https://github.com/JWick-lzh/caigou-agent" },
         { label: "工作台", href: "./caigou/#/workbench" },
         { label: "供应商画像", href: "./caigou/#/suppliers" },
         { label: "议价中心", href: "./caigou/#/negotiation" }
