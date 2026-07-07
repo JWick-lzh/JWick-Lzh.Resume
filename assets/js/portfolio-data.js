@@ -73,7 +73,7 @@ window.PORTFOLIO = {
       note: "生产版是多租户全栈平台（Next.js + tRPC + pgvector），规模大、依赖多；此处为专门制作的纯前端演示版，信息架构与生产版一致。"
     },
     {
-      id: "ai-order", tier: "A", statusLabel: "在线可跑 · 全模块",
+      id: "ai-order", tier: "A", statusLabel: "浏览器可跑 · 全模块",
       title: "AI-Order 智能录单",
       subtitle: "LLM + OCR 多模态订单识别 · LangGraph · 2026",
       tags: ["mm", "orch", "scene", "fullstack", "arch"],
@@ -85,9 +85,10 @@ window.PORTFOLIO = {
         "FastAPI REST（图片/PDF/Excel/文本 四端点）+ Streamlit 交互界面 + 健康检查",
         "Docker 双容器（API + UI），开发 / 生产模式切换"
       ],
-      media: { type: "iframe", src: "https://jwick-lzh.github.io/xianda-ai-order-agent/", url: "鲜达 AI 智能录单 · 在线完整版", caption: "在线完整版（GitHub Pages 直连）：录单 / 审核 / 客户 / 报价单等全模块可玩，内置静态演示模式，开箱即用。" },
+      media: { type: "iframe", src: "./ai-order-demo/", url: "鲜达 AI 智能录单 · 演示版", caption: "完整界面浏览器直跑（演示模式）：录单 / 审核 / 客户 / 报价单等全模块可点可看，数据自洽。识别需模型 Key，未配置时会提示失败；线上完整版见右侧链接。" },
       links: [
-        { label: "全屏打开在线版 →", href: "https://jwick-lzh.github.io/xianda-ai-order-agent/", primary: true },
+        { label: "全屏打开演示 →", href: "./ai-order-demo/", primary: true },
+        { label: "在线版（GitHub Pages）", href: "https://jwick-lzh.github.io/xianda-ai-order-agent/" },
         { label: "GitHub 源码", href: "https://github.com/JWick-lzh/xianda-ai-order-agent" },
         { label: "产品方案图解", href: "./demos/ai-order.html" }
       ]
@@ -151,15 +152,25 @@ window.PORTFOLIO = {
       ]
     },
     {
-      id: "product-agent", tier: "A", statusLabel: "开发中 · Demo 打磨中",
-      title: "商品 Agent（GM Service）",
-      subtitle: "观麦 ERP 商品 / 采购域服务的 Agent 化 · 开发中",
-      tags: ["scene", "industry", "arch"],
-      desc: "基于观麦生鲜供应链 ERP 服务（商品、订单、采购规格等域）的 Agent 化改造，正在开发中。Demo 地址已预留，做完原地上线。",
-      metrics: [],
-      achievements: [],
-      media: { type: "plan", caption: "开发中 · Demo 即将上线" },
-      links: [{ label: "Demo 预留地址（打磨中）", href: "./product-agent/", primary: true }]
+      id: "ai-rd-platform", tier: "A", statusLabel: "在线可跑 · 纯静态",
+      title: "AI 研发能力平台（产品化）",
+      subtitle: "把 AI 辅助研发框架开放给产品 / 运营 / 销售 · 纯前端 · 2026",
+      tags: ["rag", "scene", "fullstack", "arch", "p01"],
+      desc: "研发侧沉淀了一套 AI 辅助开发框架（角色、命令、规范、技能），但只有工程能用。把它产品化成一个纯静态网页平台：非技术同学打开网页就能看懂系统能力、用 AI 问答了解业务细节、看懂 AI 开发工作流、提交需求（AI 自动做合规检查 + 生成 PRD 草稿）、写文档并导出。",
+      metrics: [["形态", "纯静态零后端"], ["知识库", "51 篇 · 检索溯源"], ["模型", "GLM 浏览器直连"], ["能力", "问答/工作流/提需求"]],
+      achievements: [
+        "六大模块：能力全景 · AI 问答（GLM 直连 + 知识库检索溯源）· 工作流步进演示 · 提需求（AI 合规检查 + PRD 草稿）· 需求池写文档 · 设置",
+        "知识库从研发框架文档自动构建（51 篇），一条命令重建；全部脱敏为「演示公司」口径可对外",
+        "AI 问答支持多会话（新建 / 历史 / 切换 / 删除，本地持久化），回答带依据文档溯源",
+        "零后端：GLM 浏览器直连（支持 file:// 与 Pages），Key 只存访客本地浏览器、不上传、不预置",
+        "一键发布流程：从主工程抽出静态目录 → 自动脱敏 → 自检 → 推 GitHub Pages，发布副本永不含密钥"
+      ],
+      media: { type: "iframe", src: "./ai-rd-platform/", url: "AI 研发能力平台 · 在线可跑", caption: "纯静态平台浏览器直跑：能力全景 / 工作流演示开箱即看；AI 问答 / 提需求 / 写文档需在「设置」填入自己的智谱 Key（仅存本地）。" },
+      links: [
+        { label: "全屏打开 →", href: "./ai-rd-platform/", primary: true },
+        { label: "在线独立版", href: "https://jwick-lzh.github.io/ai-rd-platform/" },
+        { label: "GitHub 源码", href: "https://github.com/JWick-lzh/ai-rd-platform" }
+      ]
     },
     /* ===== Tier B ===== */
     {

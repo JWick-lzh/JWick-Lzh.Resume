@@ -163,8 +163,8 @@ async function run() {
     const links = await page.$$eval('#pf-drawer-body .pf-links a', (as) => as.map(a => ({ href: a.getAttribute('href'), target: a.getAttribute('target') })));
     if (links.some(l => l.href === '#')) badHash++;
     // Tier A/B 至少一个真实可打开入口（http 或 .html 或 demos）
-    // guanmai-platform / product-agent 的入口是相对目录预留位（iframe 演示 / 开发中占位），不匹配严格正则，故排除
-    if ((w.tier === 'A' || w.tier === 'B') && w.id !== 'guanmai-platform' && w.id !== 'product-agent') {
+    // guanmai-platform 的主入口是相对目录 iframe 演示，其严格正则匹配靠附带的在线/GitHub 链接兜底，这里单独排除以防误判
+    if ((w.tier === 'A' || w.tier === 'B') && w.id !== 'guanmai-platform') {
       const hasReal = links.some(l => /^https?:|\.html|\/demos\//.test(l.href || ''));
       if (!hasReal) missingReal++;
     }
@@ -204,7 +204,7 @@ async function run() {
   check('切换语言后作品卡仍渲染', cardsEn === 11, `实际 ${cardsEn}`);
 
   // 14) 新增 Demo 冒烟：iframe 地址直开有内容
-  for (const d of ['boss', 'wenda', 'ai-order-demo', 'caigou', 'product-agent', 'lobster']) {
+  for (const d of ['boss', 'wenda', 'ai-order-demo', 'caigou', 'ai-rd-platform', 'lobster']) {
     const p2 = await browser.newPage();
     const errs = [];
     p2.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
