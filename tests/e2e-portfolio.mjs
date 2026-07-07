@@ -27,7 +27,8 @@ function serve() {
       try {
         let p = decodeURIComponent(req.url.split('?')[0]);
         if (p === '/') p = '/index.html';
-        const fp = join(ROOT, p);
+        let fp = join(ROOT, p);
+        if (existsSync(fp) && statSync(fp).isDirectory()) fp = join(fp, 'index.html');
         if (!fp.startsWith(ROOT) || !existsSync(fp) || statSync(fp).isDirectory()) {
           res.writeHead(404); res.end('not found'); return;
         }
@@ -201,6 +202,19 @@ async function run() {
   check('英文导航含 Portfolio', /Portfolio/.test(navText), navText.replace(/\n/g, ' '));
   const cardsEn = await page.locator('.pf-card').count();
   check('切换语言后作品卡仍渲染', cardsEn === 11, `实际 ${cardsEn}`);
+
+  // 14) 新增 Demo 冒烟：iframe 地址直开有内容
+  for (const d of ['boss', 'wenda', 'ai-order-demo', 'product-agent', 'lobster']) {
+    const p2 = await browser.newPage();
+    const errs = [];
+    p2.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+    await p2.goto(`http://localhost:${PORT}/${d}/`, { waitUntil: 'networkidle' });
+    await p2.waitForTimeout(800);
+    const t = (await p2.locator('body').innerText()).trim();
+    check(`demo:${d} 可开有内容`, t.length > 10);
+    check(`demo:${d} 零 console error`, errs.length === 0, errs.slice(0,2).join('|'));
+    await p2.close();
+  }
 
   await browser.close();
   server.close();
