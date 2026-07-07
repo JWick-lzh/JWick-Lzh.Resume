@@ -47,6 +47,13 @@ python3 -m http.server 8080
   assets/favicon.svg      青色字标
   resume.pdf              PDF 简历（联系区「下载 PDF 简历」指向它）
                           注：本地 file:// 下多数浏览器会「在新标签打开」而非直接下载，可右键另存；部署到 http(s) 后 download 才完全生效。
+  boss/            老板助手 · 浏览器可跑 Demo（Boss-Agent 构建产物）
+  wenda/           观麦 Agent 平台 Demo · GM鲜达（问答Agent Platform apps/demo 构建产物）
+  ai-order-demo/   AI 录单 · 静态演示（演示模式，无模型 Key）
+  caigou/          采宝 采购 Agent · 浏览器可跑 Demo（持续迭代，原地升级）
+  product-agent/   预留位：商品 Agent（GM Service），占位页
+  lobster/         预留位：龙虾经营 Agent 完整版，占位页
+  docs/design-draft/  作品集设计稿归档（重设计蓝本）
   README.md               本说明
 ```
 
@@ -69,6 +76,11 @@ python3 -m http.server 8080
 ## 部署
 
 纯静态，把整个目录上传到任意静态托管（GitHub Pages / Vercel / Netlify / 对象存储）即可，无需构建步骤。
+
+## Demo 更新流程
+
+源项目改完 → 源项目里构建 → 构建产物拷进本仓库对应目录覆盖 → commit + push 本仓库。
+地址永远不变，作品集数据层（assets/js/portfolio-data.js）不用改。
 
 ## 作品集（Portfolio）
 
@@ -96,6 +108,6 @@ python3 -m http.server 8080
 
 ```bash
 npm install            # 安装 playwright（使用系统 Chrome）
-node tests/e2e-portfolio.mjs   # 起本地静态服务 + 真实浏览器，跑 27 项断言
+node tests/e2e-portfolio.mjs   # 起本地静态服务 + 真实浏览器，跑 45 项断言
 ```
-覆盖：能力矩阵渲染/筛选高亮、作品抽屉（截图/内嵌原型/移动端框）、hash 深链、首屏与深链页面可见性、图片与原型资源可访问、双语切换。
+覆盖：能力矩阵渲染/筛选高亮、作品抽屉（截图/内嵌原型/移动端框）、hash 深链、首屏与深链页面可见性、图片与原型资源可访问、双语切换、各 Demo 目录（boss/wenda/ai-order-demo/product-agent/lobster）可打开且零 console error。
