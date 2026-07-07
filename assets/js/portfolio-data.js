@@ -66,12 +66,14 @@ window.PORTFOLIO = {
       media: { type: "iframe", src: "./wenda/", url: "GM鲜达 · Agent 平台纯前端演示", caption: "平台租户侧演示（品牌 GM鲜达 · 演示数据）：知识卡建卡 → 审核 → 驳回批注 → 修改再提 → 上架 → 对话引用的全生命周期闭环。纯前端、零后端。" },
       links: [
         { label: "全屏打开平台 Demo →", href: "./wenda/", primary: true },
+        { label: "在线独立版", href: "https://jwick-lzh.github.io/agent-platform-demo/" },
+        { label: "GitHub 源码", href: "https://github.com/JWick-lzh/agent-platform-demo" },
         { label: "整体架构图", href: "./portfolio/guanmai-arch.png" }
       ],
       note: "生产版是多租户全栈平台（Next.js + tRPC + pgvector），规模大、依赖多；此处为专门制作的纯前端演示版，信息架构与生产版一致。"
     },
     {
-      id: "ai-order", tier: "A", statusLabel: "浏览器可跑 · 演示模式",
+      id: "ai-order", tier: "A", statusLabel: "在线可跑 · 全模块",
       title: "AI-Order 智能录单",
       subtitle: "LLM + OCR 多模态订单识别 · LangGraph · 2026",
       tags: ["mm", "orch", "scene", "fullstack", "arch"],
@@ -83,9 +85,10 @@ window.PORTFOLIO = {
         "FastAPI REST（图片/PDF/Excel/文本 四端点）+ Streamlit 交互界面 + 健康检查",
         "Docker 双容器（API + UI），开发 / 生产模式切换"
       ],
-      media: { type: "iframe", src: "./ai-order-demo/", url: "AI 录单 · 静态演示", caption: "完整界面浏览器直跑（演示模式）：录单 / 审核 / 客户 / 报价单等模块可点可看。在线版未配置模型 Key，提交识别会提示失败；本地全栈版可完整跑通文字/图片/Excel 识别。" },
+      media: { type: "iframe", src: "https://jwick-lzh.github.io/xianda-ai-order-agent/", url: "鲜达 AI 智能录单 · 在线完整版", caption: "在线完整版（GitHub Pages 直连）：录单 / 审核 / 客户 / 报价单等全模块可玩，内置静态演示模式，开箱即用。" },
       links: [
-        { label: "全屏打开演示 →", href: "./ai-order-demo/", primary: true },
+        { label: "全屏打开在线版 →", href: "https://jwick-lzh.github.io/xianda-ai-order-agent/", primary: true },
+        { label: "GitHub 源码", href: "https://github.com/JWick-lzh/xianda-ai-order-agent" },
         { label: "产品方案图解", href: "./demos/ai-order.html" }
       ]
     },
@@ -229,8 +232,12 @@ window.PORTFOLIO = {
         "做出地产行业首个供应链中台，落地越秀地产成标杆；推动越秀、华远等 4 家头部签约、5000 万业绩",
         "孵化的产品底座被集团多条业务线复用，成集团级基础设施"
       ],
-      media: { type: "plan", caption: "往期 B 端代表作 · 关键成果" },
-      links: []
+      media: { type: "plan", caption: "往期 B 端代表作 · 关键成果（附公开报道）" },
+      links: [
+        { label: "媒体报道：房产业首个供应链中台（搜狐）", href: "https://www.sohu.com/a/352269688_115035", primary: true },
+        { label: "越秀地产数字招采平台发布（官网新闻）", href: "https://www.yuexiuproperty.com/xwzx/gsyw/1ervqervf6hrc.shtml" }
+      ],
+      note: "公开报道佐证：弘阳集团与明源云链共建房产业首个供应链中台，供应商由 1.3 万家规整至约 3500 家，预计上线后节约成本 2%–3%（搜狐，2019.11）；越秀地产数字招采平台被称为「房地产行业首个国企供应链中台」，与 17 套业务系统集成联动（越秀地产官网，2020.11）。"
     },
     {
       id: "chuanyun", tier: "C", statusLabel: "往期代表作 · 低代码",
@@ -245,7 +252,7 @@ window.PORTFOLIO = {
         "体现「业务场景识别 → 产品化 → 商业化」的完整能力"
       ],
       media: { type: "plan", caption: "往期 B 端代表作 · 低代码商业化" },
-      links: []
+      links: [{ label: "氚云官网 h3yun.com →", href: "https://www.h3yun.com/site/home", primary: true }]
     }
   ]
 };
