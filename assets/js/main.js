@@ -454,7 +454,7 @@
   // 导航激活高亮
   function setupNavSpy() {
     if (!("IntersectionObserver" in window)) { return; }
-    var sections = ["summary", "experience", "projects", "skills", "contact"];
+    var sections = ["summary", "experience", "projects", "skills", "portfolio", "contact"];
     var spy = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (!e.isIntersecting) { return; }

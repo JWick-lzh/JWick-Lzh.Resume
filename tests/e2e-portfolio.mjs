@@ -204,7 +204,7 @@ async function run() {
   check('切换语言后作品卡仍渲染', cardsEn === 11, `实际 ${cardsEn}`);
 
   // 14) 新增 Demo 冒烟：iframe 地址直开有内容
-  for (const d of ['boss', 'wenda', 'ai-order-demo', 'product-agent', 'lobster']) {
+  for (const d of ['boss', 'wenda', 'ai-order-demo', 'caigou', 'product-agent', 'lobster']) {
     const p2 = await browser.newPage();
     const errs = [];
     p2.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
