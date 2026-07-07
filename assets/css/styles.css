@@ -397,7 +397,7 @@ a { color: var(--accent); text-decoration: none; }
 .highlights {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  align-items: start;
+  align-items: stretch;
   gap: 16px;
 }
 .highlights li {
@@ -598,7 +598,7 @@ a { color: var(--accent); text-decoration: none; }
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  align-items: start;
+  align-items: stretch;
   gap: 18px;
 }
 .proj-card {
