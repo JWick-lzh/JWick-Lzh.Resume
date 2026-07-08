@@ -1,53 +1,53 @@
 /* ==========================================================================
    林灶辉 · 简历网站  styles.css
-   素雅打底 · 暗色出彩 · 克制交互 · 零依赖（系统字体栈，离线可用）
+   Ocean 淡蓝主题 · 克制交互 · 零依赖（系统字体栈，离线可用）
    ========================================================================== */
 
-/* ---------- 设计令牌：两套主题 ---------- */
+/* ---------- 设计令牌：两套主题（Ocean 淡蓝，参考 Design_Styles_SKILL.md 风格7） ---------- */
 :root[data-theme="light"] {
-  --bg: #f7faf5;
-  --bg-soft: #eef4ea;
+  --bg: #f4f9ff;
+  --bg-soft: #e9f2fc;
   --surface: #ffffff;
-  --surface-2: #f2f7ee;
-  --text: #18211a;
-  --text-muted: #54655a;
-  --text-faint: #657269;
-  --accent: #3e7d1f;
-  --accent-2: #0f7a63;
-  --accent-soft: rgba(62, 125, 31, .10);
-  --border: #dde7d9;
-  --border-strong: #c4d4bd;
-  --shadow: 0 8px 28px rgba(30, 50, 35, .10);
-  --glow: 0 0 0 3px rgba(62, 125, 31, .12);
-  --tier1: #3e7d1f;
-  --tier2: #1d63c8;
-  --tier3: #7a3fd6;
-  --nav-bg: rgba(247, 250, 245, .8);
-  --hero-glow: radial-gradient(60% 60% at 80% 8%, rgba(62, 125, 31, .08), transparent 70%);
-  --grid: rgba(24, 33, 26, .035);
+  --surface-2: #eef5fe;
+  --text: #0b2036;
+  --text-muted: #4a6785;
+  --text-faint: #6e8aa6;
+  --accent: #2563eb;
+  --accent-2: #3b82f6;
+  --accent-soft: rgba(37, 99, 235, .10);
+  --border: #d7e6f7;
+  --border-strong: #b9d3ef;
+  --shadow: 0 8px 28px rgba(15, 55, 95, .10);
+  --glow: 0 0 0 3px rgba(37, 99, 235, .12);
+  --tier1: #2563eb;
+  --tier2: #0e9bb0;
+  --tier3: #6d5fd6;
+  --nav-bg: rgba(244, 249, 255, .8);
+  --hero-glow: radial-gradient(60% 60% at 80% 8%, rgba(37, 99, 235, .08), transparent 70%);
+  --grid: rgba(11, 32, 54, .035);
 }
 
 :root[data-theme="dark"] {
-  --bg: #0b0f0e;
-  --bg-soft: #0f1513;
-  --surface: #121917;
-  --surface-2: #172321;
-  --text: #e9f0ec;
-  --text-muted: #9fb0aa;
-  --text-faint: #6b7d77;
-  --accent: #b6f36b;
-  --accent-2: #7fe0c4;
-  --accent-soft: rgba(182, 243, 107, .12);
-  --border: #1e2a27;
-  --border-strong: #2a3a36;
-  --shadow: 0 12px 40px rgba(0, 0, 0, .45);
-  --glow: 0 0 26px rgba(182, 243, 107, .18);
-  --tier1: #b6f36b;
-  --tier2: #7fbfff;
-  --tier3: #c9a0ff;
-  --nav-bg: rgba(11, 15, 14, .72);
-  --hero-glow: radial-gradient(55% 55% at 82% 6%, rgba(127, 224, 196, .14), transparent 70%);
-  --grid: rgba(127, 224, 196, .035);
+  --bg: #0a1929;
+  --bg-soft: #0d1e32;
+  --surface: #0f2238;
+  --surface-2: #142a44;
+  --text: #dbeafe;
+  --text-muted: #9fb8d9;
+  --text-faint: #74899f;
+  --accent: #60a5fa;
+  --accent-2: #93c5fd;
+  --accent-soft: rgba(96, 165, 250, .14);
+  --border: #16324f;
+  --border-strong: #1e3f61;
+  --shadow: 0 12px 40px rgba(0, 0, 0, .5);
+  --glow: 0 0 26px rgba(96, 165, 250, .22);
+  --tier1: #60a5fa;
+  --tier2: #5eead4;
+  --tier3: #c4b5fd;
+  --nav-bg: rgba(10, 25, 41, .72);
+  --hero-glow: radial-gradient(55% 55% at 82% 6%, rgba(96, 165, 250, .16), transparent 70%);
+  --grid: rgba(96, 165, 250, .04);
 }
 
 /* ---------- 基础 ---------- */
@@ -73,8 +73,8 @@ body {
 
 [data-theme="dark"] body {
   background-image:
-    radial-gradient(900px 500px at 82% -8%, rgba(127, 224, 196, .08), transparent 60%),
-    radial-gradient(760px 420px at 8% 4%, rgba(182, 243, 107, .07), transparent 55%);
+    radial-gradient(900px 500px at 82% -8%, rgba(147, 197, 253, .09), transparent 60%),
+    radial-gradient(760px 420px at 8% 4%, rgba(96, 165, 250, .07), transparent 55%);
 }
 
 h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; }
