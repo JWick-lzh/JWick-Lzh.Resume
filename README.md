@@ -45,8 +45,8 @@ python3 -m http.server 8080
   assets/js/data.js       window.RESUME = { zh:{...}, en:{...} } 唯一文案源
   assets/js/main.js       渲染 + 主题/语言切换 + 滚动交互
   assets/favicon.svg      青色字标
-  resume.pdf              PDF 简历（联系区「下载 PDF 简历」指向它）
-                          注：本地 file:// 下多数浏览器会「在新标签打开」而非直接下载，可右键另存；部署到 http(s) 后 download 才完全生效。
+  resume.pdf              PDF 简历（联系区「下载 PDF 简历」指向它，target="_blank" + download 双保险）
+                          注：本地 file:// 下浏览器不认 download 属性，会在新标签打开 PDF（简历页不受影响），可在新标签里另存；部署到 http(s) 后点击即触发真实下载。
   boss/            老板助手 · 浏览器可跑 Demo（Boss-Agent 构建产物）
   wenda/           观麦 Agent 平台 Demo · GM鲜达（问答Agent Platform apps/demo 构建产物）
   ai-order-demo/   AI 录单 · 静态演示（演示模式，无模型 Key）
