@@ -3,187 +3,147 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>usmile F20 · 交互式 3D 产品秀（自主设计）</title>
-<meta name="description" content="usmile 智能电动牙刷 F20 交互式 3D 产品概念页 · Three.js 全代码渲染 · 林灶辉自主设计与编码" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%23050810'/%3E%3Ccircle cx='8' cy='8' r='4' fill='%236aa8ff'/%3E%3C/svg%3E" />
+<title>usmile 智能电动牙刷 F20 · AI 智能旗舰</title>
+<meta name="description" content="usmile 智能电动牙刷 F20 · AI 智能旗舰，四大护理方案，7 天 1 改善。精控动力 2.0、小雷达精准识别、110 天超长续航、IPX8 防水。" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%23ffffff'/%3E%3Ccircle cx='8' cy='8' r='4' fill='%232b7bff'/%3E%3C/svg%3E" />
 <style>
   :root{
-    --bg:#04060c; --ink:#eaf0ff; --muted:rgba(234,240,255,.62); --faint:rgba(234,240,255,.4);
-    --blue:#6aa8ff; --pink:#f3a6c1; --line:rgba(150,180,255,.16);
-    --accent:var(--blue);
+    --bg:#ffffff; --bg2:#f2f7fd; --ink:#122238; --muted:#5a6f89; --faint:#93a4bb;
+    --blue:#2b7bff; --blue2:#66a3ff; --pink:#ff85ab; --line:rgba(18,34,56,.10); --line2:rgba(18,34,56,.16);
+    --card:rgba(255,255,255,.72);
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
   body{
-    background:var(--bg); color:var(--ink);
+    background:
+      radial-gradient(60% 45% at 20% 12%, rgba(120,175,255,.14), transparent 60%),
+      radial-gradient(52% 50% at 84% 82%, rgba(255,150,190,.12), transparent 60%),
+      linear-gradient(180deg,#ffffff, #eef4fc 60%, #ffffff);
+    background-attachment:fixed;
+    color:var(--ink);
     font-family:'Inter',system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-    line-height:1.6; overflow-x:hidden; cursor:none;
+    line-height:1.65; overflow-x:hidden; cursor:none;
   }
   a{color:inherit;text-decoration:none}
   @media (pointer:coarse){ body{cursor:auto} #cursor,#cursor-trail{display:none} }
 
-  /* 固定 3D 舞台 */
   #stage{position:fixed;inset:0;width:100vw;height:100vh;z-index:1;display:block}
-  #dust{position:fixed;inset:0;width:100vw;height:100vh;z-index:2;pointer-events:none;opacity:.7}
-  /* 背景氛围光 */
-  .ambient{position:fixed;inset:0;z-index:0;pointer-events:none;
-    background:
-      radial-gradient(60% 50% at 22% 18%, rgba(60,110,220,.22), transparent 60%),
-      radial-gradient(55% 55% at 82% 78%, rgba(230,120,170,.16), transparent 60%),
-      radial-gradient(120% 120% at 50% 120%, rgba(2,4,10,.9), transparent 60%);
-  }
-  /* 暗角 + 细噪 */
-  .vignette{position:fixed;inset:0;z-index:6;pointer-events:none;
-    box-shadow:inset 0 0 240px 60px rgba(0,0,0,.7);
-    background:radial-gradient(120% 100% at 50% 50%, transparent 62%, rgba(0,0,0,.55) 100%);}
+  #dust{position:fixed;inset:0;width:100vw;height:100vh;z-index:2;pointer-events:none;opacity:.6}
 
-  /* 标注层（爆炸拆解引线）*/
   #callouts{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity .3s}
-  .callout{position:absolute;top:0;left:0;display:flex;align-items:center;gap:8px;transform-origin:left center;
-    will-change:transform;white-space:nowrap}
-  .co-dot{width:9px;height:9px;border-radius:50%;background:var(--blue);
-    box-shadow:0 0 0 4px rgba(106,168,255,.18),0 0 14px rgba(106,168,255,.7);flex:0 0 auto}
-  .co-text{font-size:12.5px;letter-spacing:.04em;color:#dfe9ff;background:rgba(10,16,30,.55);
-    border:1px solid var(--line);padding:4px 10px;border-radius:999px;backdrop-filter:blur(6px)}
+  .callout{position:absolute;top:0;left:0;display:flex;align-items:center;gap:8px;transform-origin:left center;will-change:transform;white-space:nowrap}
+  .co-dot{width:9px;height:9px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 4px rgba(43,123,255,.14),0 0 12px rgba(43,123,255,.5);flex:0 0 auto}
+  .co-text{font-size:12.5px;letter-spacing:.02em;color:#0e2138;background:rgba(255,255,255,.82);border:1px solid var(--line);padding:4px 11px;border-radius:999px;backdrop-filter:blur(6px);box-shadow:0 6px 18px rgba(30,60,110,.10)}
 
-  /* 顶栏 */
-  nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;
-    padding:20px 32px;pointer-events:none}
-  .brand{font-weight:700;letter-spacing:.14em;font-size:14px;display:flex;align-items:center;gap:10px}
-  .brand .dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--pink));
-    box-shadow:0 0 14px rgba(120,170,255,.8)}
-  .brand b{font-weight:700}
-  .brand span{color:var(--faint);font-weight:500;font-size:11px;letter-spacing:.18em}
-  .nav-back{pointer-events:auto;font-size:12px;letter-spacing:.14em;color:var(--muted);
-    border:1px solid var(--line);padding:7px 14px;border-radius:999px;text-transform:uppercase;transition:.3s;backdrop-filter:blur(8px)}
-  .nav-back:hover{color:var(--ink);border-color:var(--blue)}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:18px 32px;pointer-events:none}
+  .brand{font-weight:800;letter-spacing:.02em;font-size:20px;display:flex;align-items:center;gap:9px;color:var(--ink)}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--pink))}
+  .brand small{font-weight:600;font-size:11px;letter-spacing:.14em;color:var(--faint);margin-left:2px}
+  .nav-cta{pointer-events:auto;font-size:13px;font-weight:600;letter-spacing:.02em;color:#fff;background:var(--blue);
+    padding:9px 18px;border-radius:999px;transition:.3s;box-shadow:0 8px 20px rgba(43,123,255,.28)}
+  .nav-cta:hover{background:#1a63e6;transform:translateY(-1px)}
 
-  /* 内容层 */
   main{position:relative;z-index:5}
   .scene{min-height:100vh;display:flex;align-items:center;padding:0 clamp(28px,7vw,110px);pointer-events:none}
-  .scene.tall{min-height:220vh;align-items:flex-start;padding-top:16vh}
+  .scene.tall{min-height:220vh;align-items:flex-start;padding-top:15vh}
   .panel{max-width:560px;pointer-events:none}
   .scene.right .panel{margin-left:auto;text-align:right}
   .scene.center{justify-content:center;text-align:center}
-  .scene.center .panel{max-width:900px}
+  .scene.center .panel{max-width:960px}
 
-  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;
-    color:var(--muted);margin-bottom:22px}
-  .eyebrow::before{content:"";width:26px;height:1px;background:var(--blue)}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);font-weight:700;margin-bottom:20px}
+  .eyebrow::before{content:"";width:24px;height:2px;background:var(--blue);border-radius:2px}
   .scene.right .eyebrow{flex-direction:row-reverse}
-  .scene.right .eyebrow::before{background:var(--pink)}
 
-  h1.title{font-size:clamp(48px,9vw,132px);font-weight:800;letter-spacing:-.04em;line-height:.92;
-    background:linear-gradient(180deg,#ffffff, #b9cdff 70%, #7f9fe0);-webkit-background-clip:text;background-clip:text;color:transparent}
+  h1.title{font-size:clamp(52px,10vw,150px);font-weight:800;letter-spacing:-.045em;line-height:.92;color:var(--ink)}
   .title .grad{background:linear-gradient(120deg,var(--blue),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
-  h2.h{font-size:clamp(30px,5vw,58px);font-weight:800;letter-spacing:-.02em;line-height:1.02;margin-bottom:16px}
+  h2.h{font-size:clamp(30px,5vw,58px);font-weight:800;letter-spacing:-.02em;line-height:1.04;margin-bottom:16px;color:var(--ink)}
   h2.h em{font-style:normal;background:linear-gradient(120deg,var(--blue),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .lede{font-size:clamp(15px,1.5vw,18px);color:var(--muted);max-width:44ch;line-height:1.75}
+  .lede{font-size:clamp(15px,1.5vw,18px);color:var(--muted);max-width:46ch;line-height:1.75}
   .scene.right .lede{margin-left:auto}
-  .tagline{font-size:clamp(15px,1.6vw,19px);color:var(--muted);margin-top:20px;letter-spacing:.02em}
-  .kicker{font-size:13px;letter-spacing:.2em;color:var(--faint);text-transform:uppercase;margin-top:26px}
+  .tagline{font-size:clamp(16px,1.7vw,21px);color:var(--muted);margin-top:20px}
+  .tagline b{color:var(--ink);font-weight:700}
+  .kicker{font-size:13px;letter-spacing:.06em;color:var(--faint);margin-top:24px}
 
-  /* hero 底部提示 */
-  .hero-hints{position:absolute;left:0;right:0;bottom:34px;display:flex;justify-content:center;gap:26px;
-    font-size:12px;letter-spacing:.12em;color:var(--faint);text-transform:uppercase}
-  .hero-hints span{display:inline-flex;align-items:center;gap:8px}
-  .hero-hints .ic{width:14px;height:14px;opacity:.8}
-  .scroll-cue{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);width:22px;height:34px;
-    border:1px solid var(--line);border-radius:14px;display:flex;justify-content:center;padding-top:6px}
+  .hero-cta{display:inline-flex;gap:14px;margin-top:34px;pointer-events:auto;justify-content:center}
+  .btn-primary{background:var(--blue);color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;box-shadow:0 12px 28px rgba(43,123,255,.3);transition:.3s;cursor:none}
+  .btn-primary:hover{background:#1a63e6;transform:translateY(-2px)}
+  .btn-ghost{color:var(--ink);font-weight:600;font-size:15px;padding:13px 22px;border-radius:999px;border:1px solid var(--line2);transition:.3s;cursor:none}
+  .btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+
+  .scroll-cue{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:22px;height:34px;border:1px solid var(--line2);border-radius:14px;display:flex;justify-content:center;padding-top:6px}
   .scroll-cue::before{content:"";width:3px;height:7px;border-radius:2px;background:var(--blue);animation:cue 1.6s ease-in-out infinite}
   @keyframes cue{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(9px);opacity:1}}
 
-  /* 双色切换 */
-  .swatches{display:inline-flex;gap:12px;margin-top:30px;pointer-events:auto}
-  .swatch{display:flex;flex-direction:column;align-items:center;gap:10px;background:transparent;border:0;cursor:none;color:var(--muted);font-size:12px;letter-spacing:.06em}
-  .swatch .chip{width:52px;height:52px;border-radius:50%;border:2px solid transparent;transition:.35s;
-    box-shadow:0 8px 24px rgba(0,0,0,.5)}
-  .swatch[data-c="gray"] .chip{background:radial-gradient(circle at 35% 30%,#c3c7cd,#7c8088 70%,#565a61)}
-  .swatch[data-c="pink"] .chip{background:radial-gradient(circle at 35% 30%,#f7d3de,#e7aebe 65%,#c98ba0)}
-  .swatch.active .chip{border-color:#fff;transform:translateY(-3px)}
+  .feat{display:flex;gap:22px;margin-top:26px;flex-wrap:wrap}
+  .scene.right .feat{justify-content:flex-end}
+  .feat .f{display:flex;flex-direction:column}
+  .feat .f b{font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.01em}
+  .feat .f span{font-size:12.5px;color:var(--muted)}
+
+  .swatches{display:inline-flex;gap:14px;margin-top:30px;pointer-events:auto}
+  .swatch{display:flex;flex-direction:column;align-items:center;gap:10px;background:transparent;border:0;cursor:none;color:var(--muted);font-size:12.5px;font-weight:600}
+  .swatch .chip{width:54px;height:54px;border-radius:50%;border:2px solid transparent;transition:.35s;box-shadow:0 8px 20px rgba(30,60,110,.16)}
+  .swatch[data-c="gray"] .chip{background:radial-gradient(circle at 35% 30%,#e8eaee,#a7abb2 68%,#7f838b)}
+  .swatch[data-c="pink"] .chip{background:radial-gradient(circle at 35% 30%,#ffe1ea,#eab6c6 62%,#cf93a6)}
+  .swatch.active .chip{border-color:var(--blue);transform:translateY(-3px)}
   .swatch.active{color:var(--ink)}
 
-  /* 四大方案 */
   .modes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;pointer-events:auto}
-  .mode{border:1px solid var(--line);border-radius:16px;padding:20px 22px;background:rgba(12,18,34,.42);
-    backdrop-filter:blur(10px);transition:.35s;cursor:none}
-  .mode:hover{border-color:var(--blue);transform:translateY(-4px);box-shadow:0 18px 40px rgba(20,50,120,.3)}
-  .mode .m-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;margin-bottom:14px;
-    background:linear-gradient(135deg,rgba(106,168,255,.25),rgba(243,166,193,.2));color:var(--blue);font-weight:800}
+  .mode{border:1px solid var(--line);border-radius:18px;padding:20px 22px;background:var(--card);backdrop-filter:blur(10px);transition:.35s;cursor:none;box-shadow:0 10px 30px rgba(30,60,110,.06)}
+  .mode:hover{border-color:var(--blue);transform:translateY(-4px);box-shadow:0 20px 44px rgba(43,123,255,.16)}
+  .mode .m-ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;margin-bottom:13px;background:linear-gradient(135deg,rgba(43,123,255,.14),rgba(255,133,171,.14));color:var(--blue);font-weight:800}
   .mode h4{font-size:17px;font-weight:700;margin-bottom:6px}
   .mode p{font-size:12.5px;color:var(--muted);line-height:1.6}
 
-  /* 数据 */
-  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:28px 40px;margin-top:8px}
-  .stat .n{font-size:clamp(38px,5vw,64px);font-weight:800;letter-spacing:-.03em;
-    background:linear-gradient(160deg,#fff,#a9c2ff);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .stat .n small{font-size:.42em;font-weight:700;color:var(--blue);-webkit-text-fill-color:var(--blue);margin-left:2px}
-  .stat .l{font-size:12.5px;color:var(--muted);letter-spacing:.04em;margin-top:2px}
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:28px 44px;margin-top:8px}
+  .stat .n{font-size:clamp(38px,5vw,66px);font-weight:800;letter-spacing:-.03em;color:var(--ink)}
+  .stat .n small{font-size:.4em;font-weight:700;color:var(--blue);margin-left:2px}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .trust{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+  .trust span{font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 14px;background:rgba(255,255,255,.6)}
 
-  /* 收尾 */
-  .finale .badge{display:inline-flex;gap:18px;margin-top:26px;color:var(--faint);font-size:12px;letter-spacing:.14em;text-transform:uppercase;flex-wrap:wrap;justify-content:center}
-  .finale .badge b{color:var(--muted);font-weight:600}
+  .finale .spec{display:flex;gap:26px;margin-top:26px;flex-wrap:wrap;justify-content:center;color:var(--muted);font-size:13px}
+  .finale .spec b{color:var(--ink);font-weight:700}
+  .finale .kit{font-size:12.5px;color:var(--faint);margin-top:22px}
 
-  /* 署名（右下角 · 设计意图/思路）*/
-  .signature{position:fixed;right:20px;bottom:20px;z-index:20;max-width:340px;
-    border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:rgba(8,12,24,.6);
-    backdrop-filter:blur(14px);pointer-events:auto;transition:.4s;transform:translateY(0)}
-  .signature h5{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:7px;display:flex;align-items:center;gap:8px}
-  .signature h5::before{content:"";width:8px;height:8px;border-radius:2px;background:linear-gradient(135deg,var(--blue),var(--pink))}
-  .signature p{font-size:11.5px;line-height:1.7;color:var(--muted)}
-  .signature .by{margin-top:8px;font-size:11px;color:var(--faint);letter-spacing:.06em}
-  .signature .by b{color:var(--ink);font-weight:700;letter-spacing:.02em}
-  .signature.min{max-width:150px}
-  .signature.min p,.signature.min .by{display:none}
-  .signature .toggle{position:absolute;top:10px;right:12px;font-size:15px;color:var(--faint);cursor:none;background:none;border:0;line-height:1}
+  .signature{position:fixed;right:20px;bottom:18px;z-index:20;font-size:11px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;pointer-events:none}
   @media (max-width:640px){.signature{display:none}}
 
-  /* 自定义光标 */
-  #cursor{position:fixed;top:0;left:0;z-index:80;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;
-    border:1px solid rgba(150,185,255,.7);pointer-events:none;transition:width .25s,height .25s,margin .25s,border-color .25s,background .25s;
-    display:grid;place-items:center;mix-blend-mode:screen}
-  #cursor::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--blue);box-shadow:0 0 10px var(--blue)}
-  #cursor-trail{position:fixed;top:0;left:0;z-index:79;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;
-    pointer-events:none;background:radial-gradient(circle,rgba(106,168,255,.22),transparent 65%);mix-blend-mode:screen}
-  body.cur-hover #cursor{width:56px;height:56px;margin:-28px 0 0 -28px;border-color:#fff;background:rgba(120,170,255,.08)}
-  body.grabbing #cursor{width:64px;height:64px;margin:-32px 0 0 -32px;border-color:var(--pink)}
+  #cursor{position:fixed;top:0;left:0;z-index:80;width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:50%;border:1.5px solid rgba(43,123,255,.55);pointer-events:none;transition:width .25s,height .25s,margin .25s,border-color .25s,background .25s;display:grid;place-items:center}
+  #cursor::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--blue)}
+  #cursor-trail{position:fixed;top:0;left:0;z-index:79;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(43,123,255,.12),transparent 66%)}
+  body.cur-hover #cursor{width:52px;height:52px;margin:-26px 0 0 -26px;border-color:var(--blue);background:rgba(43,123,255,.06)}
+  body.grabbing #cursor{width:60px;height:60px;margin:-30px 0 0 -30px;border-color:var(--pink)}
   body.grabbing #cursor::after{width:0;height:0}
-  #cursor .rot{position:absolute;font-size:11px;letter-spacing:.1em;color:#fff;opacity:0;transition:.2s}
+  #cursor .rot{position:absolute;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--pink);opacity:0;transition:.2s}
   body.grabbing #cursor .rot{opacity:1}
 
-  /* 加载 */
-  .loader{position:fixed;inset:0;z-index:90;background:var(--bg);display:grid;place-items:center;transition:opacity .8s,visibility .8s}
+  .loader{position:fixed;inset:0;z-index:90;background:#ffffff;display:grid;place-items:center;transition:opacity .8s,visibility .8s}
   body.scene-ready .loader{opacity:0;visibility:hidden}
-  .loader .l-in{text-align:center;color:var(--muted)}
-  .loader .ring{width:44px;height:44px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--blue);
-    margin:0 auto 16px;animation:spin 1s linear infinite}
+  .loader .ring{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--blue);margin:0 auto 14px;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .loader .lt{font-size:12px;letter-spacing:.2em;text-transform:uppercase}
-
-  /* WebGL 不支持降级 */
+  .loader .lt{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
   body.no-webgl .loader{opacity:0;visibility:hidden}
   .fallback{display:none}
   body.no-webgl #stage,body.no-webgl #dust{display:none}
   body.no-webgl .fallback{display:grid;place-items:center;min-height:100vh;text-align:center;padding:40px}
 
-  /* reveal */
   .reveal{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
   .reveal.in{opacity:1;transform:none}
-  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.scroll-cue::before,.cue{animation:none}}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.scroll-cue::before{animation:none}}
 </style>
 </head>
 <body>
-  <div class="ambient"></div>
   <canvas id="stage"></canvas>
   <canvas id="dust"></canvas>
   <div id="callouts"></div>
-  <div class="vignette"></div>
 
-  <div class="loader"><div class="l-in"><div class="ring"></div><div class="lt">Rendering · WebGL</div></div></div>
+  <div class="loader"><div><div class="ring"></div><div class="lt">usmile</div></div></div>
 
   <nav>
-    <div class="brand no-drag"><span class="dot"></span><b>usmile</b><span>F20 · 视觉设计</span></div>
-    <a class="nav-back no-drag" href="../index.html#work/usmile">← 返回作品集</a>
+    <div class="brand no-drag"><span class="dot"></span>usmile<small>F20</small></div>
+    <a class="nav-cta no-drag" href="#buy">立即选购</a>
   </nav>
 
   <main>
@@ -192,30 +152,35 @@
       <div class="panel reveal">
         <div class="eyebrow" style="justify-content:center">AI 智能旗舰 · 健康旗舰</div>
         <h1 class="title">usmile <span class="grad">F20</span></h1>
-        <p class="tagline">四大护理方案 · <b style="color:var(--ink)">7 天 1 改善</b> · 全代码渲染的一支牙刷</p>
-        <div class="kicker">Three.js 手写 3D · 拖拽端详 · 滚动拆解</div>
-      </div>
-      <div class="hero-hints">
-        <span>拖拽 · 360° 旋转</span><span>滚动 · 伸缩拆解</span>
+        <p class="tagline">四大护理方案 · <b>7 天 1 改善</b></p>
+        <p class="kicker">智能电动牙刷 · 让每一次刷牙都被认真对待</p>
+        <div class="hero-cta no-drag">
+          <a class="btn-primary no-drag" href="#buy">立即选购</a>
+          <a class="btn-ghost no-drag" href="#s-tech">了解黑科技</a>
+        </div>
       </div>
       <div class="scroll-cue"></div>
     </section>
 
-    <!-- 2 端详 -->
-    <section class="scene" id="s-look">
+    <!-- 2 工艺 -->
+    <section class="scene" id="s-craft">
       <div class="panel reveal">
-        <div class="eyebrow">Craft · 一体成型</div>
-        <h2 class="h">阳极氧化铝<br><em>30+ 道精工</em></h2>
-        <p class="lede">机身由 LatheGeometry 沿轴旋成的优雅锥形，金属度 0.92、清漆层高光，在程序化棚拍环境里映出真实反射。按住任意处，360° 端详这支牙刷。</p>
+        <div class="eyebrow">一体成型 · 阳极氧化铝</div>
+        <h2 class="h">30+ 道精工<br><em>握感温润有分量</em></h2>
+        <p class="lede">整支机身由航空级阳极氧化铝一体成型，历经 30 多道精密工序打磨，触感细腻、质感高级。按住任意处，360° 端详这支牙刷的每一个曲面。</p>
+        <div class="feat">
+          <div class="f"><b>IPX8</b><span>整机防水，浴室随心用</span></div>
+          <div class="f"><b>3 种</b><span>智能 / 美白 / 护理模式</span></div>
+        </div>
       </div>
     </section>
 
     <!-- 3 双色 -->
     <section class="scene" id="s-color">
       <div class="panel reveal">
-        <div class="eyebrow">Colorway · 双配色</div>
+        <div class="eyebrow">两种颜色 · 各有心情</div>
         <h2 class="h">太空灰 / <em>冰莓粉</em></h2>
-        <p class="lede">点一下，机身材质实时渐变切换——不是换图，是同一支 3D 模型的材质在真实光照下重新着色。</p>
+        <p class="lede">沉稳太空灰，或温柔冰莓粉。点一下，看它在光线下换上另一种气质。</p>
         <div class="swatches no-drag">
           <button class="swatch active no-drag" data-c="gray"><span class="chip"></span>太空灰</button>
           <button class="swatch no-drag" data-c="pink"><span class="chip"></span>冰莓粉</button>
@@ -223,149 +188,121 @@
       </div>
     </section>
 
-    <!-- 4 伸缩拆解 -->
-    <section class="scene tall center" id="s-explode">
+    <!-- 4 科技内核（拆解）-->
+    <section class="scene tall center" id="s-tech">
       <div class="panel reveal">
-        <div class="eyebrow" style="justify-content:center">Exploded View · 伸缩拆解</div>
-        <h2 class="h">向下滚动，<em>逐层拆开</em></h2>
-        <p class="lede" style="margin:0 auto">刷头 · 类关节缓震 · 精控动力 2.0 马达 · 电池，沿轴伸缩炸开；反向滚动回装。每一层随镜头浮出标注。</p>
+        <div class="eyebrow" style="justify-content:center">拆开看看 · 内在实力</div>
+        <h2 class="h">好牙刷，<em>藏着真功夫</em></h2>
+        <p class="lede" style="margin:0 auto">精控动力 2.0 AI 变频马达、小雷达精准识别 6 区 16 面、类关节缓震、110 天超长续航——向下滚动，逐层看清 F20 的核心科技。</p>
       </div>
     </section>
 
     <!-- 5 四大方案 -->
     <section class="scene right" id="s-modes">
       <div class="panel reveal">
-        <div class="eyebrow">Four Solutions · 因人而护</div>
-        <h2 class="h">四大护理方案</h2>
+        <div class="eyebrow">四大护理方案 · 因人而护</div>
+        <h2 class="h">一刷，一方案</h2>
+        <p class="lede" style="margin-left:auto">针对四类常见口腔状况，各有专属护理程序，AI 压力控制让敏感牙也温和舒适。</p>
         <div class="modes">
-          <div class="mode no-drag" data-hi><div class="m-ic">正</div><h4>正畸护理</h4><p>托槽缝隙深洁，不伤矫治器</p></div>
-          <div class="mode no-drag" data-hi><div class="m-ic">周</div><h4>牙周护理</h4><p>牙龈温和按摩，控压防出血</p></div>
-          <div class="mode no-drag" data-hi><div class="m-ic">植</div><h4>种植护理</h4><p>种植体周精洁，缓震护结合</p></div>
-          <div class="mode no-drag" data-hi><div class="m-ic">龋</div><h4>防龋护理</h4><p>邻面菌斑清除，护釉抗敏</p></div>
+          <div class="mode no-drag" data-hi><div class="m-ic">正</div><h4>正畸护理</h4><p>托槽 / 隐形牙套缝隙深洁，不伤矫治器</p></div>
+          <div class="mode no-drag" data-hi><div class="m-ic">周</div><h4>牙周护理</h4><p>牙龈温和按摩，智能控压防出血</p></div>
+          <div class="mode no-drag" data-hi><div class="m-ic">植</div><h4>种植护理</h4><p>种植体周精洁，类关节缓震护结合</p></div>
+          <div class="mode no-drag" data-hi><div class="m-ic">龋</div><h4>防龋护理</h4><p>邻面菌斑清除，护釉又抗敏</p></div>
         </div>
       </div>
     </section>
 
-    <!-- 6 数据 -->
-    <section class="scene" id="s-stats">
+    <!-- 6 实测数据 -->
+    <section class="scene" id="s-proof">
       <div class="panel reveal">
-        <div class="eyebrow">Proven · 第三方实测</div>
-        <h2 class="h">7 天，看得见的改善</h2>
+        <div class="eyebrow">第三方实测 · 7 天见改善</div>
+        <h2 class="h">数据说话</h2>
         <div class="stats">
+          <div class="stat"><div class="n" data-count="99.1" data-suffix="%">0</div><div class="l">牙菌斑清除率（手动刷牙的 2.7 倍）</div></div>
           <div class="stat"><div class="n" data-count="80.8" data-suffix="%">0<small>↓</small></div><div class="l">牙龈指数下降</div></div>
           <div class="stat"><div class="n" data-count="93.2" data-suffix="%">0<small>↓</small></div><div class="l">牙龈出血减少</div></div>
-          <div class="stat"><div class="n" data-count="99.1" data-suffix="%">0</div><div class="l">牙菌斑清除率</div></div>
-          <div class="stat"><div class="n" data-count="720" data-suffix="+">0</div><div class="l">全球专利</div></div>
+          <div class="stat"><div class="n" data-count="71.5" data-suffix="%">0<small>↓</small></div><div class="l">软垢减少</div></div>
+        </div>
+        <div class="trust">
+          <span>720+ 全球专利</span><span>ADA 美国牙科协会认证</span><span>10+ 年专注口腔护理</span><span>30+ 国家在售</span>
         </div>
       </div>
     </section>
 
-    <!-- 7 收尾 -->
-    <section class="scene center finale" id="s-end">
+    <!-- 7 收尾 / 选购 -->
+    <section class="scene center finale" id="buy">
       <div class="panel reveal">
-        <div class="eyebrow" style="justify-content:center">Concept · 交互视觉设计</div>
-        <h2 class="h">一支<em>代码写成</em>的牙刷</h2>
-        <p class="lede" style="margin:0 auto">没有一张实拍图。从机身、刷毛到光影反射，全部由 Three.js 程序化建模与渲染。</p>
-        <div class="badge">
-          <span><b>WebGL</b> 手写 3D</span><span><b>PMREM</b> 环境反射</span><span><b>InstancedMesh</b> 刷毛</span><span><b>Scroll</b> 伸缩拆解</span>
-        </div>
+        <div class="eyebrow" style="justify-content:center">usmile F20 · 健康旗舰</div>
+        <h2 class="h">认真刷牙这件事，<em>值得更好的它</em></h2>
+        <p class="lede" style="margin:0 auto">AI 智能旗舰，四大护理方案，7 天 1 改善。把专业口腔护理，装进一支牙刷。</p>
+        <div class="hero-cta no-drag" style="margin-top:30px"><a class="btn-primary no-drag" href="#buy">立即选购</a></div>
+        <div class="spec"><span><b>110 天</b> 超长续航</span><span><b>IPX8</b> 整机防水</span><span><b>3 种</b> 刷牙模式</span><span><b>双色</b> 太空灰 / 冰莓粉</span></div>
+        <div class="kit">标配：手柄 · 2 支缓震美白刷头 · Type-C 充电线 · 牙刷支架 · 使用说明</div>
       </div>
     </section>
   </main>
 
   <div class="fallback">
-    <div>
-      <h1 style="font-size:32px;margin-bottom:12px">usmile F20 · 3D 产品秀</h1>
-      <p style="color:var(--muted);max-width:460px;margin:0 auto">当前浏览器未启用 WebGL，无法呈现实时 3D。请在支持 WebGL 的现代浏览器中打开以体验完整效果。</p>
-    </div>
+    <div><h1 style="font-size:32px;margin-bottom:12px;color:var(--ink)">usmile 智能电动牙刷 F20</h1>
+    <p style="color:var(--muted);max-width:460px;margin:0 auto">AI 智能旗舰 · 四大护理方案 · 7 天 1 改善。请在支持 WebGL 的现代浏览器中打开，体验完整 3D 展示。</p></div>
   </div>
 
-  <!-- 署名：设计意图 / 思路 -->
-  <aside class="signature no-drag" id="sig">
-    <button class="toggle no-drag" id="sig-toggle" aria-label="收起/展开">–</button>
-    <h5>usmile 视觉设计 · 设计手记</h5>
-    <p>本页为原创交互概念，<b style="color:var(--ink)">无任何实拍图</b>。牙刷由 Three.js 全代码程序化建模：LatheGeometry 旋成机身、InstancedMesh 种植刷毛、Canvas 生成棚拍环境经 PMREM 卷积出金属反射。滚动进度驱动"伸缩爆炸"叙事，拖拽 orbit 自由端详，双色为材质实时着色。意图是把一支产品，讲成一段可交互的光影短片。</p>
-    <div class="by">设计 · 手写 WebGL — <b>林灶辉 / JWick</b></div>
-  </aside>
+  <div class="signature">usmile · smile with confidence</div>
 
-  <!-- 自定义光标 -->
   <div id="cursor-trail"></div>
-  <div id="cursor"><span class="rot">DRAG</span></div>
+  <div id="cursor"><span class="rot">拖拽</span></div>
 
   <script src="./three.min.js"></script>
   <script src="./app.js"></script>
   <script>
-  /* ---- 自定义光标 ---- */
   (function(){
     var cur=document.getElementById('cursor'), trail=document.getElementById('cursor-trail');
     if(!cur||matchMedia('(pointer:coarse)').matches) return;
     var x=innerWidth/2,y=innerHeight/2,tx=x,ty=y,cx=x,cy=y;
     addEventListener('mousemove',function(e){x=e.clientX;y=e.clientY;
       var t=e.target;
-      if(t&&t.closest&&t.closest('a,button,.mode,.swatch,.no-drag .nav-back,.nav-back')) document.body.classList.add('cur-hover');
+      if(t&&t.closest&&t.closest('a,button,.mode,.swatch')) document.body.classList.add('cur-hover');
       else document.body.classList.remove('cur-hover');
     },{passive:true});
-    (function loop(){
-      cx+=(x-cx)*0.35; cy+=(y-cy)*0.35; tx+=(x-tx)*0.12; ty+=(y-ty)*0.12;
-      cur.style.transform='translate('+cx+'px,'+cy+'px)';
-      trail.style.transform='translate('+tx+'px,'+ty+'px)';
-      requestAnimationFrame(loop);
-    })();
+    (function loop(){ cx+=(x-cx)*0.35;cy+=(y-cy)*0.35;tx+=(x-tx)*0.12;ty+=(y-ty)*0.12;
+      cur.style.transform='translate('+cx+'px,'+cy+'px)'; trail.style.transform='translate('+tx+'px,'+ty+'px)';
+      requestAnimationFrame(loop); })();
   })();
 
-  /* ---- 双色切换 ---- */
   document.querySelectorAll('.swatch').forEach(function(s){
     s.addEventListener('click',function(){
       document.querySelectorAll('.swatch').forEach(function(o){o.classList.remove('active')});
-      s.classList.add('active');
-      if(window.usmileSetColor) window.usmileSetColor(s.dataset.c);
+      s.classList.add('active'); if(window.usmileSetColor) window.usmileSetColor(s.dataset.c);
     });
   });
-
-  /* ---- 方案 hover 联动刷头高亮 ---- */
   document.querySelectorAll('[data-hi]').forEach(function(m){
     m.addEventListener('mouseenter',function(){window.usmileHighlight&&window.usmileHighlight(true)});
     m.addEventListener('mouseleave',function(){window.usmileHighlight&&window.usmileHighlight(false)});
   });
 
-  /* ---- reveal + 数字滚动 ---- */
   var io=new IntersectionObserver(function(es){
-    es.forEach(function(e){
-      if(e.isIntersecting){
-        e.target.classList.add('in');
-        if(e.target.classList.contains('stats')) runCounters();
-        io.unobserve(e.target);
-      }
-    });
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in');
+      if(e.target.classList.contains('stats')) runCounters(); io.unobserve(e.target); } });
   },{threshold:.25});
   document.querySelectorAll('.reveal,.stats').forEach(function(el){io.observe(el)});
   var counted=false;
-  function runCounters(){
-    if(counted)return; counted=true;
+  function runCounters(){ if(counted)return; counted=true;
     document.querySelectorAll('[data-count]').forEach(function(el){
       var end=parseFloat(el.dataset.count), suf=el.dataset.suffix||'', dec=(end%1!==0)?1:0, t0=null, dur=1400;
-      function step(ts){ if(!t0)t0=ts; var p=Math.min(1,(ts-t0)/dur); var e=1-Math.pow(1-p,3);
+      function step(ts){ if(!t0)t0=ts; var p=Math.min(1,(ts-t0)/dur), e=1-Math.pow(1-p,3);
         el.innerHTML=(end*e).toFixed(dec)+'<small>'+suf+'</small>'; if(p<1)requestAnimationFrame(step); }
       requestAnimationFrame(step);
     });
   }
 
-  /* ---- 署名折叠 ---- */
-  document.getElementById('sig-toggle').addEventListener('click',function(){
-    var s=document.getElementById('sig'); s.classList.toggle('min');
-    this.textContent=s.classList.contains('min')?'+':'–';
-  });
-
-  /* ---- 环境浮尘粒子 ---- */
   (function(){
     var cv=document.getElementById('dust'); if(!cv)return; var g=cv.getContext('2d'),W,H,ps=[];
-    function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
-    rs(); addEventListener('resize',rs);
-    for(var i=0;i<70;i++)ps.push({x:Math.random(),y:Math.random(),z:Math.random()*.8+.2,s:Math.random()*1.6+.4,vy:(Math.random()*.2+.05)});
+    function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;} rs(); addEventListener('resize',rs);
+    for(var i=0;i<56;i++)ps.push({x:Math.random(),y:Math.random(),z:Math.random()*.8+.2,s:Math.random()*1.6+.5,vy:(Math.random()*.16+.04)});
     (function d(){ g.clearRect(0,0,W,H);
       for(var i=0;i<ps.length;i++){var p=ps[i];p.y-=p.vy/H*1.4; if(p.y<-0.02){p.y=1.02;p.x=Math.random();}
         var px=p.x*W,py=p.y*H; g.beginPath(); g.arc(px,py,p.s*p.z,0,6.28);
-        g.fillStyle='rgba('+(150+p.z*60|0)+','+(180+p.z*40|0)+',255,'+(0.10+p.z*0.28)+')'; g.fill();}
+        g.fillStyle='rgba('+(120+p.z*40|0)+','+(160+p.z*40|0)+',255,'+(0.05+p.z*0.14)+')'; g.fill();}
       requestAnimationFrame(d);
     })();
   })();
