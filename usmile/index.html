@@ -16,8 +16,8 @@
   html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
   body{
     background:
-      radial-gradient(60% 45% at 20% 12%, rgba(120,175,255,.14), transparent 60%),
-      radial-gradient(52% 50% at 84% 82%, rgba(255,150,190,.12), transparent 60%),
+      radial-gradient(60% 45% at 18% 12%, rgba(120,175,255,.14), transparent 60%),
+      radial-gradient(52% 50% at 86% 84%, rgba(255,150,190,.12), transparent 60%),
       linear-gradient(180deg,#ffffff, #eef4fc 60%, #ffffff);
     background-attachment:fixed; color:var(--ink);
     font-family:'Inter',system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
@@ -25,13 +25,17 @@
   }
   a{color:inherit;text-decoration:none}
 
-  /* 背景大字（在 3D 画布之下，产品从字前穿过 → 3D 透视层叠）*/
   .bg-word{position:fixed;inset:0;z-index:0;display:grid;place-items:center;pointer-events:none;overflow:hidden}
-  .bg-word span{font-size:clamp(90px,20vw,340px);font-weight:900;letter-spacing:-.05em;white-space:nowrap;
-    color:transparent;-webkit-text-stroke:2px rgba(43,123,255,.10);opacity:.9}
+  .bg-word span{font-size:clamp(90px,20vw,340px);font-weight:900;letter-spacing:-.05em;white-space:nowrap;color:transparent;-webkit-text-stroke:2px rgba(43,123,255,.08)}
 
   #stage{position:fixed;inset:0;width:100vw;height:100vh;z-index:1;display:block}
-  #dust{position:fixed;inset:0;width:100vw;height:100vh;z-index:2;pointer-events:none;opacity:.55}
+  #dust{position:fixed;inset:0;width:100vw;height:100vh;z-index:2;pointer-events:none;opacity:.5}
+
+  /* 拆解自动标注 */
+  #callouts{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity .3s}
+  .callout{position:absolute;top:0;left:0;display:flex;align-items:center;gap:8px;transform-origin:left center;will-change:transform;white-space:nowrap;margin-left:14px}
+  .co-dot{width:9px;height:9px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 4px rgba(43,123,255,.14),0 0 12px rgba(43,123,255,.5);flex:0 0 auto}
+  .co-text{font-size:12.5px;letter-spacing:.02em;color:#0e2138;background:rgba(255,255,255,.85);border:1px solid var(--line);padding:4px 11px;border-radius:999px;backdrop-filter:blur(6px);box-shadow:0 6px 18px rgba(30,60,110,.1)}
 
   nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:18px 32px;pointer-events:none}
   .brand{font-weight:800;letter-spacing:.02em;font-size:19px;display:flex;align-items:center;gap:9px;color:var(--ink)}
@@ -41,63 +45,61 @@
 
   main{position:relative;z-index:5}
   .scene{min-height:100vh;display:flex;align-items:center;padding:0 clamp(28px,7vw,110px);pointer-events:none}
-  .scene.tall{min-height:230vh;align-items:flex-start;padding-top:14vh}
+  .scene.tall{min-height:230vh;align-items:flex-start;padding-top:13vh}
   .panel{max-width:540px;pointer-events:none}
   .scene.right{justify-content:flex-end}
   .scene.right .panel{text-align:right}
   .scene.center{justify-content:center;text-align:center}
-  .scene.center .panel{max-width:960px}
-
-  /* hero：上 eyebrow / 中留白给产品 / 下 tagline+CTA，文字不挡产品 */
-  #s-hero{flex-direction:column;justify-content:space-between;align-items:center;padding-top:14vh;padding-bottom:8vh;text-align:center}
-  .hero-top,.hero-bot{pointer-events:none}
-  .hero-title{font-size:clamp(40px,7vw,104px);font-weight:800;letter-spacing:-.04em;line-height:.96;color:var(--ink)}
-  .hero-title .grad{background:linear-gradient(120deg,var(--blue),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .scene.center .panel{max-width:900px}
+  #s-tech .panel{position:sticky;top:13vh}
 
   .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);font-weight:700;margin-bottom:16px}
   .eyebrow::before{content:"";width:24px;height:2px;background:var(--blue);border-radius:2px}
   .scene.right .eyebrow{flex-direction:row-reverse}
+
+  h1.hero-title{font-size:clamp(44px,6.4vw,92px);font-weight:800;letter-spacing:-.045em;line-height:.98;color:var(--ink)}
+  .hero-title .grad{background:linear-gradient(120deg,var(--blue),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .model{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--blue);margin:12px 0 14px;display:inline-block;border:1px solid rgba(43,123,255,.32);border-radius:999px;padding:5px 13px}
   h2.h{font-size:clamp(30px,5vw,58px);font-weight:800;letter-spacing:-.02em;line-height:1.04;margin-bottom:16px;color:var(--ink)}
   h2.h em{font-style:normal;background:linear-gradient(120deg,var(--blue),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
   .lede{font-size:clamp(15px,1.5vw,18px);color:var(--muted);max-width:46ch;line-height:1.75}
   .scene.right .lede{margin-left:auto}
-  .tagline{font-size:clamp(16px,1.7vw,21px);color:var(--muted)}
+  .hl{display:flex;flex-direction:column;gap:9px;margin:18px 0 6px;list-style:none}
+  .scene.right .hl{align-items:flex-end}
+  .hl li{font-size:14.5px;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:9px}
+  .hl li::before{content:"";width:7px;height:7px;border-radius:2px;background:linear-gradient(135deg,var(--blue),var(--pink))}
+  .tagline{font-size:clamp(16px,1.7vw,20px);color:var(--muted);margin-top:14px}
   .tagline b{color:var(--ink);font-weight:700}
 
-  .cta{display:inline-flex;gap:14px;margin-top:26px;pointer-events:auto}
+  .cta{display:inline-flex;gap:14px;margin-top:24px;pointer-events:auto}
   .scene.right .cta{justify-content:flex-end}
   .btn-primary{background:var(--blue);color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;box-shadow:0 12px 28px rgba(43,123,255,.3);transition:.3s;cursor:pointer}
   .btn-primary:hover{background:#1a63e6;transform:translateY(-2px)}
   .btn-ghost{color:var(--ink);font-weight:600;font-size:15px;padding:13px 22px;border-radius:999px;border:1px solid var(--line2);transition:.3s;cursor:pointer}
   .btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
 
-  .scroll-cue{width:22px;height:34px;border:1px solid var(--line2);border-radius:14px;display:flex;justify-content:center;padding-top:6px;margin:16px auto 0}
-  .scroll-cue::before{content:"";width:3px;height:7px;border-radius:2px;background:var(--blue);animation:cue 1.6s ease-in-out infinite}
-  @keyframes cue{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(9px);opacity:1}}
-
-  .feat{display:flex;gap:22px;margin-top:24px;flex-wrap:wrap}
+  .feat{display:flex;gap:22px;margin-top:22px;flex-wrap:wrap}
   .scene.right .feat{justify-content:flex-end}
   .feat .f b{font-size:22px;font-weight:800;color:var(--ink);display:block}
   .feat .f span{font-size:12.5px;color:var(--muted)}
 
-  .swatches{display:inline-flex;gap:14px;margin-top:28px;pointer-events:auto}
+  .swatches{display:inline-flex;gap:14px;margin-top:26px;pointer-events:auto}
   .scene.right .swatches{justify-content:flex-end}
   .swatch{display:flex;flex-direction:column;align-items:center;gap:10px;background:transparent;border:0;cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:600}
   .swatch .chip{width:54px;height:54px;border-radius:50%;border:2px solid transparent;transition:.35s;box-shadow:0 8px 20px rgba(30,60,110,.16)}
-  .swatch[data-c="gray"] .chip{background:radial-gradient(circle at 35% 30%,#e8eaee,#a7abb2 68%,#7f838b)}
-  .swatch[data-c="pink"] .chip{background:radial-gradient(circle at 35% 30%,#ffe1ea,#eab6c6 62%,#cf93a6)}
+  .swatch[data-c="gray"] .chip{background:radial-gradient(circle at 35% 30%,#eceef2,#aeb3bb 68%,#83878f)}
+  .swatch[data-c="pink"] .chip{background:radial-gradient(circle at 35% 30%,#ffe6ee,#efc2ce 62%,#d19cac)}
   .swatch.active .chip{border-color:var(--blue);transform:translateY(-3px)}
   .swatch.active{color:var(--ink)}
 
   .modes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;pointer-events:auto}
-  .mode{border:1px solid var(--line);border-radius:18px;padding:18px 20px;background:var(--card);backdrop-filter:blur(10px);transition:.35s;cursor:pointer;box-shadow:0 10px 30px rgba(30,60,110,.06)}
+  .mode{border:1px solid var(--line);border-radius:18px;padding:18px 20px;background:var(--card);backdrop-filter:blur(10px);transition:.35s;cursor:pointer;box-shadow:0 10px 30px rgba(30,60,110,.06);text-align:left}
   .mode:hover{border-color:var(--blue);transform:translateY(-4px);box-shadow:0 20px 44px rgba(43,123,255,.16)}
   .mode .m-ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;margin-bottom:12px;background:linear-gradient(135deg,rgba(43,123,255,.14),rgba(255,133,171,.14));color:var(--blue);font-weight:800}
   .mode h4{font-size:16px;font-weight:700;margin-bottom:5px}
   .mode p{font-size:12px;color:var(--muted);line-height:1.55}
 
   .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:24px 40px;margin-top:8px}
-  .scene.right .stats{direction:rtl}.scene.right .stats .stat{direction:ltr;text-align:right}
   .stat .n{font-size:clamp(36px,5vw,62px);font-weight:800;letter-spacing:-.03em;color:var(--ink)}
   .stat .n small{font-size:.4em;font-weight:700;color:var(--blue);margin-left:2px}
   .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
@@ -109,23 +111,12 @@
   .finale .spec b{color:var(--ink);font-weight:700}
   .finale .kit{font-size:12.5px;color:var(--faint);margin-top:20px}
 
-  /* 拆解提示 + 零件说明卡 */
-  .tech-hint{position:fixed;left:50%;bottom:40px;transform:translateX(-50%);z-index:12;font-size:13px;color:var(--muted);
-    background:var(--card);border:1px solid var(--line);padding:9px 18px;border-radius:999px;backdrop-filter:blur(8px);
-    box-shadow:0 8px 24px rgba(30,60,110,.1);opacity:0;transition:opacity .4s;pointer-events:none;display:flex;align-items:center;gap:8px}
-  body.in-tech .tech-hint{opacity:1}
-  .tech-hint .pd{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 4px rgba(43,123,255,.16);animation:cue 1.6s infinite}
-  .part-card{position:fixed;top:0;left:0;z-index:14;width:280px;max-width:80vw;background:rgba(255,255,255,.92);border:1px solid var(--line2);
-    border-radius:16px;padding:18px 20px;box-shadow:0 20px 50px rgba(30,60,110,.18);backdrop-filter:blur(14px);
-    opacity:0;transform:translateY(8px) scale(.98);transition:opacity .28s,transform .28s;pointer-events:none;will-change:transform}
-  .part-card.on{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
-  .part-card h4{font-size:17px;font-weight:800;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:8px}
-  .part-card h4::before{content:"";width:9px;height:9px;border-radius:3px;background:linear-gradient(135deg,var(--blue),var(--pink))}
-  .part-card p{font-size:13px;color:var(--muted);line-height:1.7}
-  .part-card .x{position:absolute;top:12px;right:14px;font-size:16px;color:var(--faint);cursor:pointer;line-height:1}
+  .scroll-cue{width:22px;height:34px;border:1px solid var(--line2);border-radius:14px;display:flex;justify-content:center;padding-top:6px;margin-top:22px}
+  .scroll-cue::before{content:"";width:3px;height:7px;border-radius:2px;background:var(--blue);animation:cue 1.6s ease-in-out infinite}
+  @keyframes cue{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(9px);opacity:1}}
 
   .signature{position:fixed;right:20px;bottom:16px;z-index:20;font-size:11px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;pointer-events:none}
-  @media (max-width:640px){.signature{display:none}.part-card{width:230px}}
+  @media (max-width:760px){.signature{display:none}.panel{max-width:none}.modes{grid-template-columns:1fr}}
 
   .loader{position:fixed;inset:0;z-index:90;background:#ffffff;display:grid;place-items:center;transition:opacity .8s,visibility .8s}
   body.scene-ready .loader{opacity:0;visibility:hidden}
@@ -145,6 +136,7 @@
   <div class="bg-word"><span>智能牙刷</span></div>
   <canvas id="stage"></canvas>
   <canvas id="dust"></canvas>
+  <div id="callouts"></div>
 
   <div class="loader"><div><div class="ring"></div><div class="lt">Loading</div></div></div>
 
@@ -154,14 +146,17 @@
   </nav>
 
   <main>
-    <!-- 1 hero -->
+    <!-- 1 hero：文字左 · 产品右 -->
     <section class="scene" id="s-hero">
-      <div class="hero-top reveal">
-        <div class="eyebrow" style="justify-content:center">AI 智能旗舰 · 健康旗舰</div>
+      <div class="panel reveal">
+        <div class="eyebrow">AI 智能旗舰 · 健康旗舰</div>
         <h1 class="hero-title">智能<span class="grad">牙刷</span></h1>
-      </div>
-      <div class="hero-bot reveal">
-        <p class="tagline">四大护理方案 · <b>7 天 1 改善</b></p>
+        <div class="model">型号 · 旗舰款 PRO｜声波电动</div>
+        <ul class="hl">
+          <li>四大护理方案，7 天 1 改善</li>
+          <li>精控动力 · AI 变频，机身智能屏</li>
+          <li>110 天超长续航 · IPX8 整机防水</li>
+        </ul>
         <div class="cta">
           <a class="btn-primary jd" href="#" target="_blank" rel="noopener">立即选购</a>
           <a class="btn-ghost" href="#s-tech">看看黑科技</a>
@@ -170,8 +165,8 @@
       </div>
     </section>
 
-    <!-- 2 工艺（产品右 · 文字左）-->
-    <section class="scene" id="s-craft">
+    <!-- 2 工艺：文字右 · 产品左 -->
+    <section class="scene right" id="s-craft">
       <div class="panel reveal">
         <div class="eyebrow">一体成型 · 阳极氧化铝</div>
         <h2 class="h">30+ 道精工<br><em>握感温润有分量</em></h2>
@@ -183,8 +178,8 @@
       </div>
     </section>
 
-    <!-- 3 双色（产品左 · 文字右）-->
-    <section class="scene right" id="s-color">
+    <!-- 3 双色：文字左 · 产品右 -->
+    <section class="scene" id="s-color">
       <div class="panel reveal">
         <div class="eyebrow">两种颜色 · 各有心情</div>
         <h2 class="h">太空灰 / <em>冰莓粉</em></h2>
@@ -196,21 +191,21 @@
       </div>
     </section>
 
-    <!-- 4 好牙刷展示真功夫（拆解 · 点击零件）-->
-    <section class="scene tall center" id="s-tech">
+    <!-- 4 好牙刷展示真功夫：标题常驻左侧 · 产品在右逐层拆解、零件门道自动标注 -->
+    <section class="scene tall" id="s-tech">
       <div class="panel reveal">
-        <div class="eyebrow" style="justify-content:center">好牙刷 · 展示真功夫</div>
+        <div class="eyebrow">好牙刷 · 展示真功夫</div>
         <h2 class="h">拆开看看，<em>藏着什么</em></h2>
-        <p class="lede" style="margin:0 auto">向下滚动，牙刷逐层拆解。<b style="color:var(--ink)">点击任意零件</b>，看清它的门道。</p>
+        <p class="lede">向下滚动，牙刷逐层拆解，每个零件的门道自动标注出来。</p>
       </div>
     </section>
 
-    <!-- 5 四大方案（产品右 · 文字左）-->
-    <section class="scene" id="s-modes">
+    <!-- 5 四大方案：文字右 · 产品左 -->
+    <section class="scene right" id="s-modes">
       <div class="panel reveal">
         <div class="eyebrow">四大护理方案 · 因人而护</div>
         <h2 class="h">一刷，一方案</h2>
-        <p class="lede">针对四类常见口腔状况，各有专属护理程序，智能压力控制让敏感牙也温和舒适。</p>
+        <p class="lede" style="margin-left:auto">针对四类常见口腔状况，各有专属护理程序，智能压力控制让敏感牙也温和舒适。</p>
         <div class="modes">
           <div class="mode" data-hi><div class="m-ic">正</div><h4>正畸护理</h4><p>托槽 / 隐形牙套缝隙深洁，不伤矫治器</p></div>
           <div class="mode" data-hi><div class="m-ic">周</div><h4>牙周护理</h4><p>牙龈温和按摩，智能控压防出血</p></div>
@@ -220,8 +215,8 @@
       </div>
     </section>
 
-    <!-- 6 数据（产品左 · 文字右）-->
-    <section class="scene right" id="s-proof">
+    <!-- 6 数据：文字左 · 产品右 -->
+    <section class="scene" id="s-proof">
       <div class="panel reveal">
         <div class="eyebrow">第三方实测 · 7 天见改善</div>
         <h2 class="h">数据说话</h2>
@@ -235,7 +230,7 @@
       </div>
     </section>
 
-    <!-- 7 收尾 / 选购 -->
+    <!-- 7 收尾 / 选购：产品移出，文字居中不被遮挡 -->
     <section class="scene center finale" id="s-buy">
       <div class="panel reveal">
         <div class="eyebrow" style="justify-content:center">智能牙刷 · 健康旗舰</div>
@@ -250,9 +245,6 @@
 
   <div class="fallback"><div><h1 style="font-size:32px;margin-bottom:12px;color:var(--ink)">智能牙刷</h1>
     <p style="color:var(--muted);max-width:460px;margin:0 auto">AI 智能旗舰 · 四大护理方案 · 7 天 1 改善。请在支持 WebGL 的现代浏览器中打开，体验完整 3D 展示。</p></div></div>
-
-  <div class="tech-hint"><span class="pd"></span>点击零件，查看说明</div>
-  <div class="part-card" id="partCard"><span class="x" id="partClose">✕</span><h4 id="partTitle"></h4><p id="partDesc"></p></div>
 
   <div class="signature">智能牙刷 · smart care</div>
 
@@ -273,9 +265,8 @@
     m.addEventListener('mouseleave',function(){window.usmileHighlight&&window.usmileHighlight(false)});
   });
 
-  /* reveal + 数字滚动 */
   var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in');
-    if(e.target.classList.contains('stats')) runCounters(); io.unobserve(e.target); } }); },{threshold:.25});
+    if(e.target.classList.contains('stats')) runCounters(); io.unobserve(e.target); } }); },{threshold:.2});
   document.querySelectorAll('.reveal,.stats').forEach(function(el){io.observe(el)});
   var counted=false;
   function runCounters(){ if(counted)return; counted=true;
@@ -287,40 +278,12 @@
     });
   }
 
-  /* 拆解区提示：s-tech 在视口内时显示 */
-  var techIO=new IntersectionObserver(function(es){ es.forEach(function(e){
-    document.body.classList.toggle('in-tech', e.isIntersecting);
-    if(!e.isIntersecting) window.usmileHidePart&&window.usmileHidePart();
-  }); },{threshold:.15});
-  techIO.observe(document.getElementById('s-tech'));
-
-  /* 点击零件 → 说明卡（跟随零件锚点，酷炫浮现）*/
-  var PARTS={
-    head:{t:'小雷达刷头 · 6 区 16 面',d:'精准识别牙齿分区，哪里没刷到看得见；新一代缓震美白刷头，温和不伤釉。'},
-    motor:{t:'精控动力马达 · AI 变频',d:'智能感应牙面，还原科学刷牙动作，力度稳、清洁强，敏感牙也舒适。'},
-    battery:{t:'110 天超长续航',d:'护理模式每天两次、每次两分钟，约 110 天一充；Type-C 充电 4–5 小时充满。'},
-    body:{t:'阳极氧化铝机身 · 智能屏',d:'30+ 道精密工序，IPX8 整机防水；机身智能屏实时显示模式、电量与计时。'}
-  };
-  var card=document.getElementById('partCard'), pt=document.getElementById('partTitle'), pd=document.getElementById('partDesc');
-  var curPart=null;
-  window.usmileShowPart=function(key,x,y){ var info=PARTS[key]; if(!info)return; curPart=key;
-    pt.textContent=info.t; pd.textContent=info.d; card.classList.add('on'); placeCard(x,y); };
-  window.usmileHidePart=function(){ curPart=null; card.classList.remove('on'); };
-  document.getElementById('partClose').addEventListener('click',function(e){e.stopPropagation();window.usmileHidePart();});
-  function placeCard(x,y){ var w=card.offsetWidth||280,h=card.offsetHeight||140;
-    var px=x+22, py=y-h/2; if(px+w>innerWidth-16)px=x-w-22; if(px<16)px=16;
-    py=Math.max(74,Math.min(py,innerHeight-h-16)); card.style.transform='translate('+px+'px,'+py+'px)'; }
-  /* 每帧跟随零件（拆解态；转出视口/回装则关闭）*/
-  window.usmileTickAnchors=function(){ if(!curPart)return; var s=window.usmilePartScreen&&window.usmilePartScreen(curPart);
-    if(!s||!s.exploded){ window.usmileHidePart(); return; } placeCard(s.x,s.y); };
-
-  /* 环境浮尘（浅色）*/
   (function(){ var cv=document.getElementById('dust'); if(!cv)return; var g=cv.getContext('2d'),W,H,ps=[];
     function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;} rs(); addEventListener('resize',rs);
-    for(var i=0;i<52;i++)ps.push({x:Math.random(),y:Math.random(),z:Math.random()*.8+.2,s:Math.random()*1.5+.5,vy:(Math.random()*.15+.04)});
+    for(var i=0;i<48;i++)ps.push({x:Math.random(),y:Math.random(),z:Math.random()*.8+.2,s:Math.random()*1.5+.5,vy:(Math.random()*.14+.04)});
     (function d(){ g.clearRect(0,0,W,H);
       for(var i=0;i<ps.length;i++){var p=ps[i];p.y-=p.vy/H*1.4; if(p.y<-0.02){p.y=1.02;p.x=Math.random();}
-        g.beginPath(); g.arc(p.x*W,p.y*H,p.s*p.z,0,6.28); g.fillStyle='rgba('+(120+p.z*40|0)+','+(160+p.z*40|0)+',255,'+(0.05+p.z*0.13)+')'; g.fill();}
+        g.beginPath(); g.arc(p.x*W,p.y*H,p.s*p.z,0,6.28); g.fillStyle='rgba('+(120+p.z*40|0)+','+(160+p.z*40|0)+',255,'+(0.05+p.z*0.12)+')'; g.fill();}
       requestAnimationFrame(d); })();
   })();
   </script>
