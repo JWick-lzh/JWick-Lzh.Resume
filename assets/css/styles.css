@@ -1,53 +1,53 @@
 /* ==========================================================================
    林灶辉 · 简历网站  styles.css
-   Swiss 瑞士网格主题 · 直角硬边 · 网格线 · 零依赖（系统字体栈，离线可用）
+   Swiss 瑞士网格布局 + Ocean 淡蓝配色 · 直角硬边 · 网格线 · 零依赖（系统字体栈，离线可用）
    ========================================================================== */
 
-/* ---------- 设计令牌：两套主题（Swiss 瑞士网格，参考 风格参考.html 风格2） ---------- */
+/* ---------- 设计令牌：两套主题（Swiss 瑞士网格布局 + Ocean 淡蓝配色） ---------- */
 :root[data-theme="light"] {
-  --bg: #fafaf7;
-  --bg-soft: #f2f2ee;
+  --bg: #f4f9ff;
+  --bg-soft: #e9f2fc;
   --surface: #ffffff;
-  --surface-2: #f2f2ee;
-  --text: #0a0a0a;
-  --text-muted: rgba(10, 10, 10, .66);
-  --text-faint: rgba(10, 10, 10, .42);
-  --accent: #dc2626;
-  --accent-2: #dc2626;
-  --accent-soft: rgba(220, 38, 38, .08);
-  --border: rgba(10, 10, 10, .18);
-  --border-strong: rgba(10, 10, 10, .30);
+  --surface-2: #eef5fe;
+  --text: #0b2036;
+  --text-muted: #4a6785;
+  --text-faint: #6e8aa6;
+  --accent: #2563eb;
+  --accent-2: #3b82f6;
+  --accent-soft: rgba(37, 99, 235, .10);
+  --border: #d0e2f6;
+  --border-strong: #b1cdee;
   --shadow: none;
-  --glow: 0 0 0 2px rgba(220, 38, 38, .22);
-  --tier1: #dc2626;
-  --tier2: #0a0a0a;
-  --tier3: rgba(10, 10, 10, .5);
-  --nav-bg: #fafaf7;
+  --glow: 0 0 0 2px rgba(37, 99, 235, .22);
+  --tier1: #2563eb;
+  --tier2: #0e9bb0;
+  --tier3: #6d5fd6;
+  --nav-bg: #f4f9ff;
   --hero-glow: none;
-  --grid: rgba(10, 10, 10, .045);
+  --grid: rgba(11, 32, 54, .05);
 }
 
 :root[data-theme="dark"] {
-  --bg: #0a0a0a;
-  --bg-soft: #0f0f0f;
-  --surface: #131313;
-  --surface-2: #181818;
-  --text: #f5f5f0;
-  --text-muted: rgba(245, 245, 240, .66);
-  --text-faint: rgba(245, 245, 240, .42);
-  --accent: #e63946;
-  --accent-2: #e63946;
-  --accent-soft: rgba(230, 57, 70, .14);
-  --border: rgba(245, 245, 240, .18);
-  --border-strong: rgba(245, 245, 240, .30);
+  --bg: #0a1929;
+  --bg-soft: #0d1e32;
+  --surface: #0f2238;
+  --surface-2: #142a44;
+  --text: #dbeafe;
+  --text-muted: #9fb8d9;
+  --text-faint: #74899f;
+  --accent: #60a5fa;
+  --accent-2: #93c5fd;
+  --accent-soft: rgba(96, 165, 250, .14);
+  --border: #1a3652;
+  --border-strong: #244568;
   --shadow: none;
-  --glow: 0 0 0 2px rgba(230, 57, 70, .28);
-  --tier1: #e63946;
-  --tier2: #f5f5f0;
-  --tier3: rgba(245, 245, 240, .55);
-  --nav-bg: #0a0a0a;
+  --glow: 0 0 0 2px rgba(96, 165, 250, .28);
+  --tier1: #60a5fa;
+  --tier2: #5eead4;
+  --tier3: #c4b5fd;
+  --nav-bg: #0a1929;
   --hero-glow: none;
-  --grid: rgba(245, 245, 240, .05);
+  --grid: rgba(96, 165, 250, .05);
 }
 
 /* ---------- 基础 ---------- */

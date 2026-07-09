@@ -119,7 +119,7 @@
     var t = R[state.lang].ui.themeLabel;
     btn.setAttribute("aria-label", t);
     btn.setAttribute("title", t);
-    if (metaTheme) { metaTheme.setAttribute("content", theme === "dark" ? "#0a0a0a" : "#fafaf7"); }
+    if (metaTheme) { metaTheme.setAttribute("content", theme === "dark" ? "#0a1929" : "#f4f9ff"); }
   }
   function toggleTheme() {
     var next = state.theme === "dark" ? "light" : "dark";
