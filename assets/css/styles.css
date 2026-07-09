@@ -1,53 +1,53 @@
 /* ==========================================================================
    林灶辉 · 简历网站  styles.css
-   Ocean 淡蓝主题 · 克制交互 · 零依赖（系统字体栈，离线可用）
+   Swiss 瑞士网格主题 · 直角硬边 · 网格线 · 零依赖（系统字体栈，离线可用）
    ========================================================================== */
 
-/* ---------- 设计令牌：两套主题（Ocean 淡蓝，参考 Design_Styles_SKILL.md 风格7） ---------- */
+/* ---------- 设计令牌：两套主题（Swiss 瑞士网格，参考 风格参考.html 风格2） ---------- */
 :root[data-theme="light"] {
-  --bg: #f4f9ff;
-  --bg-soft: #e9f2fc;
+  --bg: #fafaf7;
+  --bg-soft: #f2f2ee;
   --surface: #ffffff;
-  --surface-2: #eef5fe;
-  --text: #0b2036;
-  --text-muted: #4a6785;
-  --text-faint: #6e8aa6;
-  --accent: #2563eb;
-  --accent-2: #3b82f6;
-  --accent-soft: rgba(37, 99, 235, .10);
-  --border: #d7e6f7;
-  --border-strong: #b9d3ef;
-  --shadow: 0 8px 28px rgba(15, 55, 95, .10);
-  --glow: 0 0 0 3px rgba(37, 99, 235, .12);
-  --tier1: #2563eb;
-  --tier2: #0e9bb0;
-  --tier3: #6d5fd6;
-  --nav-bg: rgba(244, 249, 255, .8);
-  --hero-glow: radial-gradient(60% 60% at 80% 8%, rgba(37, 99, 235, .08), transparent 70%);
-  --grid: rgba(11, 32, 54, .035);
+  --surface-2: #f2f2ee;
+  --text: #0a0a0a;
+  --text-muted: rgba(10, 10, 10, .66);
+  --text-faint: rgba(10, 10, 10, .42);
+  --accent: #dc2626;
+  --accent-2: #dc2626;
+  --accent-soft: rgba(220, 38, 38, .08);
+  --border: rgba(10, 10, 10, .18);
+  --border-strong: rgba(10, 10, 10, .30);
+  --shadow: none;
+  --glow: 0 0 0 2px rgba(220, 38, 38, .22);
+  --tier1: #dc2626;
+  --tier2: #0a0a0a;
+  --tier3: rgba(10, 10, 10, .5);
+  --nav-bg: #fafaf7;
+  --hero-glow: none;
+  --grid: rgba(10, 10, 10, .045);
 }
 
 :root[data-theme="dark"] {
-  --bg: #0a1929;
-  --bg-soft: #0d1e32;
-  --surface: #0f2238;
-  --surface-2: #142a44;
-  --text: #dbeafe;
-  --text-muted: #9fb8d9;
-  --text-faint: #74899f;
-  --accent: #60a5fa;
-  --accent-2: #93c5fd;
-  --accent-soft: rgba(96, 165, 250, .14);
-  --border: #16324f;
-  --border-strong: #1e3f61;
-  --shadow: 0 12px 40px rgba(0, 0, 0, .5);
-  --glow: 0 0 26px rgba(96, 165, 250, .22);
-  --tier1: #60a5fa;
-  --tier2: #5eead4;
-  --tier3: #c4b5fd;
-  --nav-bg: rgba(10, 25, 41, .72);
-  --hero-glow: radial-gradient(55% 55% at 82% 6%, rgba(96, 165, 250, .16), transparent 70%);
-  --grid: rgba(96, 165, 250, .04);
+  --bg: #0a0a0a;
+  --bg-soft: #0f0f0f;
+  --surface: #131313;
+  --surface-2: #181818;
+  --text: #f5f5f0;
+  --text-muted: rgba(245, 245, 240, .66);
+  --text-faint: rgba(245, 245, 240, .42);
+  --accent: #e63946;
+  --accent-2: #e63946;
+  --accent-soft: rgba(230, 57, 70, .14);
+  --border: rgba(245, 245, 240, .18);
+  --border-strong: rgba(245, 245, 240, .30);
+  --shadow: none;
+  --glow: 0 0 0 2px rgba(230, 57, 70, .28);
+  --tier1: #e63946;
+  --tier2: #f5f5f0;
+  --tier3: rgba(245, 245, 240, .55);
+  --nav-bg: #0a0a0a;
+  --hero-glow: none;
+  --grid: rgba(245, 245, 240, .05);
 }
 
 /* ---------- 基础 ---------- */
@@ -71,10 +71,13 @@ body {
   transition: background-color .24s ease, color .24s ease;
 }
 
-[data-theme="dark"] body {
+/* Swiss：整页 80px 网格线背景（双主题共用，取代径向光晕） */
+body {
   background-image:
-    radial-gradient(900px 500px at 82% -8%, rgba(147, 197, 253, .09), transparent 60%),
-    radial-gradient(760px 420px at 8% 4%, rgba(96, 165, 250, .07), transparent 55%);
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 80px 80px;
+  background-attachment: fixed;
 }
 
 h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; }
@@ -962,3 +965,100 @@ strong.kw { font-weight: 700; color: var(--text); }
 }
 .pf-btn-disabled { opacity: .5; cursor: default; }
 .pf-btn-disabled:hover { border-color: var(--border-strong); color: var(--text); }
+
+/* ============================================================
+   Swiss 瑞士网格 · 造型层（参考 风格参考.html 风格2）
+   放在文件末尾，靠源码顺序覆盖前面圆角/柔和阴影的写法：
+   直角硬边 · 全大写细字距 · 超大重字标题 · 卡片 hover 整块反色
+   ============================================================ */
+
+/* 1) 直角硬边：去掉所有圆角（保留交通灯圆点与极小方点） */
+.skip-link, .brand-mark, .nav-links a, .lang-toggle, .lang-btn,
+.theme-toggle, .menu-toggle, .hero-stats li, .highlights li,
+.tl-card, .tl-item::before, .badge-current, .filter-btn,
+.proj-card, .proj-tag, .skill-group, .chip, .contact-cta,
+.btn, .pf-cap, .pf-card, .pf-pill, .pf-metric, .pf-tag,
+.pf-close, .pf-frame, .pf-shot, .pf-code, .pf-arch, .pf-btn,
+.nav-links-wrap { border-radius: 0; }
+
+/* 方形 logo 标记 */
+.brand-mark { box-shadow: none; }
+
+/* 2) 导航：全大写 + 字距，Swiss 招牌 */
+.nav-links a { text-transform: uppercase; letter-spacing: .12em; font-size: 12.5px; font-weight: 600; }
+.nav-links a.active::after { box-shadow: none; height: 2px; }
+.brand-name { text-transform: uppercase; letter-spacing: .06em; }
+
+/* 3) Hero：超大重字 + 极紧字距，去掉光晕背景（露出整页网格） */
+.hero { background: transparent; }
+.hero-glow { display: none; }
+.hero-eyebrow { text-transform: uppercase; letter-spacing: .18em; }
+.hero-name { font-size: clamp(44px, 8.4vw, 96px); font-weight: 800; letter-spacing: -2.5px; line-height: .96; }
+.hero-stats li { border-radius: 0; }
+.hero-stats li:hover { transform: none; background: var(--accent); border-color: var(--accent); }
+.hero-stats li:hover .stat-value { color: var(--bg); }
+.hero-stats li:hover .stat-label { color: var(--bg); }
+
+/* 4) 区块标题：底部细线 + 大号重字 + 大写编号 */
+.section-head { border-bottom: 1px solid var(--border); padding-bottom: 18px; }
+.section-index { letter-spacing: .12em; }
+.section-index::before { content: "— "; color: var(--accent); }
+.section-head h2 { font-size: clamp(26px, 4vw, 44px); font-weight: 800; letter-spacing: -1.2px; line-height: .98; }
+
+/* 5) 个人优势：去左侧渐变条，改 Swiss 硬边 + hover 反色 */
+.highlights li::before { display: none; }
+.highlights li { padding-left: 24px; }
+.highlights li:hover { transform: none; background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.highlights li:hover .h-num,
+.highlights li:hover strong.kw { color: var(--bg); }
+
+/* 6) 时间轴节点改方块；卡片 hover 淡红底 + 右移 */
+.tl-item::before { border-radius: 0; box-shadow: none; }
+.tl-item:hover::before { transform: none; }
+.tl-card { transition: border-color .25s ease, background-color .25s ease, transform .25s ease; }
+.tl-item:hover .tl-card { background: color-mix(in srgb, var(--accent) 7%, transparent); transform: translateX(6px); }
+.badge-current { box-shadow: none; }
+
+/* 7) 项目筛选：直角，选中=实心红块 */
+.filter-btn { text-transform: uppercase; letter-spacing: .08em; font-size: 12.5px; }
+.filter-btn[aria-pressed="true"] { box-shadow: none; }
+
+/* 8) 卡片 hover 整块反色（Swiss 招牌）——项目卡 + 作品卡 */
+.proj-card { transition: background-color .3s ease, border-color .3s ease, color .3s ease; box-shadow: none; }
+.proj-card:hover { transform: none; background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.proj-card:hover *:not(a) { color: var(--bg); border-color: color-mix(in srgb, var(--bg) 45%, transparent); }
+.proj-card:hover .proj-tag,
+.proj-card:hover .proj-meta span { background: transparent; }
+
+.pf-card { transition: background-color .3s ease, border-color .3s ease, color .3s ease; box-shadow: none; }
+.pf-card:hover { transform: none; background: var(--accent); border-color: var(--accent); color: var(--bg); box-shadow: none; }
+.pf-card:hover *:not(.pf-pill-live) { color: var(--bg); border-color: color-mix(in srgb, var(--bg) 45%, transparent); }
+.pf-card:hover .pf-pill,
+.pf-card:hover .pf-metric,
+.pf-card:hover .pf-tag { background: transparent; }
+.pf-card:hover .pf-metric b { color: var(--bg); }
+.pf-card:hover .pf-pill-live { background: var(--bg); color: var(--accent); border-color: var(--bg); }
+.pf-card.match { box-shadow: none; }
+.pf-cap.active { box-shadow: none; }
+
+/* 9) 标签/胶囊全部改直角硬边，hover 反色 */
+.chip, .pf-tag, .pf-pill, .proj-tag, .pf-metric { border-radius: 0; }
+.chip:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.pf-tierdot { border-radius: 0; }
+
+/* 10) 主按钮：直角，hover 不位移（Swiss 克制） */
+.btn { border-radius: 0; }
+.btn-primary { box-shadow: none; }
+.btn-primary:hover { transform: none; opacity: .9; background: var(--accent); }
+
+/* 11) 列表项目符号改 Swiss 的 › 单书名号 */
+.bullet-list li::before,
+.pf-ach li::before { content: none; }
+.bullet-list li,
+.pf-ach li { padding-left: 18px; }
+.bullet-list li::after,
+.pf-ach li::after { content: "›"; position: absolute; left: 2px; top: 0; color: var(--accent); font-weight: 700; }
+.pf-ach li { position: relative; }
+
+/* 12) 联系方式：直角输入/卡片 */
+.contact-cta { box-shadow: none; }

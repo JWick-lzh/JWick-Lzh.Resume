@@ -199,7 +199,8 @@ async function run() {
   await page.goto(base + '/index.html?theme=dark&lang=en', { waitUntil: 'networkidle' });
   await page.waitForTimeout(300);
   const navText = await page.locator('#nav-links').innerText();
-  check('英文导航含 Portfolio', /Portfolio/.test(navText), navText.replace(/\n/g, ' '));
+  // Swiss 风格导航为全大写（text-transform:uppercase），断言用大小写不敏感
+  check('英文导航含 Portfolio', /Portfolio/i.test(navText), navText.replace(/\n/g, ' '));
   const cardsEn = await page.locator('.pf-card').count();
   check('切换语言后作品卡仍渲染', cardsEn === 10, `实际 ${cardsEn}`);
 
