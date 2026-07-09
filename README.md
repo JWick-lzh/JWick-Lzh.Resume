@@ -51,6 +51,8 @@ python3 -m http.server 8080
   wenda/           观麦 Agent 平台 Demo · GM鲜达（问答Agent Platform apps/demo 构建产物）
   ai-order-demo/   AI 录单 · 静态演示（演示模式，无模型 Key）
   caigou/          采宝 采购 Agent · 浏览器可跑 Demo（持续迭代，原地升级）
+  usmile/          usmile F20 · 交互式 3D 产品秀（自研 · 手写 Three.js WebGL · 全代码渲染，无实拍图）
+                   自包含：index.html + app.js + 本地 three.min.js（离线可跑）；设计手记写在页面右下角署名
   docs/design-draft/  作品集设计稿归档（重设计蓝本）
   README.md               本说明
 ```
@@ -84,9 +86,9 @@ python3 -m http.server 8080
 
 首页「作品集」区提供两个入口，都能单点跳转到对应作品：
 
-- **能力矩阵**：11 条能力分 3 组（AI/Agent 工程 · 产品/商业 · 差异化）。点击任一能力 → 下方作品自动高亮匹配、淡化无关；再点取消。
+- **能力矩阵**：12 条能力分 3 组（AI/Agent 工程 · 产品/商业 · 差异化，含「网页美学 / 创意特效」）。点击任一能力 → 下方作品自动高亮匹配、淡化无关；再点取消。
 - **作品卡（分两档）**：① 线上/可运行真产品 ② 往期 B 端代表作。点卡片 → 右侧抽屉详情。
-  - 浏览器可跑 Demo（老板助手 boss / 观麦 AI Agent 平台 wenda / AI 录单 ai-order-demo / 采购 Agent caigou / AI 研发能力平台 ai-rd-platform）在抽屉内 **iframe 内嵌真实 Demo**，可直接操作；
+  - 浏览器可跑 Demo（老板助手 boss / 观麦 AI Agent 平台 wenda / AI 录单 ai-order-demo / 采购 Agent caigou / AI 研发能力平台 ai-rd-platform / usmile F20 3D 产品秀 usmile）在抽屉内 **iframe 内嵌真实 Demo**，可直接操作；
   - 线上产品（超级麦吉）用真实官网截图 + 线上/GitHub 链接；
   - 观麦 AI Agent 平台卡片同时承载其首个落地产品「经营顾问」（龙虾经营 Agent）的知识库/记忆能力说明，不单独占卡。
 

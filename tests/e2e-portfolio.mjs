@@ -84,13 +84,13 @@ async function run() {
   await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
   await page.waitForTimeout(300);
 
-  // 2) 能力矩阵渲染 11 条
+  // 2) 能力矩阵渲染 12 条
   const capCount = await page.locator('.pf-cap').count();
-  check('能力矩阵渲染 11 条', capCount === 11, `实际 ${capCount}`);
+  check('能力矩阵渲染 12 条', capCount === 12, `实际 ${capCount}`);
 
-  // 3) 作品卡渲染 10 个
+  // 3) 作品卡渲染 11 个
   const cardCount = await page.locator('.pf-card').count();
-  check('作品卡渲染 10 个', cardCount === 10, `实际 ${cardCount}`);
+  check('作品卡渲染 11 个', cardCount === 11, `实际 ${cardCount}`);
 
   // 4) 分档 2 档
   const tierBars = await page.locator('.pf-tierbar').count();
@@ -105,7 +105,7 @@ async function run() {
   const capActive = await page.locator('.pf-cap[data-cap="mm"].active').count();
   check('能力点击后进入 active 态', capActive === 1);
   check('多模态/OCR 高亮匹配卡 > 0', matchCards > 0, `match=${matchCards}`);
-  check('无关卡被淡化', dimCards > 0 && matchCards + dimCards === 10, `match=${matchCards} dim=${dimCards}`);
+  check('无关卡被淡化', dimCards > 0 && matchCards + dimCards === 11, `match=${matchCards} dim=${dimCards}`);
   check('筛选写入 hash #cap/mm', page.url().includes('#cap/mm'), page.url());
 
   // 6) 再点一次取消筛选
@@ -163,8 +163,9 @@ async function run() {
     const links = await page.$$eval('#pf-drawer-body .pf-links a', (as) => as.map(a => ({ href: a.getAttribute('href'), target: a.getAttribute('target') })));
     if (links.some(l => l.href === '#')) badHash++;
     // Tier A/B 至少一个真实可打开入口（http 或 .html 或 demos）
-    // guanmai-platform 的主入口是相对目录 iframe 演示，其严格正则匹配靠附带的在线/GitHub 链接兜底，这里单独排除以防误判
-    if ((w.tier === 'A' || w.tier === 'B') && w.id !== 'guanmai-platform') {
+    // guanmai-platform / usmile 的主入口是相对目录 iframe 演示（./wenda/ · ./usmile/），
+    // 严格正则不识别相对目录，这里单独排除以防误判（入口本身真实可开）
+    if ((w.tier === 'A' || w.tier === 'B') && w.id !== 'guanmai-platform' && w.id !== 'usmile') {
       const hasReal = links.some(l => /^https?:|\.html|\/demos\//.test(l.href || ''));
       if (!hasReal) missingReal++;
     }
@@ -202,10 +203,10 @@ async function run() {
   // Swiss 风格导航为全大写（text-transform:uppercase），断言用大小写不敏感
   check('英文导航含 Portfolio', /Portfolio/i.test(navText), navText.replace(/\n/g, ' '));
   const cardsEn = await page.locator('.pf-card').count();
-  check('切换语言后作品卡仍渲染', cardsEn === 10, `实际 ${cardsEn}`);
+  check('切换语言后作品卡仍渲染', cardsEn === 11, `实际 ${cardsEn}`);
 
   // 14) 新增 Demo 冒烟：iframe 地址直开有内容
-  for (const d of ['boss', 'wenda', 'ai-order-demo', 'caigou', 'ai-rd-platform']) {
+  for (const d of ['boss', 'wenda', 'ai-order-demo', 'caigou', 'ai-rd-platform', 'usmile']) {
     const p2 = await browser.newPage();
     const errs = [];
     p2.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });

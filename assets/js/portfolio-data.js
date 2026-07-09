@@ -5,7 +5,7 @@
  * 中文优先；英文文案后续补（en 字段缺省时回退中文）。
  */
 window.PORTFOLIO = {
-  // 能力矩阵：3 组 11 条
+  // 能力矩阵：3 组 12 条
   groupNames: { 1: "AI / Agent 工程", 2: "产品 / 商业", 3: "差异化" },
   caps: [
     { id: "agent", cn: "Agent设计与拟人化交互", group: 1 },
@@ -18,6 +18,7 @@ window.PORTFOLIO = {
     { id: "viz", cn: "数据可视化与经营分析", group: 2 },
     { id: "industry", cn: "B端行业深度", group: 2 },
     { id: "fullstack", cn: "全栈落地（会写代码的PM）", group: 3 },
+    { id: "aesthetic", cn: "网页美学 / 创意特效", group: 3 },
     { id: "delivery", cn: "团队与商业化交付", group: 3 }
   ],
   tiers: [
@@ -49,7 +50,28 @@ window.PORTFOLIO = {
       ]
     },
     {
+      id: "usmile", tier: "A", statusLabel: "浏览器可跑 · 自研 3D · 无实拍图",
+      title: "usmile F20 · 交互式 3D 产品秀",
+      subtitle: "自主设计 + 手写 Three.js WebGL · 全代码渲染 · 2026",
+      tags: ["aesthetic", "fullstack", "viz"],
+      desc: "把一支电动牙刷讲成一段可交互的光影短片。usmile F20 从机身、刷毛到金属反射全部用 Three.js 程序化建模渲染，没有一张实拍图；滚动驱动「伸缩爆炸」逐层拆解，拖拽 360° 端详，双色实时切换材质，自定义光标与页面呼应——一个纯前端、可离线的产品概念页，用来证明「会写代码的 PM」也有网页美学与特效落地能力。",
+      metrics: [["渲染", "Three.js WebGL"], ["建模", "全代码·无实拍图"], ["交互", "拖拽 / 滚动拆解"], ["材质", "双色实时切换"]],
+      achievements: [
+        "全代码渲染：LatheGeometry 旋出阳极氧化铝机身、InstancedMesh 种植刷毛、Canvas 生成棚拍环境经 PMREM 卷积出真实金属反射，ACES 色调映射 + 暗角辉光",
+        "滚动叙事：scrollProgress 驱动镜头 / 构图 / 爆炸量关键帧插值，牙刷沿轴「伸缩拆解」为刷头 → 缓震颈 → 精控动力马达 → 电池，并投屏浮出标注引线",
+        "实时交互：手写拖拽 orbit + 惯性续转、太空灰 / 冰莓粉材质实时着色、四大护理方案 hover 联动刷头高亮、数字滚动",
+        "体验细节：自定义光标与视觉呼应、环境浮尘粒子、prefers-reduced-motion 降级、WebGL 不支持兜底页",
+        "零外网依赖：Three.js 本地打包进 demo，离线可跑；设计意图与手记写在页面右下角署名"
+      ],
+      media: { type: "iframe", src: "./usmile/", url: "usmile F20 · 实时 3D（拖拽 / 滚动）", caption: "浏览器直跑的实时 3D 概念视觉设计（无实拍图）。抽屉内可交互，完整光影体验建议全屏打开。" },
+      links: [
+        { label: "全屏打开 3D 产品秀 →", href: "./usmile/", primary: true }
+      ],
+      note: "原创交互视觉概念，非 usmile 官方页面；产品信息取自公开资料，视觉与 3D 全部自主编码，无任何实拍图或官方素材。"
+    },
+    {
       id: "guanmai-platform", tier: "A", statusLabel: "浏览器可跑 · 平台 Demo",
+      title: "观麦 AI Agent 平台",
       title: "观麦 AI Agent 平台",
       subtitle: "企业级多租户 Agent 底座 · AI 产品负责人 · 2026.04–至今",
       tags: ["arch", "rag", "orch", "agent", "industry"],
