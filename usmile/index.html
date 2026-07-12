@@ -5,305 +5,390 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>智能牙刷 · AI 智能旗舰 · 7 天 1 改善</title>
 <meta name="description" content="智能牙刷 · AI 智能旗舰，四大护理方案，7 天 1 改善。精控动力、机身智能屏、110 天超长续航、IPX8 整机防水。" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%23ffffff'/%3E%3Ccircle cx='8' cy='8' r='4' fill='%232b7bff'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%2306070a'/%3E%3Ccircle cx='8' cy='8' r='4' fill='%236ee7ff'/%3E%3C/svg%3E" />
 <style>
   :root{
-    /* Quiet 静奢（暖调亮色）：象牙底 · 炭黑字 · 香槟金点缀 */
-    --bg:#f3f0ea; --bg2:#e9e5db; --ink:#1a1815; --muted:#6b655b; --faint:#9c958a;
-    --gold:#b1904f; --gold-deep:#8f7239; --line:rgba(26,24,21,.12); --line2:rgba(26,24,21,.2); --card:rgba(255,254,251,.7);
+    /* 深空暗场：近白字 · 冰蓝主点缀 · 香槟金辅助 */
+    --bg:#06070a; --bg2:#0c0e14; --ink:#f2f3f5; --muted:#9aa0ab; --faint:#5c626e;
+    --ice:#6ee7ff; --ice-deep:#2fb8de; --gold:#b1904f;
+    --line:rgba(242,243,245,.1); --line2:rgba(242,243,245,.22); --card:rgba(16,18,26,.62);
+    --safe:6vw;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html{-webkit-font-smoothing:antialiased;scroll-snap-type:y mandatory;scroll-behavior:smooth}
+  html{-webkit-font-smoothing:antialiased}
+  html,body{overflow-x:hidden}
   body{
     background:
-      radial-gradient(55% 42% at 24% 14%, rgba(210,180,120,.12), transparent 62%),
-      radial-gradient(48% 46% at 82% 84%, rgba(120,120,130,.06), transparent 60%),
-      linear-gradient(180deg,#f6f3ed, #ece7dd 60%, #f4f1ea);
+      radial-gradient(60% 44% at 22% 12%, rgba(110,231,255,.05), transparent 62%),
+      radial-gradient(50% 46% at 82% 86%, rgba(177,144,79,.04), transparent 60%),
+      linear-gradient(180deg,var(--bg),var(--bg2) 55%,var(--bg));
     background-attachment:fixed; color:var(--ink);
     font-family:'Inter',system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-    line-height:1.65; overflow-x:hidden;
+    line-height:1.65;
   }
   a{color:inherit;text-decoration:none}
-  /* 细颗粒纹理，增质感 */
-  .grain{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.5;mix-blend-mode:multiply;
+  ::selection{background:rgba(110,231,255,.25)}
+
+  /* 暗色噪点 */
+  .grain{position:fixed;inset:0;z-index:8;pointer-events:none;opacity:.55;mix-blend-mode:overlay;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")}
 
-  .bg-word{position:fixed;inset:0;z-index:0;display:grid;place-items:center;pointer-events:none;overflow:hidden}
-  .bg-word span{font-size:clamp(90px,19vw,320px);font-weight:800;letter-spacing:-.05em;white-space:nowrap;color:transparent;-webkit-text-stroke:1.5px rgba(26,24,21,.05)}
+  /* ============ 三层深度：巨字(1) < WebGL(2) < 粒子(3) < 信息(4) ============ */
+  #giants{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+  .giant-wrap{position:absolute;inset:0;display:grid;place-items:center;visibility:hidden}
+  .giant{font-weight:800;letter-spacing:-.04em;line-height:1;white-space:nowrap;color:transparent;
+    -webkit-text-stroke:1.5px rgba(242,243,245,.09);will-change:transform,opacity}
+  .giant.solid{color:rgba(242,243,245,.06);-webkit-text-stroke:0}
+  /* 03 章：左右半字 */
+  .giant-wrap.split{display:block}
+  .giant-wrap.split .giant{position:absolute;top:50%;transform:translateY(-50%)}
+  .giant-wrap.split .giant.gl{left:4vw}
+  .giant-wrap.split .giant.gr{right:4vw}
+  /* 06 章：数字主角（实心） */
+  #bignum{color:var(--ink);-webkit-text-stroke:0;font-variant-numeric:tabular-nums;
+    text-shadow:0 0 80px rgba(110,231,255,.25)}
+  #bignum small{font-size:.32em;font-weight:800;color:var(--ice);vertical-align:.12em}
 
-  #stage{position:fixed;inset:0;width:100vw;height:100vh;z-index:1;display:block}
-  #dust{position:fixed;inset:0;width:100vw;height:100vh;z-index:2;pointer-events:none;opacity:.5}
+  #stage{position:fixed;inset:0;width:100vw;height:100dvh;z-index:2;display:block}
+  #dust{position:fixed;inset:0;width:100vw;height:100dvh;z-index:3;pointer-events:none;opacity:.6}
 
-  #callouts{position:fixed;inset:0;z-index:6;pointer-events:none;opacity:0;transition:opacity .3s}
-  .badge{position:absolute;top:0;left:0;width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:50%;background:var(--ink);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center;box-shadow:0 6px 16px rgba(26,24,21,.3);border:1.5px solid var(--gold);will-change:transform}
+  /* ============ 信息层 ============ */
+  #ui{position:fixed;inset:0;z-index:4;pointer-events:none}
+  .info{position:absolute;inset:0;visibility:hidden;padding:var(--safe)}
+  .panel{max-width:88vw;max-height:84dvh;pointer-events:none}
 
-  nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:18px 32px;pointer-events:none}
-  .brand{font-weight:800;letter-spacing:.02em;font-size:19px;display:flex;align-items:center;gap:9px;color:var(--ink)}
-  .brand .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-deep))}
-  .nav-cta{pointer-events:auto;font-size:13px;font-weight:600;letter-spacing:.02em;color:#fff;background:var(--ink);padding:9px 18px;border-radius:999px;transition:.3s;box-shadow:0 8px 20px rgba(26,24,21,.18)}
-  .nav-cta:hover{background:#332f28;transform:translateY(-1px)}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ice);font-weight:700;margin-bottom:14px}
+  .eyebrow::before{content:"";width:24px;height:2px;background:var(--ice);border-radius:2px}
+  .lm{display:block;overflow:hidden}
+  .lm .line{display:block;transform:translateY(112%);will-change:transform}
+  h2.h{font-size:clamp(26px,3.6vw,46px);font-weight:700;letter-spacing:-.015em;line-height:1.12;margin-bottom:12px}
+  h2.h em{font-style:normal;background:linear-gradient(120deg,var(--ice),var(--ice-deep));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:clamp(14px,1.3vw,16px);color:var(--muted);max-width:42ch;line-height:1.75}
 
-  main{position:relative;z-index:5}
-  .scene{height:100vh;display:flex;align-items:center;padding:0 max(56px,calc((100vw - 1180px) / 2));pointer-events:none;scroll-snap-align:center;scroll-snap-stop:always}
-  .panel{max-width:560px;pointer-events:none}
-  .scene.right{justify-content:flex-end}
-  .scene.right .panel{text-align:right}
-  .scene.center{justify-content:center;text-align:center}
-  .scene.center .panel{max-width:900px}
-
-  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:16px}
-  .eyebrow::before{content:"";width:24px;height:2px;background:var(--gold);border-radius:2px}
-  .scene.right .eyebrow{flex-direction:row-reverse}
-
-  h1.hero-title{font-size:clamp(46px,6.2vw,92px);font-weight:600;letter-spacing:-.03em;line-height:1;color:var(--ink)}
-  .hero-title .grad{background:linear-gradient(120deg,var(--gold),var(--gold-deep));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .model{font-size:12.5px;font-weight:600;letter-spacing:.1em;color:var(--gold-deep);margin:14px 0 16px;display:inline-block;border:1px solid rgba(177,144,79,.45);border-radius:2px;padding:6px 13px}
-  h2.h{font-size:clamp(28px,4.4vw,52px);font-weight:600;letter-spacing:-.015em;line-height:1.08;margin-bottom:14px;color:var(--ink)}
-  h2.h em{font-style:normal;background:linear-gradient(120deg,var(--gold),var(--gold-deep));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .lede{font-size:clamp(15px,1.4vw,17px);color:var(--muted);max-width:44ch;line-height:1.7}
-  .scene.right .lede{margin-left:auto}
-  .hl{display:flex;flex-direction:column;gap:9px;margin:18px 0 6px;list-style:none}
-  .scene.right .hl{align-items:flex-end}
-  .hl li{font-size:14.5px;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:9px}
-  .hl li::before{content:"";width:7px;height:7px;border-radius:2px;background:linear-gradient(135deg,var(--gold),var(--gold-deep))}
-
-  /* 拆解页优点清单（醒目，不只小字）*/
-  .adv{list-style:none;display:flex;flex-direction:column;gap:14px;margin-top:22px}
-  .adv li{display:flex;gap:13px;align-items:flex-start}
-  .adv .num{width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fbf9f4;font-weight:700;font-size:13px;display:grid;place-items:center;flex:0 0 auto;margin-top:2px;border:1.5px solid var(--gold)}
-  .adv b{font-size:16.5px;color:var(--ink);font-weight:700;display:block;line-height:1.3}
-  .adv .d{font-size:13px;color:var(--muted)}
-
-  .cta{display:inline-flex;gap:14px;margin-top:24px;pointer-events:auto}
-  .scene.right .cta{justify-content:flex-end}
-  .btn-primary{background:var(--ink);color:#fbf9f4;font-weight:600;font-size:15px;letter-spacing:.02em;padding:14px 28px;border-radius:2px;box-shadow:0 12px 28px rgba(26,24,21,.16);transition:.3s;cursor:pointer}
-  .btn-primary:hover{background:#332f28;transform:translateY(-2px)}
-  .btn-ghost{color:var(--ink);font-weight:600;font-size:15px;padding:13px 22px;border-radius:999px;border:1px solid var(--line2);transition:.3s;cursor:pointer}
-  .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
-
-  .feat{display:flex;gap:22px;margin-top:22px;flex-wrap:wrap}
-  .scene.right .feat{justify-content:flex-end}
-  .feat .f b{font-size:22px;font-weight:800;color:var(--ink);display:block}
-  .feat .f span{font-size:12.5px;color:var(--muted)}
-
-  .swatches{display:inline-flex;gap:14px;margin-top:26px;pointer-events:auto}
-  .swatch{display:flex;flex-direction:column;align-items:center;gap:10px;background:transparent;border:0;cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:600}
-  .swatch .chip{width:54px;height:54px;border-radius:50%;border:2px solid transparent;transition:.35s;box-shadow:0 8px 20px rgba(30,60,110,.16)}
-  .swatch[data-c="gray"] .chip{background:radial-gradient(circle at 35% 30%,#eceef2,#aeb3bb 68%,#83878f)}
-  .swatch[data-c="pink"] .chip{background:radial-gradient(circle at 35% 30%,#ffe6ee,#efc2ce 62%,#d19cac)}
-  .swatch.active .chip{border-color:var(--gold);transform:translateY(-3px)}
-  .swatch.active{color:var(--ink)}
-
-  .modes{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:6px;pointer-events:auto}
-  .mode{border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:var(--card);backdrop-filter:blur(10px);transition:.35s;cursor:pointer;box-shadow:0 10px 30px rgba(30,60,110,.06);text-align:left}
-  .mode:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 18px 40px rgba(26,24,21,.1)}
-  .mode .m-ic{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;margin-bottom:10px;background:rgba(177,144,79,.12);color:var(--gold-deep);font-weight:700}
-  .mode h4{font-size:15.5px;font-weight:700;margin-bottom:4px}
-  .mode p{font-size:12px;color:var(--muted);line-height:1.5}
-
-  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:20px 40px;margin-top:6px}
-  .stat .n{font-size:clamp(34px,4.6vw,58px);font-weight:800;letter-spacing:-.03em;color:var(--ink)}
-  .stat .n small{font-size:.4em;font-weight:700;color:var(--gold);margin-left:2px}
-  .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
-  .trust{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
-  .scene.right .trust{justify-content:flex-end}
-  .trust span{font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 13px;background:rgba(255,255,255,.6)}
-
-  .finale .spec{display:flex;gap:24px;margin-top:22px;flex-wrap:wrap;justify-content:center;color:var(--muted);font-size:13px}
-  .finale .spec b{color:var(--ink);font-weight:700}
-  .finale .kit{font-size:12.5px;color:var(--faint);margin-top:18px}
-
+  /* 01 旗舰 */
+  .info[data-ch="0"] .panel{position:absolute;left:var(--safe);bottom:calc(var(--safe) + 2dvh)}
+  .model{font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--ice);margin:10px 0 12px;display:inline-block;border:1px solid rgba(110,231,255,.4);border-radius:2px;padding:5px 12px}
+  .hl{display:flex;flex-direction:column;gap:8px;margin:12px 0 4px;list-style:none}
+  .hl li{font-size:14px;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:9px}
+  .hl li::before{content:"";width:6px;height:6px;border-radius:1px;background:linear-gradient(135deg,var(--ice),var(--ice-deep));flex:0 0 auto}
+  .cta{display:inline-flex;gap:14px;margin-top:20px;pointer-events:auto}
+  .btn-primary{background:var(--ink);color:#0a0b0f;font-weight:700;font-size:14px;letter-spacing:.02em;padding:13px 26px;border-radius:2px;transition:.3s;cursor:pointer}
+  .btn-primary:hover{background:var(--ice);transform:translateY(-2px);box-shadow:0 12px 34px rgba(110,231,255,.25)}
+  .btn-ghost{color:var(--ink);font-weight:600;font-size:14px;padding:12px 20px;border-radius:999px;border:1px solid var(--line2);transition:.3s;cursor:pointer}
+  .btn-ghost:hover{border-color:var(--ice);color:var(--ice)}
   .scroll-cue{width:22px;height:34px;border:1px solid var(--line2);border-radius:14px;display:flex;justify-content:center;padding-top:6px;margin-top:22px}
-  .scroll-cue::before{content:"";width:3px;height:7px;border-radius:2px;background:var(--gold);animation:cue 1.6s ease-in-out infinite}
+  .scroll-cue::before{content:"";width:3px;height:7px;border-radius:2px;background:var(--ice);animation:cue 1.6s ease-in-out infinite}
   @keyframes cue{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(9px);opacity:1}}
 
-  .signature{position:fixed;right:20px;bottom:16px;z-index:20;font-size:11px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;pointer-events:none}
-  @media (max-width:760px){.signature{display:none}.panel{max-width:none}.modes{grid-template-columns:1fr 1fr}}
+  /* 02 工艺：标题左上，两个数据点分居机身两侧 */
+  .info[data-ch="1"] .panel{position:absolute;left:var(--safe);top:calc(var(--safe) + 4dvh)}
+  .float-stat{position:absolute;pointer-events:none;max-width:32vw}
+  .float-stat b{font-size:clamp(20px,2.4vw,30px);font-weight:800;color:var(--ink);display:block;letter-spacing:-.02em}
+  .float-stat b::after{content:"";display:block;width:34px;height:2px;background:var(--ice);margin-top:6px;border-radius:2px}
+  .float-stat span{font-size:12.5px;color:var(--muted);display:block;margin-top:7px}
+  .fs-l{left:var(--safe);top:56dvh}
+  .fs-r{right:var(--safe);top:34dvh;text-align:right}
+  .fs-r b::after{margin-left:auto}
 
-  .loader{position:fixed;inset:0;z-index:90;background:#ffffff;display:grid;place-items:center;transition:opacity .8s,visibility .8s}
-  body.scene-ready .loader{opacity:0;visibility:hidden}
-  .loader .ring{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--gold);margin:0 auto 14px;animation:spin 1s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .loader .lt{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
-  body.no-webgl .loader{opacity:0;visibility:hidden}
-  .fallback{display:none} body.no-webgl #stage,body.no-webgl #dust,body.no-webgl .bg-word{display:none}
-  body.no-webgl .fallback{display:grid;place-items:center;min-height:100vh;text-align:center;padding:40px}
+  /* 03 双色：标题左上，色块底部居中 */
+  .info[data-ch="2"] .panel{position:absolute;left:var(--safe);top:calc(var(--safe) + 4dvh)}
+  .swatches{position:absolute;left:50%;bottom:calc(var(--safe) + 2dvh);transform:translateX(-50%);display:inline-flex;gap:20px;pointer-events:auto}
+  .swatch{display:flex;flex-direction:column;align-items:center;gap:10px;background:transparent;border:0;cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:600;font-family:inherit}
+  .swatch .chip{width:52px;height:52px;border-radius:50%;border:2px solid transparent;transition:.35s;box-shadow:0 10px 26px rgba(0,0,0,.5)}
+  .swatch[data-c="gray"] .chip{background:radial-gradient(circle at 35% 30%,#eceef2,#aeb3bb 68%,#83878f)}
+  .swatch[data-c="pink"] .chip{background:radial-gradient(circle at 35% 30%,#ffe6ee,#efc2ce 62%,#d19cac)}
+  .swatch.active .chip{border-color:var(--ice);transform:translateY(-3px)}
+  .swatch.active{color:var(--ink)}
 
-  .reveal{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
-  .reveal.in{opacity:1;transform:none}
-  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.scroll-cue::before{animation:none}html{scroll-snap-type:none}}
+  /* 04 拆解：标题左上，标注线独立层 */
+  .info[data-ch="3"] .panel{position:absolute;left:var(--safe);top:calc(var(--safe) + 4dvh)}
+  #callouts{position:fixed;inset:0;z-index:5;pointer-events:none;visibility:hidden}
+  #callouts svg{position:absolute;inset:0;width:100%;height:100%}
+  #callouts line{stroke:rgba(110,231,255,.45);stroke-width:1;opacity:0;transition:opacity .4s}
+  .callout{position:absolute;max-width:30vw;opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s}
+  .callout .num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:rgba(110,231,255,.12);border:1px solid rgba(110,231,255,.5);color:var(--ice);font-weight:700;font-size:12px;margin-bottom:7px}
+  .callout b{font-size:15.5px;color:var(--ink);font-weight:700;display:block;line-height:1.3}
+  .callout .d{font-size:12.5px;color:var(--muted);display:block;margin-top:3px}
+  .callout.lit{opacity:1;transform:none}
+  #callouts .lit-line{opacity:1}
+
+  /* 05 方案：标题左上，四卡横排底部 */
+  .info[data-ch="4"] .panel{position:absolute;left:var(--safe);top:calc(var(--safe) + 4dvh)}
+  .modes{position:absolute;left:50%;bottom:calc(var(--safe) - 1dvh);transform:translateX(-50%);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;width:min(88vw,940px);pointer-events:auto}
+  .mode{border:1px solid var(--line);border-radius:14px;padding:15px 16px;background:var(--card);backdrop-filter:blur(12px);transition:.35s;cursor:pointer;text-align:left}
+  .mode:hover,.mode.on{border-color:rgba(110,231,255,.55);transform:translateY(-4px);box-shadow:0 18px 44px rgba(0,0,0,.45)}
+  .mode.on{background:rgba(110,231,255,.07)}
+  .mode .m-ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;margin-bottom:9px;background:rgba(110,231,255,.1);color:var(--ice);font-weight:700;font-size:13px}
+  .mode h4{font-size:14.5px;font-weight:700;margin-bottom:3px;color:var(--ink)}
+  .mode p{font-size:11.5px;color:var(--muted);line-height:1.5}
+
+  /* 06 实证：巨数居中（巨字层），环绕数据 + 徽章 */
+  .info[data-ch="5"] .panel{position:absolute;left:var(--safe);top:calc(var(--safe) + 4dvh)}
+  .orbit-stat{position:absolute;max-width:26vw}
+  .orbit-stat .n{font-size:clamp(22px,3vw,38px);font-weight:800;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+  .orbit-stat .n small{font-size:.5em;color:var(--ice);font-weight:800}
+  .orbit-stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+  .os-1{right:var(--safe);top:calc(var(--safe) + 6dvh);text-align:right}
+  .os-2{left:var(--safe);bottom:calc(var(--safe) + 12dvh)}
+  .os-3{right:var(--safe);bottom:calc(var(--safe) + 12dvh);text-align:right}
+  .bignum-label{position:absolute;left:50%;top:calc(50% + min(9vw,120px));transform:translateX(-50%);font-size:13px;color:var(--muted);white-space:nowrap}
+  .trust{position:absolute;left:50%;bottom:calc(var(--safe) - 1dvh);transform:translateX(-50%);display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:88vw}
+  .trust span{font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 13px;background:rgba(16,18,26,.6)}
+
+  /* 07 入手：居中收尾 */
+  .info[data-ch="6"]{display:grid;place-items:center}
+  .info[data-ch="6"] .panel{text-align:center}
+  .info[data-ch="6"] .eyebrow{justify-content:center}
+  .info[data-ch="6"] .lede{margin:0 auto}
+  .finale-spec{display:flex;gap:22px;margin-top:22px;flex-wrap:wrap;justify-content:center;color:var(--muted);font-size:13px}
+  .finale-spec b{color:var(--ink);font-weight:700}
+  .kit{font-size:12px;color:var(--faint);margin-top:16px}
+
+  /* ============ 导航 / 章节轨 / 进度 ============ */
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:18px 32px;pointer-events:none}
+  .brand{font-weight:800;letter-spacing:.02em;font-size:18px;display:flex;align-items:center;gap:9px;color:var(--ink)}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,var(--ice),var(--ice-deep));box-shadow:0 0 12px rgba(110,231,255,.7)}
+  .nav-cta{pointer-events:auto;font-size:13px;font-weight:700;letter-spacing:.02em;color:#0a0b0f;background:var(--ink);padding:9px 18px;border-radius:999px;transition:.3s}
+  .nav-cta:hover{background:var(--ice)}
+
+  #rail{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:20;display:flex;flex-direction:column;gap:16px}
+  .rail-item{display:flex;align-items:center;gap:10px;background:none;border:0;cursor:pointer;color:var(--faint);font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.14em;transition:color .3s;pointer-events:auto;padding:2px 0}
+  .rail-item i{font-style:normal;font-variant-numeric:tabular-nums}
+  .rail-item em{font-style:normal;opacity:0;transform:translateX(-6px);transition:.3s;white-space:nowrap}
+  .rail-item::before{content:"";width:14px;height:1px;background:currentColor;transition:.3s}
+  .rail-item.cur{color:var(--ice)}
+  .rail-item.cur::before{width:26px}
+  .rail-item.cur em,.rail-item:hover em{opacity:1;transform:none}
+
+  #progress{position:fixed;right:26px;bottom:22px;z-index:20;font-size:11px;letter-spacing:.18em;color:var(--faint);font-variant-numeric:tabular-nums;pointer-events:none}
+  .progress-slim{display:none;position:fixed;right:0;top:0;bottom:0;width:2px;z-index:20;background:rgba(242,243,245,.07);pointer-events:none}
+  .progress-slim i{position:absolute;top:0;left:0;right:0;height:0%;background:var(--ice)}
+
+  /* ============ 光标 ============ */
+  #cursor{position:fixed;inset:0;z-index:60;pointer-events:none}
+  .cur-dot{position:absolute;top:0;left:0;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--ice);will-change:transform}
+  .cur-ring{position:absolute;top:0;left:0;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:1px solid rgba(110,231,255,.5);will-change:transform;transition:width .25s,height .25s,margin .25s}
+  #cursor.big .cur-ring{width:64px;height:64px;margin:-32px 0 0 -32px;border-color:rgba(110,231,255,.9)}
+  @media (hover:none){#cursor{display:none}}
+
+  /* ============ Loader ============ */
+  #loader{position:fixed;inset:0;z-index:90;background:var(--bg);display:grid;place-items:center;transition:opacity .9s,visibility .9s}
+  body.scene-ready #loader{opacity:0;visibility:hidden}
+  .loader-inner{text-align:center;width:min(320px,70vw)}
+  .loader-num{font-size:clamp(40px,6vw,64px);font-weight:800;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
+  .loader-num small{font-size:.4em;color:var(--ice)}
+  .loader-bar{height:1px;background:rgba(242,243,245,.12);margin-top:18px;overflow:hidden}
+  .loader-bar i{display:block;height:100%;width:0%;background:var(--ice)}
+  .loader-lt{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin-top:14px}
+
+  /* ============ 滚动跑道 ============ */
+  main{position:relative;z-index:0}
+  .chapter{height:200vh}
+
+  .signature{position:fixed;left:26px;bottom:22px;z-index:20;font-size:11px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;pointer-events:none}
+
+  /* ============ 降级 ============ */
+  body.no-webgl #stage,body.no-webgl #dust,body.no-webgl #giants,body.no-webgl #loader,body.no-webgl #cursor{display:none}
+  .fallback{display:none}
+  body.no-webgl .fallback{display:grid;place-items:center;min-height:100dvh;text-align:center;padding:40px;position:relative;z-index:6}
+
+  /* reduced-motion：JS 走淡入模式，这里保静态可读 */
+  @media (prefers-reduced-motion:reduce){
+    .lm .line{transform:none}
+    .scroll-cue::before{animation:none}
+    #dust{display:none}
+  }
+
+  /* ============ 响应式 ============ */
+  @media (max-width:760px){
+    #rail{display:none}
+    .progress-slim{display:block}
+    .signature{display:none}
+    .modes{grid-template-columns:repeat(2,minmax(0,1fr));width:88vw;gap:10px}
+    .mode{padding:12px 13px}
+    .float-stat{max-width:40vw}
+    .fs-l{top:60dvh}.fs-r{top:26dvh}
+    .orbit-stat{max-width:38vw}
+    .callout{max-width:44vw}
+    .info{padding:7vw}
+  }
+  @media (max-height:600px){
+    .info{transform:scale(.85);transform-origin:center}
+  }
 </style>
 </head>
 <body>
-  <div class="bg-word"><span>智能牙刷</span></div>
-  <div class="grain"></div>
   <canvas id="stage"></canvas>
   <canvas id="dust"></canvas>
-  <div id="callouts"></div>
+  <div class="grain"></div>
 
-  <div class="loader"><div><div class="ring"></div><div class="lt">Loading</div></div></div>
+  <!-- 巨字层（最底，牙刷会从字前经过） -->
+  <div id="giants">
+    <div class="giant-wrap" data-ch="0"><span class="giant" data-fit>智能牙刷</span></div>
+    <div class="giant-wrap" data-ch="1"><span class="giant" data-fit>30+ 道精工</span></div>
+    <div class="giant-wrap split" data-ch="2">
+      <span class="giant gl" data-fit-half>灰</span>
+      <span class="giant gr" data-fit-half>粉</span>
+    </div>
+    <div class="giant-wrap" data-ch="3"><span class="giant" data-fit>拆开看看</span></div>
+    <div class="giant-wrap" data-ch="4"><span class="giant" data-fit>一刷，一方案</span></div>
+    <div class="giant-wrap" data-ch="5"><span class="giant solid" id="bignum" data-fit-num data-count="99.1" data-suffix="%">0<small>%</small></span></div>
+    <div class="giant-wrap" data-ch="6"><span class="giant" data-fit>值得更好的它</span></div>
+  </div>
 
-  <nav>
-    <div class="brand"><span class="dot"></span>智能牙刷</div>
-    <a class="nav-cta jd" href="#" target="_blank" rel="noopener">立即选购</a>
-  </nav>
-
-  <main>
-    <!-- 1 hero：文字左 · 产品右 -->
-    <section class="scene" data-i="0" id="s-hero">
-      <div class="panel reveal">
+  <!-- 信息层 -->
+  <div id="ui">
+    <!-- 01 旗舰 -->
+    <div class="info" data-ch="0">
+      <div class="panel">
         <div class="eyebrow">AI 智能旗舰 · 健康旗舰</div>
-        <h1 class="hero-title">智能<span class="grad">牙刷</span></h1>
         <div class="model">型号 · 旗舰款 PRO｜声波电动</div>
         <ul class="hl">
-          <li>四大护理方案，7 天 1 改善</li>
-          <li>精控动力 · AI 变频，机身智能屏</li>
-          <li>110 天超长续航 · IPX8 整机防水</li>
+          <li><span class="lm"><span class="line">四大护理方案，7 天 1 改善</span></span></li>
+          <li><span class="lm"><span class="line">精控动力 · AI 变频，机身智能屏</span></span></li>
+          <li><span class="lm"><span class="line">110 天超长续航 · IPX8 整机防水</span></span></li>
         </ul>
         <div class="cta">
-          <a class="btn-primary jd" href="#" target="_blank" rel="noopener">立即选购</a>
-          <a class="btn-ghost" href="#s-tech">看看黑科技</a>
+          <a class="btn-primary jd" href="#" target="_blank" rel="noopener" data-magnet>立即选购</a>
+          <button class="btn-ghost" id="to-tech" data-magnet>看看黑科技</button>
         </div>
         <div class="scroll-cue"></div>
       </div>
-    </section>
+    </div>
 
-    <!-- 2 工艺：文字右 · 产品左 -->
-    <section class="scene right" data-i="1" id="s-craft">
-      <div class="panel reveal">
+    <!-- 02 工艺 -->
+    <div class="info" data-ch="1">
+      <div class="panel">
         <div class="eyebrow">一体成型 · 阳极氧化铝</div>
-        <h2 class="h">30+ 道精工<br><em>握感温润有分量</em></h2>
+        <h2 class="h"><span class="lm"><span class="line">30+ 道精工</span></span><span class="lm"><span class="line"><em>握感温润有分量</em></span></span></h2>
         <p class="lede">航空级阳极氧化铝一体机身，30 多道精密工序打磨，触感细腻、质感高级。机身正面一块智能屏，模式、电量、计时一目了然。</p>
-        <div class="feat">
-          <div class="f"><b>IPX8</b><span>整机防水，浴室随心用</span></div>
-          <div class="f"><b>智能屏</b><span>模式 / 电量 / 计时实时显示</span></div>
-        </div>
       </div>
-    </section>
+      <div class="float-stat fs-l"><b>IPX8</b><span>整机防水，浴室随心用</span></div>
+      <div class="float-stat fs-r"><b>智能屏</b><span>模式 / 电量 / 计时实时显示</span></div>
+    </div>
 
-    <!-- 3 双色：文字左 · 产品右 -->
-    <section class="scene" data-i="2" id="s-color">
-      <div class="panel reveal">
+    <!-- 03 双色 -->
+    <div class="info" data-ch="2">
+      <div class="panel">
         <div class="eyebrow">两种颜色 · 各有心情</div>
-        <h2 class="h">太空灰 / <em>冰莓粉</em></h2>
+        <h2 class="h"><span class="lm"><span class="line">太空灰 / <em>冰莓粉</em></span></span></h2>
         <p class="lede">沉稳太空灰，或温柔冰莓粉。点一下，看它在光线下换上另一种气质。</p>
-        <div class="swatches">
-          <button class="swatch active" data-c="gray"><span class="chip"></span>太空灰</button>
-          <button class="swatch" data-c="pink"><span class="chip"></span>冰莓粉</button>
-        </div>
       </div>
-    </section>
+      <div class="swatches">
+        <button class="swatch active" data-c="gray" data-magnet><span class="chip"></span>太空灰</button>
+        <button class="swatch" data-c="pink" data-magnet><span class="chip"></span>冰莓粉</button>
+      </div>
+    </div>
 
-    <!-- 4 好牙刷展示真功夫：45° 斜放拆解 · 优点醒目清单 · 一屏展示 -->
-    <section class="scene" data-i="3" id="s-tech">
-      <div class="panel reveal">
+    <!-- 04 拆解 -->
+    <div class="info" data-ch="3">
+      <div class="panel">
         <div class="eyebrow">好牙刷 · 展示真功夫</div>
-        <h2 class="h">拆开看看，<em>藏着什么</em></h2>
-        <ul class="adv">
-          <li><span class="num">1</span><span><b>小雷达刷头</b><span class="d">6 区 16 面精准识别，哪里没刷到看得见</span></span></li>
-          <li><span class="num">2</span><span><b>精控动力马达</b><span class="d">AI 变频，力度稳、清洁强，敏感牙也舒适</span></span></li>
-          <li><span class="num">3</span><span><b>大容量电池</b><span class="d">110 天超长续航，一充管一整季</span></span></li>
-          <li><span class="num">4</span><span><b>阳极氧化铝机身</b><span class="d">IPX8 整机防水 · 机身智能屏实时显示</span></span></li>
-        </ul>
+        <h2 class="h"><span class="lm"><span class="line">拆开看看，<em>藏着什么</em></span></span></h2>
       </div>
-    </section>
+    </div>
 
-    <!-- 5 四大方案：文字右 · 产品左 -->
-    <section class="scene right" data-i="4" id="s-modes">
-      <div class="panel reveal">
+    <!-- 05 方案 -->
+    <div class="info" data-ch="4">
+      <div class="panel">
         <div class="eyebrow">四大护理方案 · 因人而护</div>
-        <h2 class="h">一刷，一方案</h2>
-        <div class="modes">
-          <div class="mode" data-hi><div class="m-ic">正</div><h4>正畸护理</h4><p>托槽 / 隐形牙套缝隙深洁，不伤矫治器</p></div>
-          <div class="mode" data-hi><div class="m-ic">周</div><h4>牙周护理</h4><p>牙龈温和按摩，智能控压防出血</p></div>
-          <div class="mode" data-hi><div class="m-ic">植</div><h4>种植护理</h4><p>种植体周精洁，缓震护结合</p></div>
-          <div class="mode" data-hi><div class="m-ic">龋</div><h4>防龋护理</h4><p>邻面菌斑清除，护釉又抗敏</p></div>
-        </div>
+        <h2 class="h"><span class="lm"><span class="line">一刷，一方案</span></span></h2>
       </div>
-    </section>
+      <div class="modes">
+        <button class="mode on" data-mode="ortho" data-magnet><span class="m-ic">正</span><h4>正畸护理</h4><p>托槽 / 隐形牙套缝隙深洁，不伤矫治器</p></button>
+        <button class="mode" data-mode="perio" data-magnet><span class="m-ic">周</span><h4>牙周护理</h4><p>牙龈温和按摩，智能控压防出血</p></button>
+        <button class="mode" data-mode="implant" data-magnet><span class="m-ic">植</span><h4>种植护理</h4><p>种植体周精洁，缓震护结合</p></button>
+        <button class="mode" data-mode="caries" data-magnet><span class="m-ic">龋</span><h4>防龋护理</h4><p>邻面菌斑清除，护釉又抗敏</p></button>
+      </div>
+    </div>
 
-    <!-- 6 数据：文字左 · 产品右 -->
-    <section class="scene" data-i="5" id="s-proof">
-      <div class="panel reveal">
+    <!-- 06 实证 -->
+    <div class="info" data-ch="5">
+      <div class="panel">
         <div class="eyebrow">第三方实测 · 7 天见改善</div>
-        <h2 class="h">数据说话</h2>
-        <div class="stats">
-          <div class="stat"><div class="n" data-count="99.1" data-suffix="%">0</div><div class="l">牙菌斑清除率（手动刷牙的 2.7 倍）</div></div>
-          <div class="stat"><div class="n" data-count="80.8" data-suffix="%">0<small>↓</small></div><div class="l">牙龈指数下降</div></div>
-          <div class="stat"><div class="n" data-count="93.2" data-suffix="%">0<small>↓</small></div><div class="l">牙龈出血减少</div></div>
-          <div class="stat"><div class="n" data-count="71.5" data-suffix="%">0<small>↓</small></div><div class="l">软垢减少</div></div>
-        </div>
-        <div class="trust"><span>720+ 全球专利</span><span>10+ 年专注口腔护理</span><span>IPX8 整机防水</span></div>
+        <h2 class="h"><span class="lm"><span class="line">数据说话</span></span></h2>
       </div>
-    </section>
+      <div class="bignum-label">牙菌斑清除率（手动刷牙的 2.7 倍）</div>
+      <div class="orbit-stat os-1"><div class="n" data-count="80.8" data-suffix="%↓">0</div><div class="l">牙龈指数下降</div></div>
+      <div class="orbit-stat os-2"><div class="n" data-count="93.2" data-suffix="%↓">0</div><div class="l">牙龈出血减少</div></div>
+      <div class="orbit-stat os-3"><div class="n" data-count="71.5" data-suffix="%↓">0</div><div class="l">软垢减少</div></div>
+      <div class="trust"><span>720+ 全球专利</span><span>10+ 年专注口腔护理</span><span>IPX8 整机防水</span></div>
+    </div>
 
-    <!-- 7 收尾 / 选购：无产品图，文字居中 -->
-    <section class="scene center finale" data-i="6" id="s-buy">
-      <div class="panel reveal">
-        <div class="eyebrow" style="justify-content:center">智能牙刷 · 健康旗舰</div>
-        <h2 class="h">认真刷牙这件事，<em>值得更好的它</em></h2>
-        <p class="lede" style="margin:0 auto">AI 智能旗舰，四大护理方案，7 天 1 改善。把专业口腔护理，装进一支牙刷。</p>
-        <div class="cta" style="margin-top:28px"><a class="btn-primary jd" href="#" target="_blank" rel="noopener">立即选购 →</a></div>
-        <div class="spec"><span><b>110 天</b> 超长续航</span><span><b>IPX8</b> 整机防水</span><span><b>3 种</b> 刷牙模式</span><span><b>双色</b> 太空灰 / 冰莓粉</span></div>
+    <!-- 07 入手 -->
+    <div class="info" data-ch="6">
+      <div class="panel">
+        <div class="eyebrow">智能牙刷 · 健康旗舰</div>
+        <h2 class="h"><span class="lm"><span class="line">认真刷牙这件事，<em>值得更好的它</em></span></span></h2>
+        <p class="lede">AI 智能旗舰，四大护理方案，7 天 1 改善。把专业口腔护理，装进一支牙刷。</p>
+        <div class="cta" style="justify-content:center"><a class="btn-primary jd" href="#" target="_blank" rel="noopener" data-magnet>立即选购 →</a></div>
+        <div class="finale-spec"><span><b>110 天</b> 超长续航</span><span><b>IPX8</b> 整机防水</span><span><b>3 种</b> 刷牙模式</span><span><b>双色</b> 太空灰 / 冰莓粉</span></div>
         <div class="kit">标配：手柄 · 2 支缓震美白刷头 · Type-C 充电线 · 牙刷支架 · 使用说明</div>
       </div>
-    </section>
-  </main>
+    </div>
+  </div>
 
-  <div class="fallback"><div><h1 style="font-size:32px;margin-bottom:12px;color:var(--ink)">智能牙刷</h1>
-    <p style="color:var(--muted);max-width:460px;margin:0 auto">AI 智能旗舰 · 四大护理方案 · 7 天 1 改善。请在支持 WebGL 的现代浏览器中打开，体验完整 3D 展示。</p></div></div>
+  <!-- 04 拆解标注（线连零件投影点） -->
+  <div id="callouts">
+    <svg><line data-k="head"/><line data-k="motor"/><line data-k="battery"/><line data-k="body"/></svg>
+    <div class="callout" data-k="head"><span class="num">1</span><b>小雷达刷头</b><span class="d">6 区 16 面精准识别，哪里没刷到看得见</span></div>
+    <div class="callout" data-k="motor"><span class="num">2</span><b>精控动力马达</b><span class="d">AI 变频，力度稳、清洁强，敏感牙也舒适</span></div>
+    <div class="callout" data-k="battery"><span class="num">3</span><b>大容量电池</b><span class="d">110 天超长续航，一充管一整季</span></div>
+    <div class="callout" data-k="body"><span class="num">4</span><b>阳极氧化铝机身</b><span class="d">IPX8 整机防水 · 机身智能屏实时显示</span></div>
+  </div>
 
+  <nav>
+    <div class="brand"><span class="dot"></span>智能牙刷</div>
+    <a class="nav-cta jd" href="#" target="_blank" rel="noopener" data-magnet>立即选购</a>
+  </nav>
+
+  <div id="rail">
+    <button class="rail-item cur" data-ch="0"><i>01</i><em>旗舰</em></button>
+    <button class="rail-item" data-ch="1"><i>02</i><em>工艺</em></button>
+    <button class="rail-item" data-ch="2"><i>03</i><em>双色</em></button>
+    <button class="rail-item" data-ch="3"><i>04</i><em>拆解</em></button>
+    <button class="rail-item" data-ch="4"><i>05</i><em>方案</em></button>
+    <button class="rail-item" data-ch="5"><i>06</i><em>实证</em></button>
+    <button class="rail-item" data-ch="6"><i>07</i><em>入手</em></button>
+  </div>
+  <div id="progress">0%</div>
+  <div class="progress-slim"><i></i></div>
   <div class="signature">智能牙刷 · smart care</div>
 
-  <script src="./three.min.js"></script>
-  <script src="./app.js"></script>
+  <div id="cursor"><div class="cur-ring"></div><div class="cur-dot"></div></div>
+
+  <div id="loader">
+    <div class="loader-inner">
+      <div class="loader-num">0<small>%</small></div>
+      <div class="loader-bar"><i></i></div>
+      <div class="loader-lt">Loading</div>
+    </div>
+  </div>
+
+  <!-- 滚动跑道：7 章 × 200vh -->
+  <main>
+    <section class="chapter" data-ch="0"></section>
+    <section class="chapter" data-ch="1"></section>
+    <section class="chapter" data-ch="2"></section>
+    <section class="chapter" data-ch="3"></section>
+    <section class="chapter" data-ch="4"></section>
+    <section class="chapter" data-ch="5"></section>
+    <section class="chapter" data-ch="6"></section>
+  </main>
+
+  <div class="fallback"><div>
+    <h1 style="font-size:32px;margin-bottom:12px;color:var(--ink)">智能牙刷</h1>
+    <p style="color:var(--muted);max-width:460px;margin:0 auto">AI 智能旗舰 · 四大护理方案 · 7 天 1 改善。请在支持 WebGL 的现代浏览器中打开，体验完整 3D 展示。</p>
+    <p style="margin-top:20px"><a class="jd" href="#" style="color:var(--ice)">立即选购 →</a></p>
+  </div></div>
+
   <script>
-  var JD_URL='https://mall.jd.com/index-1000104683.html?from=pc';
-  document.querySelectorAll('a.jd').forEach(function(a){ a.setAttribute('href',JD_URL); });
-
-  document.querySelectorAll('.swatch').forEach(function(s){
-    s.addEventListener('click',function(){
-      document.querySelectorAll('.swatch').forEach(function(o){o.classList.remove('active')});
-      s.classList.add('active'); if(window.usmileSetColor) window.usmileSetColor(s.dataset.c);
-    });
-  });
-  document.querySelectorAll('[data-hi]').forEach(function(m){
-    m.addEventListener('mouseenter',function(){window.usmileHighlight&&window.usmileHighlight(true)});
-    m.addEventListener('mouseleave',function(){window.usmileHighlight&&window.usmileHighlight(false)});
-  });
-
-  /* 版块居中检测：驱动 3D 姿态 + reveal + 数字滚动 */
-  var counted=false;
-  function runCounters(){ if(counted)return; counted=true;
-    document.querySelectorAll('[data-count]').forEach(function(el){
-      var end=parseFloat(el.dataset.count), suf=el.dataset.suffix||'', dec=(end%1!==0)?1:0, t0=null, dur=1300;
-      function step(ts){ if(!t0)t0=ts; var p=Math.min(1,(ts-t0)/dur), e=1-Math.pow(1-p,3);
-        el.innerHTML=(end*e).toFixed(dec)+'<small>'+suf+'</small>'; if(p<1)requestAnimationFrame(step); }
-      requestAnimationFrame(step);
-    });
-  }
-  var io=new IntersectionObserver(function(es){
-    es.forEach(function(e){
-      if(e.isIntersecting){
-        var i=parseInt(e.target.getAttribute('data-i'),10);
-        if(window.usmileGoto) window.usmileGoto(i);
-        e.target.querySelector('.reveal')&&e.target.querySelector('.reveal').classList.add('in');
-        if(i===5) runCounters();
-      }
-    });
-  },{ root:null, rootMargin:'-45% 0px -45% 0px', threshold:0 });
-  document.querySelectorAll('.scene').forEach(function(s){io.observe(s)});
-  // 首屏立即显现
-  var first=document.querySelector('#s-hero .reveal'); if(first) first.classList.add('in');
-
-  (function(){ var cv=document.getElementById('dust'); if(!cv)return; var g=cv.getContext('2d'),W,H,ps=[];
-    function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;} rs(); addEventListener('resize',rs);
-    for(var i=0;i<44;i++)ps.push({x:Math.random(),y:Math.random(),z:Math.random()*.8+.2,s:Math.random()*1.5+.5,vy:(Math.random()*.13+.04)});
-    (function d(){ g.clearRect(0,0,W,H);
-      for(var i=0;i<ps.length;i++){var p=ps[i];p.y-=p.vy/H*1.4; if(p.y<-0.02){p.y=1.02;p.x=Math.random();}
-        g.beginPath(); g.arc(p.x*W,p.y*H,p.s*p.z,0,6.28); g.fillStyle='rgba('+(120+p.z*40|0)+','+(160+p.z*40|0)+',255,'+(0.05+p.z*0.12)+')'; g.fill();}
-      requestAnimationFrame(d); })();
-  })();
+    var JD_URL='https://mall.jd.com/index-1000104683.html?from=pc';
+    document.querySelectorAll('a.jd').forEach(function(a){ a.setAttribute('href',JD_URL); });
   </script>
+  <script src="./three.min.js"></script>
+  <script src="./gsap.min.js"></script>
+  <script src="./ScrollTrigger.min.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
