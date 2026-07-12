@@ -342,7 +342,7 @@
     var KEY = [
       { cam: [0, 0.2, 10.2], look: [0, 0.1, 0], rot: [0, 0], spin: true },   /* 01 英雄 */
       { cam: [0.7, 0.5, 4.4], look: [0.15, 0.35, 0], rot: [0, 1.05], spin: false },  /* 02 工艺微距 */
-      { cam: [0, 0.1, 8.4], look: [0, 0.05, 0], rot: [0, 0], spin: false },  /* 03 双色正面 */
+      { cam: [0, 0.1, 10.0], look: [0, 0.05, 0], rot: [0, 0], spin: false },  /* 03 双色正面 */
       { cam: [1.0, 0.15, 12.5], look: [0.2, 0.1, 0], rot: [-0.28, 0.65], spin: false },  /* 04 拆解（拉远容纳爆炸全高） */
       { cam: [0, 0.42, 4.0], look: [0, 0.28, 0], rot: [0.1, 0.08], spin: false },  /* 05 屏幕特写 */
       { cam: [2.4, 0.1, 12.0], look: [0, 0, 0], rot: [0, 2.15], spin: false },  /* 06 拉远 */
@@ -488,12 +488,205 @@
   window.Journey = Journey;
   Journey.initScroll();
 
+  /* ============================================================
+     C. 交互层
+     ============================================================ */
+  var Interact = (function () {
+
+    /* ---- 1. 换色（03 章驻留期可点，visibility 已由 Journey 控） ---- */
+    document.querySelectorAll('.swatch').forEach(function (s) {
+      s.addEventListener('click', function () {
+        document.querySelectorAll('.swatch').forEach(function (o) { o.classList.remove('active'); });
+        s.classList.add('active');
+        App.setColor(s.dataset.c);
+      });
+    });
+
+    /* ---- 2. 模式卡：hover + click 双通道切屏幕 UI ---- */
+    var modes = document.querySelectorAll('.mode');
+    function activateMode(m) {
+      modes.forEach(function (o) { o.classList.remove('on'); });
+      m.classList.add('on');
+      App.setScreenMode(m.dataset.mode);
+    }
+    modes.forEach(function (m) {
+      m.addEventListener('click', function () { activateMode(m); });
+      m.addEventListener('pointerenter', function () { if (!isTouch) activateMode(m); });
+    });
+
+    /* ---- 3. 数字滚动（06 章进场触发一次） ---- */
+    var counted = false;
+    function runCounters() {
+      if (counted) return; counted = true;
+      var bn = document.getElementById('bignum');
+      var bnEnd = parseFloat(bn.dataset.count), bnSuf = bn.dataset.suffix || '';
+      var o = { v: 0 };
+      gsap.to(o, {
+        v: bnEnd, duration: 1.3, ease: 'power3.out',
+        onUpdate: function () { bn.innerHTML = o.v.toFixed(1) + '<small>' + bnSuf + '</small>'; }
+      });
+      document.querySelectorAll('.orbit-stat [data-count]').forEach(function (el) {
+        var end = parseFloat(el.dataset.count), suf = el.dataset.suffix || '';
+        var oo = { v: 0 };
+        gsap.to(oo, {
+          v: end, duration: 1.3, ease: 'power3.out', delay: 0.15,
+          onUpdate: function () { el.innerHTML = oo.v.toFixed(1) + '<small>' + suf + '</small>'; }
+        });
+      });
+    }
+
+    /* ---- 章节进入钩子 ---- */
+    Journey.onChapter = function (ch) {
+      if (ch === 4) activateMode(modes[0]);       /* 05 默认第一张 */
+      else if (ch === 5) runCounters();           /* 06 数字滚动 */
+      else App.setScreenMode('clock');
+    };
+
+    /* ---- 4. 拆解标注线（爆炸阈值依次点亮，文字端 clamp 安全区） ---- */
+    var calloutsEl = document.getElementById('callouts');
+    var C_KEYS = ['head', 'motor', 'battery', 'body'];
+    var C_THRESH = { head: 0.25, motor: 0.45, battery: 0.65, body: 0.85 };
+    var cLines = {}, cLabels = {};
+    calloutsEl.querySelectorAll('line').forEach(function (l) { cLines[l.dataset.k] = l; });
+    calloutsEl.querySelectorAll('.callout').forEach(function (c) { cLabels[c.dataset.k] = c; });
+    /* 槽位（vw/vh 相对，文字端保证在安全区内） */
+    function cSlots() {
+      var W = window.innerWidth, H = window.innerHeight;
+      var right = Math.max(W * 0.06, 24), left = Math.max(W * 0.06, 118);
+      return {
+        head:    { x: W - right, y: H * 0.16, align: 'right' },
+        motor:   { x: W - right, y: H * 0.40, align: 'right' },
+        battery: { x: W - right, y: H * 0.64, align: 'right' },
+        body:    { x: left,      y: H * 0.66, align: 'left' }
+      };
+    }
+    function updateCallouts() {
+      if (calloutsEl.style.visibility === 'hidden') return;
+      var ex = App.state.explodeCur;
+      var slots = cSlots();
+      C_KEYS.forEach(function (k) {
+        var lab = cLabels[k], ln = cLines[k], slot = slots[k];
+        var lit = ex >= C_THRESH[k];
+        lab.classList.toggle('lit', lit);
+        ln.classList.toggle('lit-line', lit);
+        /* label 定位 */
+        if (slot.align === 'right') { lab.style.right = (window.innerWidth - slot.x) + 'px'; lab.style.left = 'auto'; }
+        else { lab.style.left = slot.x + 'px'; lab.style.right = 'auto'; }
+        lab.style.top = slot.y + 'px';
+        /* 线：零件屏幕投影 → label 近端 */
+        var p = App.partScreenPos(k); if (!p) return;
+        var r = lab.getBoundingClientRect();
+        var lx = slot.align === 'right' ? r.left - 8 : r.right + 8;
+        var ly = r.top + Math.min(20, r.height / 2);
+        ln.setAttribute('x1', p.x); ln.setAttribute('y1', p.y);
+        ln.setAttribute('x2', lx); ln.setAttribute('y2', ly);
+      });
+    }
+
+    /* ---- 5. 鼠标视差（触屏关闭） ---- */
+    var mouseX = -1, mouseY = -1;
+    if (!isTouch) {
+      window.addEventListener('pointermove', function (e) {
+        mouseX = e.clientX; mouseY = e.clientY;
+        App.pointerParallax(e.clientX / window.innerWidth * 2 - 1, e.clientY / window.innerHeight * 2 - 1);
+      });
+    }
+
+    /* ---- 6. 自定义光标（dot 即时 / ring 延迟 / 磁吸） ---- */
+    var cursorEl = document.getElementById('cursor');
+    var curDot = cursorEl.querySelector('.cur-dot'), curRing = cursorEl.querySelector('.cur-ring');
+    var ringX = -100, ringY = -100;
+    if (!isTouch) {
+      document.querySelectorAll('[data-magnet]').forEach(function (el) {
+        el.addEventListener('pointerenter', function () { cursorEl.classList.add('big'); });
+        el.addEventListener('pointerleave', function () {
+          cursorEl.classList.remove('big');
+          gsap.to(el, { x: 0, y: 0, duration: 0.4, ease: 'power3.out' });
+        });
+        el.addEventListener('pointermove', function (e) {
+          var r = el.getBoundingClientRect();
+          var dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+          gsap.to(el, { x: Math.max(-14, Math.min(14, dx * 0.25)), y: Math.max(-14, Math.min(14, dy * 0.25)), duration: 0.3, ease: 'power2.out' });
+        });
+      });
+    }
+    function updateCursor(dt) {
+      if (isTouch || mouseX < 0) return;
+      curDot.style.transform = 'translate(' + mouseX + 'px,' + mouseY + 'px)';
+      ringX += (mouseX - ringX) * Math.min(1, dt * 12);
+      ringY += (mouseY - ringY) * Math.min(1, dt * 12);
+      curRing.style.transform = 'translate(' + ringX + 'px,' + ringY + 'px)';
+    }
+
+    /* ---- 7. 微尘粒子（滚动拖尾 + 鼠标斥力） ---- */
+    var dustOn = !reduceMotion;
+    var dustCv = document.getElementById('dust'), dg = dustCv.getContext('2d');
+    var DW, DH, ps = [];
+    function dustResize() { DW = dustCv.width = window.innerWidth; DH = dustCv.height = window.innerHeight; }
+    dustResize(); window.addEventListener('resize', dustResize);
+    (function () {
+      var seed = 7; function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+      for (var i = 0; i < 60; i++) ps.push({ x: rnd(), y: rnd(), z: rnd() * 0.8 + 0.2, s: rnd() * 1.4 + 0.5, vy: rnd() * 0.1 + 0.03 });
+    })();
+    var lastScroll = 0, scrollVel = 0;
+    function updateDust(dt) {
+      if (!dustOn) return;
+      var sy = window.scrollY || 0;
+      scrollVel += ((sy - lastScroll) - scrollVel) * Math.min(1, dt * 8); lastScroll = sy;
+      var tail = Math.max(-1, Math.min(1, scrollVel / 600));
+      dg.clearRect(0, 0, DW, DH);
+      for (var i = 0; i < ps.length; i++) {
+        var p = ps[i];
+        p.y -= p.vy * dt * 1.6 + tail * dt * 0.9 * p.z;
+        if (p.y < -0.03) { p.y = 1.03; } if (p.y > 1.03) { p.y = -0.03; }
+        var px = p.x * DW, py = p.y * DH;
+        /* 鼠标 80px 斥力 */
+        if (mouseX > 0) {
+          var dx = px - mouseX, dy = py - mouseY, d2 = dx * dx + dy * dy;
+          if (d2 < 6400 && d2 > 1) { var d = Math.sqrt(d2), push = (80 - d) / 80 * 14; px += dx / d * push; py += dy / d * push; }
+        }
+        var len = 1 + Math.abs(tail) * 10 * p.z;
+        dg.beginPath();
+        dg.ellipse(px, py, p.s * p.z, p.s * p.z * len, 0, 0, 6.283);
+        dg.fillStyle = 'rgba(' + (150 + p.z * 60 | 0) + ',' + (210 + p.z * 30 | 0) + ',255,' + (0.04 + p.z * 0.1) + ')';
+        dg.fill();
+      }
+    }
+
+    /* ---- 8. Loader（真实信号 + 4s 强制放行） ---- */
+    (function loader() {
+      var numEl = document.querySelector('.loader-num'), barEl = document.querySelector('.loader-bar i');
+      var val = 0, target = 12, done = false;
+      var signals = 0;
+      function bump() { signals++; if (signals >= 2) target = 100; else target = Math.max(target, 82); }
+      App.ready.then(bump);
+      if (document.readyState === 'complete') bump(); else window.addEventListener('load', bump);
+      var iv = setInterval(function () {
+        target = Math.min(target + 1.4, signals >= 2 ? 100 : 90);   /* 无信号时爬到 90 为止 */
+        val += (target - val) * 0.18;
+        if (val > 99.2) val = 100;
+        numEl.innerHTML = Math.round(val) + '<small>%</small>';
+        barEl.style.width = val + '%';
+        if (val >= 100 && !done) { done = true; clearInterval(iv); reveal(); }
+      }, 40);
+      setTimeout(function () { if (!done) { done = true; clearInterval(iv); numEl.innerHTML = '100<small>%</small>'; barEl.style.width = '100%'; reveal(); } }, 4000);
+      function reveal() { requestAnimationFrame(function () { document.body.classList.add('scene-ready'); }); }
+    })();
+
+    return {
+      tick: function (dt) { updateCursor(dt); updateDust(dt); updateCallouts(); },
+      set dust(v) { dustOn = v; }
+    };
+  })();
+  window.Interact = Interact;
+
   /* ---- 渲染主循环 ---- */
   var lastT = 0, firstFrame = true;
   function loop(ts) {
     var dt = Math.min(0.05, (ts - lastT) / 1000 || 0.016); lastT = ts;
     Journey.tick(dt);
     App.renderTick(dt);
+    Interact.tick(dt);
     if (firstFrame) { firstFrame = false; App._markReady(); }
     requestAnimationFrame(loop);
   }
