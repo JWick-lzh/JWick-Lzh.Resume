@@ -188,7 +188,8 @@
   .signature{position:fixed;left:26px;bottom:22px;z-index:20;font-size:11px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;pointer-events:none}
 
   /* ============ 降级 ============ */
-  body.no-webgl #stage,body.no-webgl #dust,body.no-webgl #giants,body.no-webgl #loader,body.no-webgl #cursor{display:none}
+  body.no-webgl #stage,body.no-webgl #dust,body.no-webgl #giants,body.no-webgl #loader,body.no-webgl #cursor,
+  body.no-webgl #ui,body.no-webgl #callouts,body.no-webgl #rail,body.no-webgl #progress,body.no-webgl .progress-slim,body.no-webgl main{display:none}
   .fallback{display:none}
   body.no-webgl .fallback{display:grid;place-items:center;min-height:100dvh;text-align:center;padding:40px;position:relative;z-index:6}
 
@@ -201,9 +202,9 @@
 
   /* 桌面端：信息层避开左侧章节轨 */
   @media (min-width:761px){
-    .info{padding-left:max(var(--safe),118px)}
-    .fs-l{left:max(var(--safe),118px)}
-    .os-2{left:max(var(--safe),118px)}
+    .info{padding-left:max(var(--safe),134px)}
+    .fs-l{left:max(var(--safe),134px)}
+    .os-2{left:max(var(--safe),134px)}
   }
 
   /* ============ 响应式 ============ */

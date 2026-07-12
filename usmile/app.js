@@ -391,10 +391,12 @@
 
     function apply(p) {
       var f = p * (N - 1);
-      var i0 = Math.max(0, Math.min(N - 1, Math.floor(f)));
+      /* reduced-motion：姿态量化到最近章节（无运镜），文字仍按滚动淡入淡出 */
+      var fPose = reduceMotion ? Math.max(0, Math.min(N - 1, Math.round(f))) : f;
+      var i0 = Math.max(0, Math.min(N - 1, Math.floor(fPose)));
       var i1 = Math.min(N - 1, i0 + 1);
       /* 姿态：驻留平台 [i-0.25,i+0.25] 静止，其间 [i+0.25,i+0.75] 过渡 */
-      var fr = f - i0, t;
+      var fr = fPose - i0, t;
       if (fr < 0.25) t = 0;
       else if (fr > 0.75) t = 1;
       else t = easeIO((fr - 0.25) / 0.5);
@@ -406,13 +408,13 @@
       App.pose.rotY = lerp(A.rot[1], B.rot[1], t);
 
       var near = Math.round(f);
-      App.pose.spin = (near === 0 || near === 6) && Math.abs(f - near) < 0.3;
+      App.pose.spin = !reduceMotion && (near === 0 || near === 6) && Math.abs(f - near) < 0.3;
 
       /* 拆解爆炸度：进场 scrub 到 1（snap 驻留点 f=3 恰好全展开），退场收拢 */
       var ex = 0;
-      if (f > 2.5 && f < 3.7) {
-        ex = Math.max(0, Math.min(1, (f - 2.55) / 0.45));
-        if (f > 3.3) ex *= Math.max(0, 1 - (f - 3.3) / 0.3);
+      if (fPose > 2.5 && fPose < 3.7) {
+        ex = Math.max(0, Math.min(1, (fPose - 2.55) / 0.45));
+        if (fPose > 3.3) ex *= Math.max(0, 1 - (fPose - 3.3) / 0.3);
       }
       App.setExplode(ex);
 
@@ -464,7 +466,8 @@
     }
 
     function tick(dt) {
-      curP += (targetP - curP) * Math.min(1, dt * 7);   /* 手动 scrub 平滑 */
+      if (reduceMotion) curP = targetP;                  /* 减弱动态：不做平滑 */
+      else curP += (targetP - curP) * Math.min(1, dt * 7);   /* 手动 scrub 平滑 */
       if (Math.abs(curP - lastDomP) > 0.0002) { apply(curP); lastDomP = curP; }
     }
 
