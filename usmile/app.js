@@ -166,12 +166,12 @@
       neckRing.rotation.x = Math.PI / 2; neckRing.scale.set(1, 0.82, 1);
       neckRing.position.y = 1.92; bodyGroup.add(neckRing);
     })();
-    reg('body', bodyGroup, new THREE.Vector3(0, -1.5, 0));
+    reg('body', bodyGroup, new THREE.Vector3(0, -0.9, 0));
 
     /* ---- 镀铬驱动轴 ---- */
     var shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.08, 0.72, 40), matChrome);
     shaft.position.y = 2.42; brush.add(shaft);
-    reg('shaft', shaft, new THREE.Vector3(0, 0.5, 0));
+    reg('shaft', shaft, new THREE.Vector3(0, 0.28, 0));
 
     /* ---- 刷头（窄颈 12° 前倾 + 植毛）---- */
     var headGroup = new THREE.Group(); headGroup.position.y = 2.72; brush.add(headGroup);
@@ -213,24 +213,24 @@
       headGroup.add(inst);
       headGroup.rotation.x = -0.21; /* 12° 前倾 */
     })();
-    reg('head', headGroup, new THREE.Vector3(0, 1.7, 0));
+    reg('head', headGroup, new THREE.Vector3(0, 0.85, 0));
 
     /* ---- 内部件（爆炸时露出）---- */
     var motor = new THREE.Group();
     var mCore = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.62, 40), matMotor); motor.add(mCore);
     var mCoil = new THREE.Mesh(new THREE.CylinderGeometry(0.175, 0.175, 0.2, 40), matCoil); mCoil.position.y = -0.18; motor.add(mCoil);
     motor.position.y = 1.15; brush.add(motor);
-    reg('motor', motor, new THREE.Vector3(0, 0.95, 0.55));
+    reg('motor', motor, new THREE.Vector3(0, 0.55, 0.5));
 
     var battery = new THREE.Group();
     var bCell = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.19, 1.0, 40), matBattery); battery.add(bCell);
     var bBand = new THREE.Mesh(new THREE.CylinderGeometry(0.192, 0.192, 0.14, 40), matBattBand); bBand.position.y = 0.3; battery.add(bBand);
     battery.position.y = -0.35; brush.add(battery);
-    reg('battery', battery, new THREE.Vector3(0, 0.25, 0.75));
+    reg('battery', battery, new THREE.Vector3(0, 0.18, 0.65));
 
     var board = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.9, 0.05), matBoard);
     board.position.set(0, -1.35, 0.05); brush.add(board);
-    reg('board', board, new THREE.Vector3(0, -0.35, 0.6));
+    reg('board', board, new THREE.Vector3(0, -0.2, 0.55));
 
     /* 内部件初始藏在壳内 */
     [motor, battery, board].forEach(function (o) { o.visible = false; });
@@ -330,15 +330,179 @@
   })();
   window.App = App;
 
+  /* ============================================================
+     B. Journey — 连续运镜
+     f = 全局进度 p × 6：整数 i 即第 i 章驻留中心（snap 点）。
+     每章占 f 的 1 个单位：[i-0.5, i-0.25] 进场 · [i-0.25, i+0.25] 驻留 · [i+0.25, i+0.5] 退场
+     ============================================================ */
+  var Journey = (function () {
+    gsap.registerPlugin(ScrollTrigger);
+    var N = 7;
+    /* 每章驻留姿态：cam 相机位 / look 注视点 / rot 牙刷基准旋转 / spin 自转 */
+    var KEY = [
+      { cam: [0, 0.2, 10.2], look: [0, 0.1, 0], rot: [0, 0], spin: true },   /* 01 英雄 */
+      { cam: [0.7, 0.5, 4.4], look: [0.15, 0.35, 0], rot: [0, 1.05], spin: false },  /* 02 工艺微距 */
+      { cam: [0, 0.1, 8.4], look: [0, 0.05, 0], rot: [0, 0], spin: false },  /* 03 双色正面 */
+      { cam: [1.0, 0.15, 12.5], look: [0.2, 0.1, 0], rot: [-0.28, 0.65], spin: false },  /* 04 拆解（拉远容纳爆炸全高） */
+      { cam: [0, 0.42, 4.0], look: [0, 0.28, 0], rot: [0.1, 0.08], spin: false },  /* 05 屏幕特写 */
+      { cam: [2.4, 0.1, 12.0], look: [0, 0, 0], rot: [0, 2.15], spin: false },  /* 06 拉远 */
+      { cam: [0, 0.2, 9.8], look: [0, 0.1, 0], rot: [0, 0], spin: true }    /* 07 收尾 */
+    ];
+    var easeIO = gsap.parseEase('power2.inOut');
+    var easeOut = gsap.parseEase('power3.out');
+
+    var giants = [], infos = [], railItems = [];
+    document.querySelectorAll('.giant-wrap').forEach(function (el) { giants[+el.dataset.ch] = el; });
+    document.querySelectorAll('#ui .info').forEach(function (el) { infos[+el.dataset.ch] = el; });
+    document.querySelectorAll('.rail-item').forEach(function (el) { railItems[+el.dataset.ch] = el; });
+    var progressEl = document.getElementById('progress');
+    var slimBar = document.querySelector('.progress-slim i');
+    var calloutsEl = document.getElementById('callouts');
+
+    /* 巨字按宽度适配：min(20vw, 88vw/字数) */
+    function fitGiant() {
+      var vw = window.innerWidth;
+      document.querySelectorAll('.giant[data-fit]').forEach(function (el) {
+        var n = el.textContent.replace(/\s/g, '').length;
+        el.style.fontSize = Math.min(vw * 0.20, vw * 0.88 / Math.max(1, n)) + 'px';
+      });
+      document.querySelectorAll('.giant[data-fit-half]').forEach(function (el) {
+        el.style.fontSize = (vw * 0.20) + 'px';
+      });
+      var bn = document.querySelector('.giant[data-fit-num]');
+      if (bn) bn.style.fontSize = Math.min(vw * 0.24, vw * 0.80 / 2.6) + 'px';
+    }
+    fitGiant();
+
+    var targetP = 0, curP = 0, curCh = 0, lastDomP = -1;
+
+    /* 章节局部可见度：进场 0→1 / 驻留 1 / 退场 1→0 */
+    function chapterVis(i, f) {
+      var li = f - (i - 0.5);              /* 0..1 */
+      if (li <= 0 || li >= 1) return 0;
+      if (li < 0.25) return li / 0.25;
+      if (li > 0.75) return 1 - (li - 0.75) / 0.25;
+      return 1;
+    }
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function lerp3(out, a, b, t) { out[0] = lerp(a[0], b[0], t); out[1] = lerp(a[1], b[1], t); out[2] = lerp(a[2], b[2], t); return out; }
+    var _cam = [0, 0, 0], _look = [0, 0, 0];
+
+    function apply(p) {
+      var f = p * (N - 1);
+      var i0 = Math.max(0, Math.min(N - 1, Math.floor(f)));
+      var i1 = Math.min(N - 1, i0 + 1);
+      /* 姿态：驻留平台 [i-0.25,i+0.25] 静止，其间 [i+0.25,i+0.75] 过渡 */
+      var fr = f - i0, t;
+      if (fr < 0.25) t = 0;
+      else if (fr > 0.75) t = 1;
+      else t = easeIO((fr - 0.25) / 0.5);
+      var A = KEY[i0], B = KEY[i1];
+      lerp3(_cam, A.cam, B.cam, t); lerp3(_look, A.look, B.look, t);
+      App.camera.position.set(_cam[0], _cam[1], _cam[2]);
+      App.camera.lookAt(_look[0], _look[1], _look[2]);
+      App.pose.rotX = lerp(A.rot[0], B.rot[0], t);
+      App.pose.rotY = lerp(A.rot[1], B.rot[1], t);
+
+      var near = Math.round(f);
+      App.pose.spin = (near === 0 || near === 6) && Math.abs(f - near) < 0.3;
+
+      /* 拆解爆炸度：进场 scrub 到 1（snap 驻留点 f=3 恰好全展开），退场收拢 */
+      var ex = 0;
+      if (f > 2.5 && f < 3.7) {
+        ex = Math.max(0, Math.min(1, (f - 2.55) / 0.45));
+        if (f > 3.3) ex *= Math.max(0, 1 - (f - 3.3) / 0.3);
+      }
+      App.setExplode(ex);
+
+      /* DOM 层 */
+      for (var i = 0; i < N; i++) {
+        var vis = chapterVis(i, f);
+        var g = giants[i], info = infos[i];
+        var on = vis > 0.01;
+        if (g) {
+          g.style.visibility = on ? 'visible' : 'hidden';
+          g.style.opacity = vis;
+          var li = f - (i - 0.5);
+          var giant = g.firstElementChild;
+          if (on) g.style.transform = 'translateY(' + ((0.5 - li) * 6) + 'vh)'; /* 视差 ≤±3vh */
+        }
+        if (info) {
+          info.style.visibility = on ? 'visible' : 'hidden';
+          info.style.opacity = vis;
+          /* 逐行入场：错峰上移 */
+          var lines = info.querySelectorAll('.lm .line');
+          for (var j = 0; j < lines.length; j++) {
+            var e = easeOut(Math.max(0, Math.min(1, vis * 1.35 - j * 0.12)));
+            lines[j].style.transform = 'translateY(' + ((1 - e) * 112) + '%)';
+          }
+        }
+      }
+      if (calloutsEl) calloutsEl.style.visibility = chapterVis(3, f) > 0.01 ? 'visible' : 'hidden';
+
+      /* 章节轨 + 进度 */
+      var cur = Math.max(0, Math.min(N - 1, near));
+      if (cur !== curCh) {
+        if (railItems[curCh]) railItems[curCh].classList.remove('cur');
+        if (railItems[cur]) railItems[cur].classList.add('cur');
+        curCh = cur;
+        if (Journey.onChapter) Journey.onChapter(cur);
+      }
+      progressEl.textContent = Math.round(p * 100) + '%';
+      if (slimBar) slimBar.style.height = (p * 100) + '%';
+    }
+
+    /* 滚动源 */
+    var st = null;
+    function initScroll() {
+      st = ScrollTrigger.create({
+        trigger: 'main', start: 'top top', end: 'bottom bottom',
+        snap: { snapTo: function (v) { return Math.round(v * (N - 1)) / (N - 1); }, duration: { min: 0.3, max: 0.7 }, ease: 'power2.inOut' },
+        onUpdate: function (self) { targetP = self.progress; }
+      });
+    }
+
+    function tick(dt) {
+      curP += (targetP - curP) * Math.min(1, dt * 7);   /* 手动 scrub 平滑 */
+      if (Math.abs(curP - lastDomP) > 0.0002) { apply(curP); lastDomP = curP; }
+    }
+
+    function goto(ch) {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      var y = ch / (N - 1) * max;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+
+    /* 章节轨点击 / 首屏“看看黑科技” */
+    railItems.forEach(function (el, i) { if (el) el.addEventListener('click', function () { goto(i); }); });
+    var toTech = document.getElementById('to-tech');
+    if (toTech) toTech.addEventListener('click', function () { goto(3); });
+
+    apply(0);
+
+    return { initScroll: initScroll, tick: tick, goto: goto, fitGiant: fitGiant,
+      get progress() { return curP; }, get chapter() { return curCh; }, onChapter: null,
+      refresh: function () { ScrollTrigger.refresh(); fitGiant(); } };
+  })();
+  window.Journey = Journey;
+  Journey.initScroll();
+
   /* ---- 渲染主循环 ---- */
   var lastT = 0, firstFrame = true;
   function loop(ts) {
     var dt = Math.min(0.05, (ts - lastT) / 1000 || 0.016); lastT = ts;
+    Journey.tick(dt);
     App.renderTick(dt);
     if (firstFrame) { firstFrame = false; App._markReady(); }
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
 
-  window.addEventListener('resize', function () { App.resize(); });
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    App.resize();
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { Journey.refresh(); }, 200);
+  });
 })();
