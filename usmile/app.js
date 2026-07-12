@@ -10,7 +10,7 @@
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var COLORS = { gray: new THREE.Color('#aeb3bb'), pink: new THREE.Color('#efc2ce'), accent: new THREE.Color('#2b7bff'), accentPink: new THREE.Color('#ff85ab') };
+  var COLORS = { gray: new THREE.Color('#a7a29a'), pink: new THREE.Color('#e6c3ca'), accent: new THREE.Color('#b1904f'), accentPink: new THREE.Color('#c69a86') };
   var state = { theme: 'gray', idx: 0, explodeCur: 0, vis: 1, curRotX: 0, curRotZ: 0, down: false, autoSpin: !reduceMotion, velY: 0.0028, userYaw: 0, userPitch: 0, accent: COLORS.accent.clone(), accentTarget: COLORS.accent.clone(), highlightHeadHover: 0 };
 
   var renderer = new THREE.WebGLRenderer({ canvas: host, antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -25,10 +25,10 @@
   function makeStudioEnv() {
     var cvs = document.createElement('canvas'); cvs.width = 512; cvs.height = 256; var g = cvs.getContext('2d');
     var grad = g.createLinearGradient(0, 0, 0, 256);
-    grad.addColorStop(0.0, '#ffffff'); grad.addColorStop(0.36, '#f3f7fd'); grad.addColorStop(0.5, '#ffffff'); grad.addColorStop(0.64, '#e2e9f4'); grad.addColorStop(1.0, '#b9c3d2');
+    grad.addColorStop(0.0, '#ffffff'); grad.addColorStop(0.36, '#f6f2ea'); grad.addColorStop(0.5, '#ffffff'); grad.addColorStop(0.64, '#ece5d9'); grad.addColorStop(1.0, '#cabfa8');
     g.fillStyle = grad; g.fillRect(0, 0, 512, 256);
     function glow(x, y, r, col) { var rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
-    glow(110, 70, 140, 'rgba(150,190,255,0.4)'); glow(410, 110, 130, 'rgba(255,160,195,0.28)'); glow(256, 40, 200, 'rgba(255,255,255,0.7)');
+    glow(120, 70, 150, 'rgba(255,240,210,0.5)'); glow(400, 120, 130, 'rgba(210,225,255,0.28)'); glow(256, 40, 200, 'rgba(255,255,255,0.75)');
     var tex = new THREE.CanvasTexture(cvs); tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace;
     var pmrem = new THREE.PMREMGenerator(renderer); var rt = pmrem.fromEquirectangular(tex); tex.dispose(); pmrem.dispose(); return rt.texture;
   }
@@ -39,8 +39,8 @@
   var warmL = new THREE.DirectionalLight(0xffd6e4, 1.0); warmL.position.set(3, -4, 2); scene.add(warmL);
   scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-  var matBody = new THREE.MeshPhysicalMaterial({ color: COLORS.gray.clone(), metalness: 0.86, roughness: 0.24, clearcoat: 0.9, clearcoatRoughness: 0.16, envMapIntensity: 1.7 });
-  var matChrome = new THREE.MeshStandardMaterial({ color: new THREE.Color('#eef2f7'), metalness: 1.0, roughness: 0.12, envMapIntensity: 1.9 });
+  var matBody = new THREE.MeshPhysicalMaterial({ color: COLORS.gray.clone(), metalness: 0.72, roughness: 0.42, clearcoat: 0.4, clearcoatRoughness: 0.5, envMapIntensity: 1.25 });
+  var matChrome = new THREE.MeshStandardMaterial({ color: new THREE.Color('#e7e3da'), metalness: 1.0, roughness: 0.16, envMapIntensity: 1.8 });
   var matHead = new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#ffffff'), metalness: 0.0, roughness: 0.36, clearcoat: 0.7, clearcoatRoughness: 0.2, envMapIntensity: 1.15 }); matHead.emissive = new THREE.Color(0x000000);
   var matMotor = new THREE.MeshStandardMaterial({ color: new THREE.Color('#d6dde8'), metalness: 1.0, roughness: 0.22, envMapIntensity: 1.6 });
   var matCoil = new THREE.MeshStandardMaterial({ color: new THREE.Color('#d0822f'), metalness: 0.9, roughness: 0.32, emissive: new THREE.Color('#b8621f'), emissiveIntensity: 0.35 });
@@ -67,15 +67,22 @@
   var brush = new THREE.Group(); scene.add(brush); var parts = {};
 
   (function buildBody() {
+    // 工业化：侧壁近乎笔直、收口利落的机身
     var p = []; function v(r, y) { p.push(new THREE.Vector2(r, y)); }
-    v(0.00, -2.12); v(0.18, -2.12); v(0.30, -2.02); v(0.335, -1.78); v(0.34, -1.2); v(0.335, -0.4); v(0.325, 0.5); v(0.31, 1.2); v(0.285, 1.7); v(0.235, 1.95); v(0.17, 2.06); v(0.00, 2.08);
-    var geo = new THREE.LatheGeometry(p, 160); geo.computeVertexNormals();
+    v(0.00, -2.10); v(0.16, -2.10); v(0.27, -2.03); v(0.305, -1.86);
+    v(0.315, -1.5); v(0.318, -0.4); v(0.315, 0.6); v(0.305, 1.35);
+    v(0.29, 1.78); v(0.235, 1.98); v(0.135, 2.08); v(0.00, 2.10);
+    var geo = new THREE.LatheGeometry(p, 192); geo.computeVertexNormals();
     var body = new THREE.Mesh(geo, matBody); body.userData.partKey = 'body'; parts.body = body; brush.add(body);
-    var shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.088, 0.66, 40), matChrome); shaft.position.y = 2.35; body.add(shaft);
-    var neckRing = new THREE.Mesh(new THREE.CylinderGeometry(0.245, 0.25, 0.07, 60), matChrome); neckRing.position.y = 1.9; body.add(neckRing);
-    var footRing = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.028, 18, 100), matAccent); footRing.position.y = -1.7; footRing.rotation.x = Math.PI / 2; body.add(footRing); parts.led = footRing;
-    var screen = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.5), matScreen); screen.position.set(0, 1.15, 0.34); body.add(screen); parts.screen = screen;
-    var btn = new THREE.Mesh(new THREE.CircleGeometry(0.06, 32), matAccent); btn.position.set(0, 0.62, 0.335); body.add(btn);
+    // 顶部镀铬驱动轴（刷头对位）
+    var shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.085, 0.7, 48), matChrome); shaft.position.y = 2.36; body.add(shaft);
+    // 颈部利落镀铬环（工艺分界）
+    var neckRing = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.248, 0.05, 64), matChrome); neckRing.position.y = 1.9; body.add(neckRing);
+    var botRing = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.26, 0.04, 64), matChrome); botRing.position.y = -1.9; body.add(botRing);
+    // 底部点缀环（主题色）
+    var footRing = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.022, 18, 120), matAccent); footRing.position.y = -1.55; footRing.rotation.x = Math.PI / 2; body.add(footRing); parts.led = footRing;
+    var screen = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.48), matScreen); screen.position.set(0, 1.12, 0.325); body.add(screen); parts.screen = screen;
+    var btn = new THREE.Mesh(new THREE.CircleGeometry(0.055, 32), matAccent); btn.position.set(0, 0.58, 0.318); body.add(btn);
   })();
   (function buildMotor() {
     var motor = new THREE.Group(); motor.userData.partKey = 'motor';
@@ -91,16 +98,23 @@
     batt.position.y = -0.8; parts.battery = batt; brush.add(batt);
   })();
   (function buildHead() {
+    // 与机身严格同轴（x=0,z=0）：直颈 → 对称椭圆刷面 → 对称刷毛
     var head = new THREE.Group(); head.userData.partKey = 'head';
-    var neck = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.088, 0.62, 40), matHead); neck.position.y = 0.02; head.add(neck);
-    var pad = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.28, 12, 32), matHead); pad.rotation.z = Math.PI / 2; pad.scale.set(1, 1, 0.42); pad.position.y = 0.5; head.add(pad);
-    var pts = []; for (var r = -3; r <= 3; r++) for (var c = -4; c <= 4; c++) { var x = r * 0.05, z = c * 0.052; if ((x * x) / 0.028 + (z * z) / 0.055 <= 1) pts.push([x, z]); }
-    var inst = new THREE.InstancedMesh(new THREE.CapsuleGeometry(0.015, 0.13, 4, 8), new THREE.MeshStandardMaterial({ roughness: 0.6, metalness: 0.0 }), pts.length);
-    var m = new THREE.Matrix4(), tipBlue = new THREE.Color('#5aa0ff'), white = new THREE.Color('#f4f8ff'), mint = new THREE.Color('#8fe6d0');
-    for (var i = 0; i < pts.length; i++) { m.makeTranslation(pts[i][0], 0.63, pts[i][1]); inst.setMatrixAt(i, m); var d = Math.abs(pts[i][0]) + Math.abs(pts[i][1]); inst.setColorAt(i, d > 0.18 ? tipBlue : (i % 4 === 0 ? mint : white)); }
+    var neck = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.085, 0.64, 48), matHead); neck.position.y = 0.0; head.add(neck);
+    // 椭圆刷面（扁球，居中对称，避免朝向歧义）
+    var pad = new THREE.Mesh(new THREE.SphereGeometry(0.165, 32, 22), matHead); pad.scale.set(1, 0.42, 0.8); pad.position.y = 0.5; head.add(pad);
+    // 对称刷毛（限定在椭圆内，指向 +y）
+    var pts = []; for (var r = -3; r <= 3; r++) for (var c = -3; c <= 3; c++) { var x = r * 0.048, z = c * 0.042; if ((x * x) / 0.026 + (z * z) / 0.017 <= 1) pts.push([x, z]); }
+    var inst = new THREE.InstancedMesh(new THREE.CapsuleGeometry(0.014, 0.12, 4, 8), new THREE.MeshStandardMaterial({ roughness: 0.62, metalness: 0.0 }), pts.length);
+    var m = new THREE.Matrix4(), tip = new THREE.Color('#cfd6df'), white = new THREE.Color('#f6f7f9'), gold = new THREE.Color('#d8c08a');
+    for (var i = 0; i < pts.length; i++) { m.makeTranslation(pts[i][0], 0.62, pts[i][1]); inst.setMatrixAt(i, m); var d = Math.abs(pts[i][0]) + Math.abs(pts[i][1]); inst.setColorAt(i, d > 0.16 ? tip : (i % 5 === 0 ? gold : white)); }
     inst.instanceMatrix.needsUpdate = true; if (inst.instanceColor) inst.instanceColor.needsUpdate = true; head.add(inst);
-    head.position.y = 2.28; parts.head = head; brush.add(head);
+    head.position.y = 2.3; parts.head = head; brush.add(head);
   })();
+
+  // 接触阴影（Sprite 面向相机，增强落地质感）
+  var shTex = (function () { var c = document.createElement('canvas'); c.width = c.height = 128; var x = c.getContext('2d'); var rg = x.createRadialGradient(64, 64, 0, 64, 64, 64); rg.addColorStop(0, 'rgba(26,24,21,0.5)'); rg.addColorStop(1, 'rgba(26,24,21,0)'); x.fillStyle = rg; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
+  var shadow = new THREE.Sprite(new THREE.SpriteMaterial({ map: shTex, transparent: true, depthWrite: false, opacity: 0.22 })); shadow.scale.set(2.5, 0.85, 1); scene.add(shadow);
 
   var BASE_SCALE = 0.62;
   var base = {}; Object.keys(parts).forEach(function (k) { if (parts[k].position && (k === 'head' || k === 'motor' || k === 'battery')) base[k] = parts[k].position.clone(); });
@@ -154,6 +168,7 @@
     brush.position.y += (0 - brush.position.y) * s;
     state.vis += ((t.hidden ? 0 : 1) - state.vis) * Math.min(1, dt * 5); brush.scale.setScalar(BASE_SCALE * state.vis);
     brush.visible = state.vis > 0.02;
+    shadow.position.set(brush.position.x, -2.4, 0); shadow.material.opacity = 0.2 * state.vis * (1 - state.explodeCur * 0.7); shadow.visible = state.vis > 0.05;
     camera.position.z += (t.cam - camera.position.z) * s; camera.lookAt(0, 0, 0);
 
     if (matBody.userData.target) matBody.color.lerp(matBody.userData.target, s);
